@@ -7,17 +7,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import at.steinbacher.geckoposelib.GeckoPoseDetectionListener
-import at.steinbacher.geckoposelib.PoseAngle
-import at.steinbacher.geckoposelib.PoseDetection
-import at.steinbacher.geckoposelib.PoseDrawer
+import at.steinbacher.geckoposelib.*
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import java.lang.Exception
-import javax.security.auth.callback.Callback
 
 class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
-    private lateinit var surfaceView: SurfaceView
+    private lateinit var poseView: PoseView
+
     private lateinit var files: List<String>
     private var bitmap: Bitmap? = null
 
@@ -25,12 +22,14 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
 
     private val poseDetection = PoseDetection(
         detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
-        poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_ANKLE),
-        poseAngles = listOf(PoseAngle(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_ANKLE)),
+        landmarkLines = listOf(
+            LandmarkLine(
+                tag = "kneeAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_ANKLE)
+            )
+        ),
         listener = this
     )
-
-    private lateinit var poseDrawer: PoseDrawer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,35 +39,36 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
             .toList()
             .filter { it.contains(".") }
 
-        surfaceView = findViewById(R.id.surfaceView)
-        surfaceView.setOnClickListener {
+        poseView = findViewById(R.id.surfaceView)
+        poseView.setOnClickListener {
             index++
-            Log.i("GEORG", "file: ${files[index]}")
-            val file = assets.open(files[index])
-            bitmap = BitmapFactory.decodeStream(file)
-
-            if(bitmap != null) {
-                poseDetection.processImage(bitmap!!)
-            }
+            loadTestImage(index)
         }
-        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceCreated(p0: SurfaceHolder) {
-                val file = assets.open(files[index])
-                bitmap = BitmapFactory.decodeStream(file)
 
-                poseDetection.processImage(bitmap!!)
-            }
-
-            override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
-
-            override fun surfaceDestroyed(p0: SurfaceHolder) {}
-        })
-
-        poseDrawer = PoseDrawer(surfaceView)
+        loadTestImage(index)
     }
 
-    override fun onSuccess(poseLandMarks: List<PoseLandmark>) {
-        poseDrawer.draw(bitmap!!, poseLandMarks)
+    private fun loadTestImage(index: Int) {
+        val file = assets.open(files[index])
+        bitmap = BitmapFactory.decodeStream(file)
+
+        if(bitmap != null) {
+            poseDetection.processImage(bitmap!!)
+        }
+    }
+
+    override fun onSuccess(
+        landmarkLineResults: List<LandmarkLineResult>
+    ) {
+        poseView.bitmap = bitmap
+        poseView.landmarkLineResults = landmarkLineResults
+
+        val angleLines = landmarkLineResults.getPoseLandmarksByTag("kneeAngle")!!
+        poseView.landmarkAngles = listOf(LandmarkAngle(
+            angleLines.getPoseLandmark(PoseLandmark.LEFT_HIP)!!,
+            angleLines.getPoseLandmark(PoseLandmark.LEFT_KNEE)!!,
+            angleLines.getPoseLandmark(PoseLandmark.LEFT_ANKLE)!!,
+        ))
     }
 
     override fun onMissingPoseLandmarkType() {

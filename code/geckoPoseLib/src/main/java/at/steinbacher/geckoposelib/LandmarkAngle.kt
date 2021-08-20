@@ -9,7 +9,17 @@ data class LandmarkAngle(
     val middlePoint: PoseLandmark,
     val lastPoint: PoseLandmark,
 ) {
-    val angle: Double = getAngle(startPoint, middlePoint, lastPoint)
+    val angle: Double
+        get() = getAngle(startPoint, middlePoint, lastPoint)
+
+    fun getPoseLandmark(landmarkType: Int): PoseLandmark? {
+       return when(landmarkType) {
+           startPoint.landmarkType -> startPoint
+           middlePoint.landmarkType -> middlePoint
+           lastPoint.landmarkType -> lastPoint
+           else -> null
+       }
+    }
 
     private fun getAngle(firstPoint: PoseLandmark, midPoint: PoseLandmark, lastPoint: PoseLandmark): Double {
         var result = Math.toDegrees(

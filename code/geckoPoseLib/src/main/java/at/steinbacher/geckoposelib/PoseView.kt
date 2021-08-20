@@ -7,8 +7,11 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.google.mlkit.vision.pose.PoseLandmark
+import kotlin.math.hypot
 
 class PoseView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -41,6 +44,8 @@ class PoseView @JvmOverloads constructor(
             }
         }
 
+    var selectedLandmark: PoseLandmark? = null
+
     private var surfaceCreated = false
 
     private var paint = Paint().apply {
@@ -62,6 +67,33 @@ class PoseView @JvmOverloads constructor(
             override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
             override fun surfaceDestroyed(p0: SurfaceHolder) {}
         })
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return when (event?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                selectedLandmark = landmarkLineResults?.getClosestLandmark(event.x, event.y)
+                true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                selectedLandmark?.position?.set(event.x, event.y)
+                landmarkAngles?.forEach {
+                    selectedLandmark?.landmarkType?.let { it1 -> it.getPoseLandmark(it1)?.position?.set(event.x, event.y) }
+                }
+                drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                true
+            }
+            else -> {
+                super.onTouchEvent(event)
+            }
+        }
+    }
+
+    private fun List<LandmarkLineResult>.getClosestLandmark(x: Float, y: Float): PoseLandmark? {
+        val flatPoseLandmarks = ArrayList<PoseLandmark>()
+        this.forEach { it.poseLandmarks.forEach { it1 -> flatPoseLandmarks.add(it1) } }
+
+        return flatPoseLandmarks.minByOrNull { hypot((x - it.position.x).toDouble(), (y - it.position.y).toDouble()) }
     }
 
     private fun drawPose(

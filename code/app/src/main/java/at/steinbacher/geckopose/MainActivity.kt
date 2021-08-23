@@ -64,11 +64,14 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
         poseView.landmarkLineResults = landmarkLineResults
 
         val angleLines = landmarkLineResults.getPoseLandmarksByTag("kneeAngle")!!
-        poseView.landmarkAngles = listOf(LandmarkAngle(
-            angleLines.getPoseLandmark(PoseLandmark.LEFT_HIP)!!,
-            angleLines.getPoseLandmark(PoseLandmark.LEFT_KNEE)!!,
-            angleLines.getPoseLandmark(PoseLandmark.LEFT_ANKLE)!!,
-        ))
+        poseView.landmarkAngles = listOf(
+            LandmarkAngle(
+                startLandmarkType = PoseLandmark.LEFT_HIP,
+                middleLandmarkType = PoseLandmark.LEFT_KNEE,
+                endLandmarkType = PoseLandmark.LEFT_ANKLE,
+                landmarkLine = angleLines
+            )
+        )
     }
 
     override fun onMissingPoseLandmarkType() {

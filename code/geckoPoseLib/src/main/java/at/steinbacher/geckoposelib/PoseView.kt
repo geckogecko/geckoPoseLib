@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -77,9 +76,6 @@ class PoseView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_MOVE -> {
                 selectedLandmark?.position?.set(event.x, event.y)
-                landmarkAngles?.forEach {
-                    selectedLandmark?.landmarkType?.let { it1 -> it.getPoseLandmark(it1)?.position?.set(event.x, event.y) }
-                }
                 drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
                 true
             }

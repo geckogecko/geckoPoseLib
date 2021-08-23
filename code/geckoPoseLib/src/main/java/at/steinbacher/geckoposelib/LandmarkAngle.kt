@@ -5,21 +5,20 @@ import kotlin.math.abs
 import kotlin.math.atan2
 
 data class LandmarkAngle(
-    val startPoint: PoseLandmark,
-    val middlePoint: PoseLandmark,
-    val lastPoint: PoseLandmark,
+    val startLandmarkType: Int,
+    val middleLandmarkType: Int,
+    val endLandmarkType: Int,
+    val landmarkLine: LandmarkLineResult
 ) {
-    val angle: Double
-        get() = getAngle(startPoint, middlePoint, lastPoint)
+    val startPoint: PoseLandmark
+        get() = landmarkLine.getPoseLandmark(startLandmarkType)!!
+    val middlePoint: PoseLandmark
+        get() = landmarkLine.getPoseLandmark(middleLandmarkType)!!
+    val endPoint: PoseLandmark
+        get() = landmarkLine.getPoseLandmark(endLandmarkType)!!
 
-    fun getPoseLandmark(landmarkType: Int): PoseLandmark? {
-       return when(landmarkType) {
-           startPoint.landmarkType -> startPoint
-           middlePoint.landmarkType -> middlePoint
-           lastPoint.landmarkType -> lastPoint
-           else -> null
-       }
-    }
+    val angle: Double
+        get() = getAngle(startPoint, middlePoint, endPoint)
 
     private fun getAngle(firstPoint: PoseLandmark, midPoint: PoseLandmark, lastPoint: PoseLandmark): Double {
         var result = Math.toDegrees(

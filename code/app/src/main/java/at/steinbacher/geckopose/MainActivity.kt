@@ -26,7 +26,16 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
             LandmarkLine(
                 tag = "kneeAngle",
                 poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_ANKLE)
+            ),
+            LandmarkLine(
+                tag = "bodyAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_SHOULDER)
+            ),
+            LandmarkLine(
+                tag = "armAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_WRIST)
             )
+
         ),
         listener = this
     )
@@ -63,13 +72,27 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
         poseView.bitmap = bitmap
         poseView.landmarkLineResults = landmarkLineResults
 
-        val angleLines = landmarkLineResults.getPoseLandmarksByTag("kneeAngle")!!
+        val kneeAngleLines = landmarkLineResults.getPoseLandmarksByTag("kneeAngle")!!
+        val bodyAngleLines = landmarkLineResults.getPoseLandmarksByTag("bodyAngle")!!
+        val armAngleLines = landmarkLineResults.getPoseLandmarksByTag("armAngle")!!
         poseView.landmarkAngles = listOf(
             LandmarkAngle(
                 startLandmarkType = PoseLandmark.LEFT_HIP,
                 middleLandmarkType = PoseLandmark.LEFT_KNEE,
                 endLandmarkType = PoseLandmark.LEFT_ANKLE,
-                landmarkLine = angleLines
+                landmarkLine = kneeAngleLines
+            ),
+            LandmarkAngle(
+                startLandmarkType = PoseLandmark.LEFT_KNEE,
+                middleLandmarkType = PoseLandmark.LEFT_HIP,
+                endLandmarkType = PoseLandmark.LEFT_SHOULDER,
+                landmarkLine = bodyAngleLines
+            ),
+            LandmarkAngle(
+                startLandmarkType = PoseLandmark.LEFT_HIP,
+                middleLandmarkType = PoseLandmark.LEFT_SHOULDER,
+                endLandmarkType = PoseLandmark.LEFT_WRIST,
+                landmarkLine = armAngleLines
             )
         )
     }

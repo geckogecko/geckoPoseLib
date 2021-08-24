@@ -1,7 +1,10 @@
 package at.steinbacher.geckopose
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -32,9 +35,14 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
                 poseLandmarkTypes = listOf(PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_SHOULDER)
             ),
             LandmarkLine(
+                tag = "armBodyAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_ELBOW)
+            ),
+            LandmarkLine(
                 tag = "armAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_WRIST)
+                poseLandmarkTypes = listOf(PoseLandmark.LEFT_WRIST, PoseLandmark.LEFT_ELBOW, PoseLandmark.LEFT_SHOULDER)
             )
+
 
         ),
         listener = this
@@ -59,7 +67,13 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
 
     private fun loadTestImage(index: Int) {
         val file = assets.open(files[index])
-        bitmap = BitmapFactory.decodeStream(file)
+        val originalBitmap = BitmapFactory.decodeStream(file)
+
+        bitmap = resize(
+            originalBitmap,
+            Resources.getSystem().displayMetrics.widthPixels,
+            Resources.getSystem().displayMetrics.heightPixels
+        )
 
         if(bitmap != null) {
             poseDetection.processImage(bitmap!!)
@@ -74,25 +88,40 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
 
         val kneeAngleLines = landmarkLineResults.getPoseLandmarksByTag("kneeAngle")!!
         val bodyAngleLines = landmarkLineResults.getPoseLandmarksByTag("bodyAngle")!!
+        val armBodyAngleLines = landmarkLineResults.getPoseLandmarksByTag("armBodyAngle")!!
         val armAngleLines = landmarkLineResults.getPoseLandmarksByTag("armAngle")!!
         poseView.landmarkAngles = listOf(
             LandmarkAngle(
                 startLandmarkType = PoseLandmark.LEFT_HIP,
                 middleLandmarkType = PoseLandmark.LEFT_KNEE,
                 endLandmarkType = PoseLandmark.LEFT_ANKLE,
-                landmarkLine = kneeAngleLines
+                landmarkLine = kneeAngleLines,
+                displayTag = "a",
+                color = Color.GREEN
             ),
             LandmarkAngle(
                 startLandmarkType = PoseLandmark.LEFT_KNEE,
                 middleLandmarkType = PoseLandmark.LEFT_HIP,
                 endLandmarkType = PoseLandmark.LEFT_SHOULDER,
-                landmarkLine = bodyAngleLines
+                landmarkLine = bodyAngleLines,
+                displayTag = "b",
+                color = Color.CYAN
             ),
             LandmarkAngle(
                 startLandmarkType = PoseLandmark.LEFT_HIP,
                 middleLandmarkType = PoseLandmark.LEFT_SHOULDER,
-                endLandmarkType = PoseLandmark.LEFT_WRIST,
-                landmarkLine = armAngleLines
+                endLandmarkType = PoseLandmark.LEFT_ELBOW,
+                landmarkLine = armBodyAngleLines,
+                displayTag = "c",
+                color = Color.LTGRAY
+            ),
+            LandmarkAngle(
+                startLandmarkType = PoseLandmark.LEFT_WRIST,
+                middleLandmarkType = PoseLandmark.LEFT_ELBOW,
+                endLandmarkType = PoseLandmark.LEFT_SHOULDER,
+                landmarkLine = armAngleLines,
+                displayTag = "d",
+                color = Color.MAGENTA
             )
         )
     }
@@ -107,5 +136,24 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
 
     override fun onFailure(exception: Exception) {
         Log.i("GEORG", "onFailure: ")
+    }
+
+    private fun resize(image: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+        return if (maxHeight > 0 && maxWidth > 0) {
+            val width = image.width
+            val height = image.height
+            val ratioBitmap = width.toFloat() / height.toFloat()
+            val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
+            var finalWidth = maxWidth
+            var finalHeight = maxHeight
+            if (ratioMax > ratioBitmap) {
+                finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
+            } else {
+                finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
+            }
+            Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true)
+        } else {
+            image
+        }
     }
 }

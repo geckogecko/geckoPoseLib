@@ -1,16 +1,15 @@
 package at.steinbacher.geckoposelib
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlin.math.hypot
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class PoseView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -49,7 +48,6 @@ class PoseView @JvmOverloads constructor(
 
     private var paint = Paint().apply {
         color = Color.RED
-        textSize = 80.0f
         strokeWidth = 8.0f
     }
 
@@ -102,9 +100,21 @@ class PoseView @JvmOverloads constructor(
         canvas.drawBitmap(
             bitmap,
             Rect(0, 0, bitmap.width, bitmap.height),
-            Rect(0, 0, bitmap.width, bitmap.height),
+            Rect(0, 0, bitmap.width , bitmap.height ),
             paint
         )
+
+        //angle
+        landmarkAngles?.forEach { landmarkAngleResult ->
+            canvas.drawAngleIndicator(
+                landmarkAngleResult.startPoint.position,
+                landmarkAngleResult.middlePoint.position,
+                landmarkAngleResult.endPoint.position,
+                landmarkAngleResult.angle,
+                landmarkAngleResult.displayTag,
+                landmarkAngleResult.color
+            )
+        }
 
         //line
         landmarkLineResults?.forEach { landMarkLineResult ->
@@ -115,20 +125,69 @@ class PoseView @JvmOverloads constructor(
             }
 
             landMarkLineResult.poseLandmarks.forEach {
-                canvas.drawCircle(it.position.x, it.position.y, 5f, paint)
+                canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
             }
         }
 
-        //angle
-        landmarkAngles?.forEach { landmarkAngleResult ->
-            canvas.drawText(
-                landmarkAngleResult.angle.toString(),
-                landmarkAngleResult.middlePoint.position.x,
-                landmarkAngleResult.middlePoint.position.y,
-                paint
-            )
-        }
 
         holder.unlockCanvasAndPost(canvas)
     }
+
+    private fun Canvas.drawAngleIndicator(startPoint: PointF, middlePoint: PointF, endPoint: PointF, angle: Double, displayTag: String, color: Int) {
+        val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
+        val distanceMiddleEnd = getDistanceBetweenPoints(middlePoint, endPoint)
+        val biggestDistance = listOf(distanceMiddleStart, distanceMiddleEnd).minOrNull() ?: distanceMiddleStart
+        val angleDistance = biggestDistance * 0.35
+
+        val startAngle = if(startPoint.y < middlePoint.y) {
+            360 - Util.getAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+        } else {
+            Util.getAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+        }
+
+        val anglePaint = Paint().apply {
+            this.color = color
+            strokeWidth = 8.0f
+            style = Paint.Style.STROKE
+        }
+
+        this.drawArc(
+            (middlePoint.x - angleDistance).toFloat(),
+            (middlePoint.y - angleDistance).toFloat(),
+            (middlePoint.x + angleDistance).toFloat(),
+            (middlePoint.y + angleDistance).toFloat(),
+            startAngle.toFloat(),
+            angle.toFloat(),
+            false,
+            anglePaint
+        )
+
+        val textPath = Path().apply {
+            this.addArc(
+                (middlePoint.x - angleDistance).toFloat(),
+                (middlePoint.y - angleDistance).toFloat(),
+                (middlePoint.x + angleDistance).toFloat(),
+                (middlePoint.y + angleDistance).toFloat(),
+                startAngle.toFloat(),
+                angle.toFloat()
+            )
+        }
+
+        val textPaint = Paint().apply {
+            this.color = color
+            textSize = resources.getDimensionPixelSize(at.steinbacher.geckoposelib.R.dimen.angleFontSize).toFloat()
+        }
+
+        val arcLength = (angle/360)*(2*angleDistance*Math.PI)
+        this.drawTextOnPath(
+            displayTag,
+            textPath,
+            (arcLength / 2).toFloat(),
+            (angleDistance / 2).toFloat(),
+            textPaint
+        )
+    }
+
+    private fun getDistanceBetweenPoints(startPoint: PointF, endPoint: PointF)
+        = sqrt((endPoint.x - startPoint.x).pow(2) + (endPoint.y - startPoint.y).pow(2))
 }

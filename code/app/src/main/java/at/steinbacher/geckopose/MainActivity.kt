@@ -10,13 +10,16 @@ import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import at.steinbacher.geckoposelib.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
     private lateinit var poseView: PoseView
+    private lateinit var fabSaveEdit: FloatingActionButton
 
     private lateinit var files: List<String>
     private var bitmap: Bitmap? = null
@@ -52,6 +55,12 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        fabSaveEdit = findViewById(R.id.fab_save_edit)
+        fabSaveEdit.setOnClickListener {
+            poseView.save()
+            fabSaveEdit.visibility = View.GONE
+        }
+
         files = assets.list("")!!
             .toList()
             .filter { it.contains(".") }
@@ -61,6 +70,11 @@ class MainActivity : AppCompatActivity(), GeckoPoseDetectionListener {
             index++
             loadTestImage(index)
         }
+        poseView.setOnPoseEditListener(object : PoseView.PoseEditListener {
+            override fun onEditStarted() {
+                fabSaveEdit.visibility = View.VISIBLE
+            }
+        })
 
         loadTestImage(index)
     }

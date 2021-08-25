@@ -44,12 +44,24 @@ class PoseView @JvmOverloads constructor(
 
     var selectedLandmark: PoseLandmark? = null
 
+    interface PoseEditListener {
+        fun onEditStarted()
+    }
+    private var poseEditListener: PoseEditListener? = null
+
     private var surfaceCreated = false
 
     private var paint = Paint().apply {
         color = Color.RED
         strokeWidth = 8.0f
     }
+
+    private var selectedLandmarkPaint = Paint().apply {
+        color = Color.GRAY
+    }
+
+    private var lastMoveX: Float = -1f
+    private var lastMoveY: Float = -1f
 
     init {
         holder.addCallback(object : SurfaceHolder.Callback {
@@ -69,18 +81,49 @@ class PoseView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                selectedLandmark = landmarkLineResults?.getClosestLandmark(event.x, event.y)
+                if(selectedLandmark == null) {
+                    poseEditListener?.onEditStarted()
+
+                    selectedLandmark = landmarkLineResults?.getClosestLandmark(event.x, event.y)
+                    drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                }
                 true
             }
             MotionEvent.ACTION_MOVE -> {
-                selectedLandmark?.position?.set(event.x, event.y)
-                drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                if(selectedLandmark != null && lastMoveX != -1f && lastMoveY != -1f) {
+                    val moveX = event.x - lastMoveX
+                    val moveY = event.y - lastMoveY
+
+                    selectedLandmark?.position?.set(selectedLandmark!!.position.x + moveX, selectedLandmark!!.position.y + moveY)
+                    drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                }
+
+                lastMoveX = event.x
+                lastMoveY = event.y
                 true
             }
+            MotionEvent.ACTION_UP -> {
+                lastMoveX = -1f
+                lastMoveY = -1f
+                true
+            }
+
             else -> {
                 super.onTouchEvent(event)
             }
         }
+    }
+
+    fun save() {
+        selectedLandmark = null
+        lastMoveX = -1f
+        lastMoveY = -1f
+
+        drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+    }
+
+    fun setOnPoseEditListener(listener: PoseEditListener) {
+        poseEditListener = listener
     }
 
     private fun List<LandmarkLineResult>.getClosestLandmark(x: Float, y: Float): PoseLandmark? {
@@ -125,7 +168,12 @@ class PoseView @JvmOverloads constructor(
             }
 
             landMarkLineResult.poseLandmarks.forEach {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
+
+                if(it == selectedLandmark) {
+                    canvas.drawCircle(it.position.x, it.position.y, 15f, selectedLandmarkPaint)
+                } else {
+                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
+                }
             }
         }
 

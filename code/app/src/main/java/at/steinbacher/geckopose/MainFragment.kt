@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import at.steinbacher.geckoposelib.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
@@ -15,6 +16,8 @@ import java.lang.Exception
 class MainFragment : PoseFragment() {
 
     private lateinit var fabTakePicture: FloatingActionButton
+    private lateinit var txtAngleA: TextView
+    private lateinit var txtAngleB: TextView
 
     override val poseDetection = PoseDetection(
         detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
@@ -49,7 +52,21 @@ class MainFragment : PoseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        txtAngleA = view.findViewById(R.id.txt_angle_a)
+        txtAngleB = view.findViewById(R.id.txt_angle_b)
+
         poseView = view.findViewById(R.id.pose_view)
+        poseView.setOnLandmarkAnglesChangeListener(object : PoseView.OnLandmarkAnglesChangeListener {
+            override fun onLandmarkAnglesChanged(landmarkLineResults: List<LandmarkAngle>) {
+                landmarkLineResults.forEach { landmarkAngle ->
+                    when(landmarkAngle.displayTag) {
+                       "a" -> txtAngleA.text = landmarkAngle.angle.toString()
+                       "b" -> txtAngleB.text = landmarkAngle.angle.toString()
+                    }
+                }
+            }
+        })
+
         fabTakePicture = view.findViewById(R.id.fab_take_picture)
 
         fabTakePicture.setOnClickListener {
@@ -59,6 +76,9 @@ class MainFragment : PoseFragment() {
 
     override fun onPictureSet() {
         fabTakePicture.visibility = View.GONE
+
+        txtAngleA.visibility = View.VISIBLE
+        txtAngleB.visibility = View.VISIBLE
     }
 
     override fun onSuccess(landmarkLineResults: List<LandmarkLineResult>) {

@@ -19,7 +19,33 @@
     <at.steinbacher.geckoposelib.PoseView
         android:id="@+id/pose_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/txt_angle_b"
+        />
+
+    <TextView
+        android:id="@+id/txt_angle_a"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textColor="#4CAF50"
+        app:layout_constraintStart_toStartOf="@id/pose_view"
+        app:layout_constraintEnd_toStartOf="@id/txt_angle_b"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/txt_angle_b"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textColor="#4CAFAC"
+        app:layout_constraintStart_toEndOf="@id/txt_angle_a"
+        app:layout_constraintEnd_toEndOf="@id/pose_view"
+        app:layout_constraintBottom_toBottomOf="parent"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

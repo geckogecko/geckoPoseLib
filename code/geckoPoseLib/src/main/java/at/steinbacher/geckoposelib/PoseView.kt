@@ -48,7 +48,7 @@ class PoseView @JvmOverloads constructor(
             }
         }
 
-    var selectedLandmark: PoseLandmark? = null
+    private var selectedLandmark: PoseLandmark? = null
 
     private val surfaceView: SurfaceView
     private val fabSaveEdit: FloatingActionButton
@@ -66,6 +66,11 @@ class PoseView @JvmOverloads constructor(
 
     private var lastMoveX: Float = -1f
     private var lastMoveY: Float = -1f
+
+    interface OnLandmarkAnglesChangeListener {
+        fun onLandmarkAnglesChanged(landmarkLineResults: List<LandmarkAngle>)
+    }
+    private var onLandmarkAnglesChangeListener: OnLandmarkAnglesChangeListener? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_pose, this, true)
@@ -111,6 +116,8 @@ class PoseView @JvmOverloads constructor(
 
                     selectedLandmark?.position?.set(selectedLandmark!!.position.x + moveX, selectedLandmark!!.position.y + moveY)
                     drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+
+                    landmarkAngles?.let { onLandmarkAnglesChangeListener?.onLandmarkAnglesChanged(it) }
                 }
 
                 lastMoveX = event.x
@@ -127,6 +134,10 @@ class PoseView @JvmOverloads constructor(
                 super.onTouchEvent(event)
             }
         }
+    }
+
+    fun setOnLandmarkAnglesChangeListener(listener: OnLandmarkAnglesChangeListener) {
+        onLandmarkAnglesChangeListener = listener
     }
 
     private fun save() {

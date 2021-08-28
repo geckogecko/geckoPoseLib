@@ -35,8 +35,6 @@ class MainFragment : PoseFragment() {
                 tag = "armAngle",
                 poseLandmarkTypes = listOf(PoseLandmark.LEFT_WRIST, PoseLandmark.LEFT_ELBOW, PoseLandmark.LEFT_SHOULDER)
             )
-
-
         ),
         listener = this
     )

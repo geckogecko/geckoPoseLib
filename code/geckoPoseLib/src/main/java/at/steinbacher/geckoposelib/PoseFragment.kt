@@ -3,6 +3,7 @@ package at.steinbacher.geckoposelib
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import java.lang.Exception
 import kotlin.math.max
 import kotlin.math.min
@@ -20,15 +21,15 @@ abstract class PoseFragment: ImageCaptureFragment(), GeckoPoseDetectionListener 
     }
 
     override fun onMissingPoseLandmarkType() {
-        TODO("Not yet implemented")
+        Toast.makeText(requireContext(), "onMissingPoseLandmarkType", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCompletedWithoutSuccess() {
-        TODO("Not yet implemented")
+        Toast.makeText(requireContext(), "onCompletedWithoutSuccess", Toast.LENGTH_SHORT).show()
     }
 
     override fun onFailure(exception: Exception) {
-        TODO("Not yet implemented")
+        Toast.makeText(requireContext(), "onFailure", Toast.LENGTH_SHORT).show()
     }
 
     private fun setPoseViewPicture(picturePath: String) {
@@ -37,6 +38,7 @@ abstract class PoseFragment: ImageCaptureFragment(), GeckoPoseDetectionListener 
             BitmapFactory.decodeFile(picturePath)?.also { bitmap ->
                 val scaledBitmap = resizeAndRotate(bitmap, picturePath, poseView.width, poseView.height)
                 poseView.bitmap = scaledBitmap
+                poseDetection.processImage(scaledBitmap)
                 onPictureSet()
             }
         }

@@ -3,17 +3,23 @@ package at.steinbacher.geckoposelib
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 class PoseView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : SurfaceView(context, attrs) {
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     var bitmap: Bitmap? = null
         set(value) {
@@ -44,10 +50,8 @@ class PoseView @JvmOverloads constructor(
 
     var selectedLandmark: PoseLandmark? = null
 
-    interface PoseEditListener {
-        fun onEditStarted()
-    }
-    private var poseEditListener: PoseEditListener? = null
+    private val surfaceView: SurfaceView
+    private val fabSaveEdit: FloatingActionButton
 
     private var surfaceCreated = false
 
@@ -64,7 +68,10 @@ class PoseView @JvmOverloads constructor(
     private var lastMoveY: Float = -1f
 
     init {
-        holder.addCallback(object : SurfaceHolder.Callback {
+        LayoutInflater.from(context).inflate(R.layout.view_pose, this, true)
+
+        surfaceView = findViewById(R.id.surface_view)
+        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(p0: SurfaceHolder) {
                 surfaceCreated = true
 
@@ -74,15 +81,23 @@ class PoseView @JvmOverloads constructor(
             }
 
             override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
-            override fun surfaceDestroyed(p0: SurfaceHolder) {}
+            override fun surfaceDestroyed(p0: SurfaceHolder) {
+                surfaceCreated = false
+            }
         })
+
+        fabSaveEdit = findViewById(R.id.fab_save_edit)
+        fabSaveEdit.setOnClickListener {
+            save()
+            fabSaveEdit.visibility = GONE
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 if(selectedLandmark == null) {
-                    poseEditListener?.onEditStarted()
+                    fabSaveEdit.visibility = VISIBLE
 
                     selectedLandmark = landmarkLineResults?.getClosestLandmark(event.x, event.y)
                     drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
@@ -114,16 +129,12 @@ class PoseView @JvmOverloads constructor(
         }
     }
 
-    fun save() {
+    private fun save() {
         selectedLandmark = null
         lastMoveX = -1f
         lastMoveY = -1f
 
         drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
-    }
-
-    fun setOnPoseEditListener(listener: PoseEditListener) {
-        poseEditListener = listener
     }
 
     private fun List<LandmarkLineResult>.getClosestLandmark(x: Float, y: Float): PoseLandmark? {
@@ -138,7 +149,7 @@ class PoseView @JvmOverloads constructor(
         landmarkLineResults: List<LandmarkLineResult>? = null,
         landmarkAngles: List<LandmarkAngle>? = null
     ) {
-        val canvas = holder.lockCanvas()
+        val canvas = surfaceView.holder.lockCanvas()
 
         canvas.drawBitmap(
             bitmap,
@@ -178,7 +189,7 @@ class PoseView @JvmOverloads constructor(
         }
 
 
-        holder.unlockCanvasAndPost(canvas)
+        surfaceView.holder.unlockCanvasAndPost(canvas)
     }
 
     private fun Canvas.drawAngleIndicator(startPoint: PointF, middlePoint: PointF, endPoint: PointF, angle: Double, displayTag: String, color: Int) {

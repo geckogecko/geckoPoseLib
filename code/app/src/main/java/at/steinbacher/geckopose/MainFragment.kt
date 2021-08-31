@@ -19,8 +19,7 @@ class MainFragment : PoseFragment() {
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
 
-    override val poseDetection = PoseDetection(
-        detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
+    private val landmarkLineInput = LandmarkLineInput(
         landmarkLines = listOf(
             LandmarkLine(
                 tag = "kneeAngle",
@@ -39,6 +38,29 @@ class MainFragment : PoseFragment() {
                 poseLandmarkTypes = listOf(PoseLandmark.LEFT_WRIST, PoseLandmark.LEFT_ELBOW, PoseLandmark.LEFT_SHOULDER)
             )
         ),
+        alternativeLandmarkLines = listOf(
+            LandmarkLine(
+                tag = "kneeAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_HIP, PoseLandmark.RIGHT_KNEE, PoseLandmark.RIGHT_ANKLE)
+            ),
+            LandmarkLine(
+                tag = "bodyAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_KNEE, PoseLandmark.RIGHT_HIP, PoseLandmark.RIGHT_SHOULDER)
+            ),
+            LandmarkLine(
+                tag = "armBodyAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_HIP, PoseLandmark.RIGHT_SHOULDER, PoseLandmark.RIGHT_ELBOW)
+            ),
+            LandmarkLine(
+                tag = "armAngle",
+                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_WRIST, PoseLandmark.RIGHT_ELBOW, PoseLandmark.RIGHT_SHOULDER)
+            )
+        )
+    )
+
+    override val poseDetection = PoseDetection(
+        detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
+        landmarkLineInput = landmarkLineInput,
         listener = this
     )
 

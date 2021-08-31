@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GeckoPoseLib">
+        
         <activity
             android:name="at.steinbacher.geckopose.MainActivity"
             android:exported="true">
@@ -31,7 +32,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
     </application>
 
     <queries>
@@ -39,8 +39,4 @@
             <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
     </queries>
-
-
-
-
 </manifest>

@@ -2,12 +2,18 @@ package at.steinbacher.geckoposelib
 
 import com.google.mlkit.vision.pose.PoseLandmark
 
-class LandmarkLine(
+
+data class LandmarkLineInput(
+    val landmarkLines: List<LandmarkLine>,
+    val alternativeLandmarkLines: List<LandmarkLine>?
+)
+
+data class LandmarkLine(
     val tag: String,
     val poseLandmarkTypes: List<Int>
 )
 
-class LandmarkLineResult(
+data class LandmarkLineResult(
     val tag: String,
     val poseLandmarks: List<PoseLandmark>
 ) {

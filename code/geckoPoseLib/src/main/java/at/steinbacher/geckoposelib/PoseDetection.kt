@@ -2,6 +2,7 @@ package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
@@ -23,7 +24,7 @@ interface GeckoPoseDetectionListener {
  */
 class PoseDetection(
     detectorMode: Int,
-    private val landmarkLines: List<LandmarkLine>,
+    private val landmarkLineInput: LandmarkLineInput,
     private val listener: GeckoPoseDetectionListener
 ) {
     private val options = AccuratePoseDetectorOptions.Builder()
@@ -39,31 +40,21 @@ class PoseDetection(
             .addOnSuccessListener { pose ->
                 successCalled = true
 
-                var missingMandatoryLandmark = false
-
                 //lines
-                val landMarkLineResults = ArrayList<LandmarkLineResult>()
-                landmarkLines.forEach { landmarkLine ->
-                    val poseLandmarksLine = ArrayList<PoseLandmark>()
-                    landmarkLine.poseLandmarkTypes.forEach {
-                        val poseLandmark = pose.getPoseLandmark(it)
-                        if(poseLandmark == null || poseLandmark.inFrameLikelihood < 0.8) {
-                            missingMandatoryLandmark = true
-                        } else {
-                            poseLandmarksLine.add(poseLandmark)
-                        }
-                    }
+                var landMarkLineResults = processLandmarkLines(
+                    pose = pose,
+                    landmarkLines = landmarkLineInput.landmarkLines
+                )
 
-                    landMarkLineResults.add(
-                        LandmarkLineResult(
-                            tag = landmarkLine.tag,
-                            poseLandmarks = poseLandmarksLine
-                        )
+                if(landMarkLineResults == null && landmarkLineInput.alternativeLandmarkLines != null) {
+                    landMarkLineResults = processLandmarkLines(
+                        pose = pose,
+                        landmarkLines = landmarkLineInput.alternativeLandmarkLines
                     )
                 }
 
 
-                if(missingMandatoryLandmark) {
+                if(landMarkLineResults == null) {
                     listener.onMissingPoseLandmarkType()
                 } else {
                     listener.onSuccess(landMarkLineResults)
@@ -75,5 +66,30 @@ class PoseDetection(
                     listener.onCompletedWithoutSuccess()
                 }
             }
+    }
+
+    private fun processLandmarkLines(pose: Pose, landmarkLines: List<LandmarkLine>): List<LandmarkLineResult>? {
+        val landMarkLineResults = ArrayList<LandmarkLineResult>()
+
+        landmarkLines.forEach { landmarkLine ->
+            val poseLandmarksLine = ArrayList<PoseLandmark>()
+            landmarkLine.poseLandmarkTypes.forEach {
+                val poseLandmark = pose.getPoseLandmark(it)
+                if(poseLandmark == null || poseLandmark.inFrameLikelihood < 0.8) {
+                    return null
+                } else {
+                    poseLandmarksLine.add(poseLandmark)
+                }
+            }
+
+            landMarkLineResults.add(
+                LandmarkLineResult(
+                    tag = landmarkLine.tag,
+                    poseLandmarks = poseLandmarksLine
+                )
+            )
+        }
+
+        return landMarkLineResults
     }
 }

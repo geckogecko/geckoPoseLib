@@ -2,7 +2,7 @@ package at.steinbacher.geckopose
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,58 +10,61 @@ import android.widget.TextView
 import at.steinbacher.geckoposelib.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
-import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
-import java.lang.Exception
 
-class MainFragment : PoseFragment() {
+class MainFragment : GeckoPoseFragment() {
 
     private lateinit var fabTakePicture: FloatingActionButton
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
 
-    private val landmarkLineInput = LandmarkLineInput(
-        landmarkLines = listOf(
-            LandmarkLine(
-                tag = "kneeAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_ANKLE)
+    override val geckoPoseConfigurations = listOf(
+        GeckoPoseConfiguration(
+            pointTypes = listOf(
+                PoseLandmark.LEFT_HIP,
+                PoseLandmark.LEFT_KNEE,
+                PoseLandmark.LEFT_ANKLE,
+                PoseLandmark.LEFT_SHOULDER,
+                PoseLandmark.LEFT_ELBOW,
+                PoseLandmark.LEFT_WRIST
             ),
-            LandmarkLine(
-                tag = "bodyAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.LEFT_KNEE, PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_SHOULDER)
+            lines = listOf(
+                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_HIP, tag = "knee_hip", color = Color.MAGENTA),
+                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_ANKLE, tag = "knee_ankle", color = Color.MAGENTA),
+                Line(start = PoseLandmark.LEFT_HIP, end = PoseLandmark.LEFT_SHOULDER, tag = "hip_shoulder", color = Color.MAGENTA),
+                Line(start = PoseLandmark.LEFT_SHOULDER, end = PoseLandmark.LEFT_ELBOW, tag = "shoulder_elbow", color = Color.MAGENTA),
+                Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist", color = Color.MAGENTA),
             ),
-            LandmarkLine(
-                tag = "armBodyAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.LEFT_HIP, PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_ELBOW)
-            ),
-            LandmarkLine(
-                tag = "armAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.LEFT_WRIST, PoseLandmark.LEFT_ELBOW, PoseLandmark.LEFT_SHOULDER)
+            angles = listOf(
+                Angle(line1Tag = "knee_hip", line2Tag = "knee_ankle", tag = "a", color = Color.GREEN),
+                Angle(line1Tag = "knee_hip", line2Tag = "hip_shoulder", tag = "b", color = Color.GREEN),
+                Angle(line1Tag = "hip_shoulder", line2Tag = "shoulder_elbow", tag = "c", color = Color.GREEN),
+                Angle(line1Tag = "shoulder_elbow", line2Tag = "elbow_wrist", tag = "d", color = Color.GREEN),
             )
+
         ),
-        alternativeLandmarkLines = listOf(
-            LandmarkLine(
-                tag = "kneeAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_HIP, PoseLandmark.RIGHT_KNEE, PoseLandmark.RIGHT_ANKLE)
+        GeckoPoseConfiguration(
+            pointTypes = listOf(
+                PoseLandmark.RIGHT_HIP,
+                PoseLandmark.RIGHT_KNEE,
+                PoseLandmark.RIGHT_ANKLE,
+                PoseLandmark.RIGHT_SHOULDER,
+                PoseLandmark.RIGHT_ELBOW,
+                PoseLandmark.RIGHT_WRIST
             ),
-            LandmarkLine(
-                tag = "bodyAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_KNEE, PoseLandmark.RIGHT_HIP, PoseLandmark.RIGHT_SHOULDER)
+            lines = listOf(
+                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_HIP, tag = "knee_hip", color = Color.GRAY),
+                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_ANKLE, tag = "knee_ankle", color = Color.GRAY),
+                Line(start = PoseLandmark.RIGHT_HIP, end = PoseLandmark.RIGHT_SHOULDER, tag = "hip_shoulder", color = Color.GRAY),
+                Line(start = PoseLandmark.RIGHT_SHOULDER, end = PoseLandmark.RIGHT_ELBOW, tag = "shoulder_elbow", color = Color.GRAY),
+                Line(start = PoseLandmark.RIGHT_ELBOW, end = PoseLandmark.RIGHT_WRIST, tag = "elbow_wrist", color = Color.GRAY),
             ),
-            LandmarkLine(
-                tag = "armBodyAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_HIP, PoseLandmark.RIGHT_SHOULDER, PoseLandmark.RIGHT_ELBOW)
-            ),
-            LandmarkLine(
-                tag = "armAngle",
-                poseLandmarkTypes = listOf(PoseLandmark.RIGHT_WRIST, PoseLandmark.RIGHT_ELBOW, PoseLandmark.RIGHT_SHOULDER)
+            angles = listOf(
+                Angle(line1Tag = "knee_hip", line2Tag = "knee_ankle", tag = "a", color = Color.GREEN),
+                Angle(line1Tag = "knee_hip", line2Tag = "hip_shoulder", tag = "b", color = Color.GREEN),
+                Angle(line1Tag = "hip_shoulder", line2Tag = "shoulder_elbow", tag = "c", color = Color.GREEN),
+                Angle(line1Tag = "shoulder_elbow", line2Tag = "elbow_wrist", tag = "d", color = Color.GREEN),
             )
         )
-    )
-
-    override val poseDetection = PoseDetection(
-        detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
-        landmarkLineInput = landmarkLineInput,
-        listener = this
     )
 
     override fun onCreateView(
@@ -77,13 +80,15 @@ class MainFragment : PoseFragment() {
         txtAngleA = view.findViewById(R.id.txt_angle_a)
         txtAngleB = view.findViewById(R.id.txt_angle_b)
 
-        poseView = view.findViewById(R.id.pose_view)
-        poseView.setOnLandmarkAnglesChangeListener(object : PoseView.OnLandmarkAnglesChangeListener {
-            override fun onLandmarkAnglesChanged(landmarkLineResults: List<LandmarkAngle>) {
-                landmarkLineResults.forEach { landmarkAngle ->
-                    when(landmarkAngle.displayTag) {
-                       "a" -> txtAngleA.text = landmarkAngle.angle.toString()
-                       "b" -> txtAngleB.text = landmarkAngle.angle.toString()
+        geckoPoseView = view.findViewById(R.id.pose_view)
+        geckoPoseView.setOnPointChangedListener(object : GeckoPoseView.OnPointChangedListener {
+            override fun onPointChanged(type: Int) {
+                geckoPoseView.pose?.let { pose ->
+                    pose.configuration.angles.forEach {
+                        when(it.tag) {
+                            "a" -> txtAngleA.text = pose.getAngle(it.tag).toString()
+                            "b" -> txtAngleB.text = pose.getAngle(it.tag).toString()
+                        }
                     }
                 }
             }
@@ -101,48 +106,5 @@ class MainFragment : PoseFragment() {
 
         txtAngleA.visibility = View.VISIBLE
         txtAngleB.visibility = View.VISIBLE
-    }
-
-    override fun onSuccess(landmarkLineResults: List<LandmarkLineResult>) {
-        poseView.landmarkLineResults = landmarkLineResults
-
-        val kneeAngleLines = landmarkLineResults.getPoseLandmarksByTag("kneeAngle")!!
-        val bodyAngleLines = landmarkLineResults.getPoseLandmarksByTag("bodyAngle")!!
-        val armBodyAngleLines = landmarkLineResults.getPoseLandmarksByTag("armBodyAngle")!!
-        val armAngleLines = landmarkLineResults.getPoseLandmarksByTag("armAngle")!!
-        poseView.landmarkAngles = listOf(
-            LandmarkAngle(
-                startLandmarkType = PoseLandmark.LEFT_HIP,
-                middleLandmarkType = PoseLandmark.LEFT_KNEE,
-                endLandmarkType = PoseLandmark.LEFT_ANKLE,
-                landmarkLine = kneeAngleLines,
-                displayTag = "a",
-                color = Color.GREEN
-            ),
-            LandmarkAngle(
-                startLandmarkType = PoseLandmark.LEFT_KNEE,
-                middleLandmarkType = PoseLandmark.LEFT_HIP,
-                endLandmarkType = PoseLandmark.LEFT_SHOULDER,
-                landmarkLine = bodyAngleLines,
-                displayTag = "b",
-                color = Color.CYAN
-            ),
-            LandmarkAngle(
-                startLandmarkType = PoseLandmark.LEFT_HIP,
-                middleLandmarkType = PoseLandmark.LEFT_SHOULDER,
-                endLandmarkType = PoseLandmark.LEFT_ELBOW,
-                landmarkLine = armBodyAngleLines,
-                displayTag = "c",
-                color = Color.LTGRAY
-            ),
-            LandmarkAngle(
-                startLandmarkType = PoseLandmark.LEFT_WRIST,
-                middleLandmarkType = PoseLandmark.LEFT_ELBOW,
-                endLandmarkType = PoseLandmark.LEFT_SHOULDER,
-                landmarkLine = armAngleLines,
-                displayTag = "d",
-                color = Color.MAGENTA
-            )
-        )
     }
 }

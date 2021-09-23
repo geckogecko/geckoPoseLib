@@ -3,18 +3,14 @@ package at.steinbacher.geckoposelib
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.graphics.Matrix
-import android.net.Uri
-import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
-import androidx.core.content.FileProvider
+import android.os.Build
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
-import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
+import com.github.dhaval2404.imagepicker.ImagePicker
+import android.provider.MediaStore
+import android.util.Log
 
 abstract class ImageCaptureFragment: Fragment() {
 
@@ -22,75 +18,37 @@ abstract class ImageCaptureFragment: Fragment() {
      const val REQUEST_IMAGE_CAPTURE = 1001
     }
 
-    private lateinit var currentPicturePath: String
-
-    abstract fun onPictureTaken(picturePath: String)
+    abstract fun onPictureReceived(bitmap: Bitmap)
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            onPictureTaken(currentPicturePath)
+            val uri = data?.data!!
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ImageDecoder.decodeBitmap(
+                    ImageDecoder.createSource(requireContext().contentResolver, uri)
+                ) { decoder, _, _ ->
+                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                    decoder.isMutableRequired = true
+                }
+            } else {
+                MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+            }
+
+            onPictureReceived(bitmap)
         }
     }
 
     fun openTakePicture() {
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            // Ensure that there's a camera activity to handle the intent
-            takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
-                // Create the File where the photo should go
-                val photoFile: File? = try {
-                    createImageFile()
-                } catch (ex: IOException) {
-                    null
-                }
-                // Continue only if the File was successfully created
-                photoFile?.also {
-                    val photoURI: Uri = FileProvider.getUriForFile(
-                        requireContext(),
-                        "at.steinbacher.geckoposelib.provider",
-                        it
-                    )
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-                }
-            }
-        }
-
+        ImagePicker.with(this)
+            .start(REQUEST_IMAGE_CAPTURE)
     }
 
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
-        return File.createTempFile(
-            "JPEG_${timeStamp}_",
-            ".jpg",
-            storageDir
-        ).apply {
-            currentPicturePath = absolutePath
-        }
-    }
-
-    protected fun resizeAndRotate(image: Bitmap, imagePath: String, maxWidth: Int, maxHeight: Int): Bitmap {
+    protected fun resizeAndRotate(image: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         return if (maxHeight > 0 && maxWidth > 0) {
-            val exifInterface = ExifInterface(imagePath)
-            val rotationDegrees = when(exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-                ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-                ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-                else -> 0f
-            }
-
-            val rotationMatrix = Matrix().apply {
-                postRotate(rotationDegrees)
-            }
-
-            val rotated = Bitmap.createBitmap(image, 0, 0, image.width, image.height, rotationMatrix, true)
-
-            val width = rotated.width
-            val height = rotated.height
+            val width = image.width
+            val height = image.height
             val ratioBitmap = width.toFloat() / height.toFloat()
             val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
             var finalWidth = maxWidth
@@ -102,9 +60,9 @@ abstract class ImageCaptureFragment: Fragment() {
             }
 
 
-            Bitmap.createScaledBitmap(rotated, finalWidth, finalHeight, true)
+            Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true)
         } else {
-            image
+            error("maxWidth or maxHeight is 0")
         }
     }
 

@@ -3,19 +3,16 @@ package at.steinbacher.geckoposelib
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.mlkit.vision.pose.PoseLandmark
-import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class PoseView @JvmOverloads constructor(
+class GeckoPoseView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -26,51 +23,46 @@ class PoseView @JvmOverloads constructor(
             field = value
 
             if(value != null && surfaceCreated) {
-                drawPose(value, landmarkLineResults, landmarkAngles)
+                drawPose(value, pose)
             }
         }
 
-    var landmarkLineResults: List<LandmarkLineResult>? = null
+    var pose: GeckoPose? = null
         set(value) {
             field = value
 
             if(bitmap != null && surfaceCreated) {
-                drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                drawPose(bitmap!!, pose)
             }
         }
 
-    var landmarkAngles: List<LandmarkAngle>? = null
-        set(value) {
-            field = value
-
-            if(bitmap != null && surfaceCreated) {
-                drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
-            }
-        }
-
-    private var selectedLandmark: PoseLandmark? = null
+    private var selectedPointType: Int? = null
 
     private val surfaceView: SurfaceView
     private val fabSaveEdit: FloatingActionButton
 
     private var surfaceCreated = false
 
-    private var paint = Paint().apply {
+    private var pointPaint = Paint().apply {
+        color = Color.GRAY
+    }
+
+    private var selectedPointPaint = Paint().apply {
         color = Color.RED
+    }
+
+    private var linePaint = Paint().apply {
         strokeWidth = 8.0f
     }
 
-    private var selectedLandmarkPaint = Paint().apply {
-        color = Color.GRAY
-    }
 
     private var lastMoveX: Float = -1f
     private var lastMoveY: Float = -1f
 
-    interface OnLandmarkAnglesChangeListener {
-        fun onLandmarkAnglesChanged(landmarkLineResults: List<LandmarkAngle>)
+    interface OnPointChangedListener {
+        fun onPointChanged(type: Int)
     }
-    private var onLandmarkAnglesChangeListener: OnLandmarkAnglesChangeListener? = null
+    private var onPointChangedListener: OnPointChangedListener? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_pose, this, true)
@@ -81,7 +73,7 @@ class PoseView @JvmOverloads constructor(
                 surfaceCreated = true
 
                 if(bitmap != null) {
-                    drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                    drawPose(bitmap!!, pose)
                 }
             }
 
@@ -101,23 +93,22 @@ class PoseView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                if(selectedLandmark == null) {
+                if(selectedPointType == null) {
                     fabSaveEdit.visibility = VISIBLE
-
-                    selectedLandmark = landmarkLineResults?.getClosestLandmark(event.x, event.y)
-                    drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                    selectedPointType = pose?.getClosestPoint(event.x, event.y)?.type
+                    drawPose(bitmap!!, pose)
                 }
                 true
             }
             MotionEvent.ACTION_MOVE -> {
-                if(selectedLandmark != null && lastMoveX != -1f && lastMoveY != -1f) {
+                if(selectedPointType != null && lastMoveX != -1f && lastMoveY != -1f) {
                     val moveX = event.x - lastMoveX
                     val moveY = event.y - lastMoveY
 
-                    selectedLandmark?.position?.set(selectedLandmark!!.position.x + moveX, selectedLandmark!!.position.y + moveY)
-                    drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
+                    pose?.updatePoint(selectedPointType!!, moveX, moveY)
+                    drawPose(bitmap!!, pose)
 
-                    landmarkAngles?.let { onLandmarkAnglesChangeListener?.onLandmarkAnglesChanged(it) }
+                    selectedPointType?.let { onPointChangedListener?.onPointChanged(it) }
                 }
 
                 lastMoveX = event.x
@@ -136,69 +127,55 @@ class PoseView @JvmOverloads constructor(
         }
     }
 
-    fun setOnLandmarkAnglesChangeListener(listener: OnLandmarkAnglesChangeListener) {
-        onLandmarkAnglesChangeListener = listener
+    fun setOnPointChangedListener(listener: OnPointChangedListener) {
+        onPointChangedListener = listener
     }
 
     private fun save() {
-        selectedLandmark = null
+        selectedPointType = null
         lastMoveX = -1f
         lastMoveY = -1f
 
-        drawPose(bitmap!!, landmarkLineResults, landmarkAngles)
-    }
-
-    private fun List<LandmarkLineResult>.getClosestLandmark(x: Float, y: Float): PoseLandmark? {
-        val flatPoseLandmarks = ArrayList<PoseLandmark>()
-        this.forEach { it.poseLandmarks.forEach { it1 -> flatPoseLandmarks.add(it1) } }
-
-        return flatPoseLandmarks.minByOrNull { hypot((x - it.position.x).toDouble(), (y - it.position.y).toDouble()) }
+        drawPose(bitmap!!, pose)
     }
 
     private fun drawPose(
         bitmap: Bitmap,
-        landmarkLineResults: List<LandmarkLineResult>? = null,
-        landmarkAngles: List<LandmarkAngle>? = null
+        pose: GeckoPose? = null,
     ) {
         val canvas = surfaceView.holder.lockCanvas()
 
         canvas.drawBitmap(
             bitmap,
             Rect(0, 0, bitmap.width, bitmap.height),
-            Rect(0, 0, bitmap.width , bitmap.height ),
-            paint
+            Rect(0, 0, bitmap.width , bitmap.height),
+            pointPaint
         )
 
-        //angle
-        landmarkAngles?.forEach { landmarkAngleResult ->
-            canvas.drawAngleIndicator(
-                landmarkAngleResult.startPoint.position,
-                landmarkAngleResult.middlePoint.position,
-                landmarkAngleResult.endPoint.position,
-                landmarkAngleResult.angle,
-                landmarkAngleResult.displayTag,
-                landmarkAngleResult.color
-            )
-        }
+        pose?.let {
+            it.configuration.lines.forEach { line ->
+                val start = it.getPose(line.start)
+                val end = it.getPose(line.end)
 
-        //line
-        landmarkLineResults?.forEach { landMarkLineResult ->
-            for(i in 0..landMarkLineResult.poseLandmarks.size-2) {
-                val start = landMarkLineResult.poseLandmarks[i]
-                val end = landMarkLineResult.poseLandmarks[i+1]
-                canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, paint)
+                linePaint.color = line.color
+
+                canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
             }
 
-            landMarkLineResult.poseLandmarks.forEach {
-
-                if(it == selectedLandmark) {
-                    canvas.drawCircle(it.position.x, it.position.y, 15f, selectedLandmarkPaint)
+            it.points.forEach { point ->
+                if(point.type == selectedPointType) {
+                    canvas.drawCircle(point.position.x, point.position.y, 15f, selectedPointPaint)
                 } else {
-                    canvas.drawCircle(it.position.x, it.position.y, 10f, paint)
+                    canvas.drawCircle(point.position.x, point.position.y, 10f, pointPaint)
                 }
             }
-        }
 
+            it.configuration.angles.forEach { angle ->
+                val (start, middle, end) = it.getAnglePoints(angle.tag)
+                val angleValue = it.getAngle(start, middle, end)
+                canvas.drawAngleIndicator(start.position, middle.position, end.position, angleValue, angle.tag, angle.color)
+            }
+        }
 
         surfaceView.holder.unlockCanvasAndPost(canvas)
     }

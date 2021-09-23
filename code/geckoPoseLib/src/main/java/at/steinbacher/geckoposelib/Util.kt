@@ -6,7 +6,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 
 object Util {
-    fun getAngle(firstPoint: PoseLandmark, midPoint: PoseLandmark, lastPoint: PoseLandmark): Double {
+    fun getAngle(firstPoint: Point, midPoint: Point, lastPoint: Point): Double {
         return getAngle(firstPoint.position, midPoint.position, lastPoint.position)
     }
 

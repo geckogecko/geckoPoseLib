@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import at.steinbacher.geckoposelib.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 
 class MainFragment : GeckoPoseFragment() {
@@ -17,8 +18,10 @@ class MainFragment : GeckoPoseFragment() {
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
 
+    override val preferredPose: String = "left_pose"
     override val geckoPoseConfigurations = listOf(
         GeckoPoseConfiguration(
+            tag = "left_pose",
             pointTypes = listOf(
                 PoseLandmark.LEFT_HIP,
                 PoseLandmark.LEFT_KNEE,
@@ -28,11 +31,11 @@ class MainFragment : GeckoPoseFragment() {
                 PoseLandmark.LEFT_WRIST
             ),
             lines = listOf(
-                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_HIP, tag = "knee_hip", color = Color.MAGENTA),
-                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_ANKLE, tag = "knee_ankle", color = Color.MAGENTA),
-                Line(start = PoseLandmark.LEFT_HIP, end = PoseLandmark.LEFT_SHOULDER, tag = "hip_shoulder", color = Color.MAGENTA),
-                Line(start = PoseLandmark.LEFT_SHOULDER, end = PoseLandmark.LEFT_ELBOW, tag = "shoulder_elbow", color = Color.MAGENTA),
-                Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist", color = Color.MAGENTA),
+                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_HIP, tag = "knee_hip", color = Color.BLUE),
+                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_ANKLE, tag = "knee_ankle", color = Color.BLUE),
+                Line(start = PoseLandmark.LEFT_HIP, end = PoseLandmark.LEFT_SHOULDER, tag = "hip_shoulder", color = Color.BLUE),
+                Line(start = PoseLandmark.LEFT_SHOULDER, end = PoseLandmark.LEFT_ELBOW, tag = "shoulder_elbow", color = Color.BLUE),
+                Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist", color = Color.BLUE),
             ),
             angles = listOf(
                 Angle(line1Tag = "knee_hip", line2Tag = "knee_ankle", tag = "a", color = Color.GREEN),
@@ -40,9 +43,9 @@ class MainFragment : GeckoPoseFragment() {
                 Angle(line1Tag = "hip_shoulder", line2Tag = "shoulder_elbow", tag = "c", color = Color.GREEN),
                 Angle(line1Tag = "shoulder_elbow", line2Tag = "elbow_wrist", tag = "d", color = Color.GREEN),
             )
-
         ),
         GeckoPoseConfiguration(
+            tag = "right_pose",
             pointTypes = listOf(
                 PoseLandmark.RIGHT_HIP,
                 PoseLandmark.RIGHT_KNEE,
@@ -52,11 +55,11 @@ class MainFragment : GeckoPoseFragment() {
                 PoseLandmark.RIGHT_WRIST
             ),
             lines = listOf(
-                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_HIP, tag = "knee_hip", color = Color.GRAY),
-                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_ANKLE, tag = "knee_ankle", color = Color.GRAY),
-                Line(start = PoseLandmark.RIGHT_HIP, end = PoseLandmark.RIGHT_SHOULDER, tag = "hip_shoulder", color = Color.GRAY),
-                Line(start = PoseLandmark.RIGHT_SHOULDER, end = PoseLandmark.RIGHT_ELBOW, tag = "shoulder_elbow", color = Color.GRAY),
-                Line(start = PoseLandmark.RIGHT_ELBOW, end = PoseLandmark.RIGHT_WRIST, tag = "elbow_wrist", color = Color.GRAY),
+                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_HIP, tag = "knee_hip", color = Color.BLUE),
+                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_ANKLE, tag = "knee_ankle", color = Color.BLUE),
+                Line(start = PoseLandmark.RIGHT_HIP, end = PoseLandmark.RIGHT_SHOULDER, tag = "hip_shoulder", color = Color.BLUE),
+                Line(start = PoseLandmark.RIGHT_SHOULDER, end = PoseLandmark.RIGHT_ELBOW, tag = "shoulder_elbow", color = Color.BLUE),
+                Line(start = PoseLandmark.RIGHT_ELBOW, end = PoseLandmark.RIGHT_WRIST, tag = "elbow_wrist", color = Color.BLUE),
             ),
             angles = listOf(
                 Angle(line1Tag = "knee_hip", line2Tag = "knee_ankle", tag = "a", color = Color.GREEN),
@@ -83,14 +86,7 @@ class MainFragment : GeckoPoseFragment() {
         geckoPoseView = view.findViewById(R.id.pose_view)
         geckoPoseView.setOnPointChangedListener(object : GeckoPoseView.OnPointChangedListener {
             override fun onPointChanged(type: Int) {
-                geckoPoseView.pose?.let { pose ->
-                    pose.configuration.angles.forEach {
-                        when(it.tag) {
-                            "a" -> txtAngleA.text = pose.getAngle(it.tag).toString()
-                            "b" -> txtAngleB.text = pose.getAngle(it.tag).toString()
-                        }
-                    }
-                }
+                geckoPoseView.pose?.let { updateAngleTexts(it) }
             }
         })
 
@@ -106,5 +102,20 @@ class MainFragment : GeckoPoseFragment() {
 
         txtAngleA.visibility = View.VISIBLE
         txtAngleB.visibility = View.VISIBLE
+    }
+
+    override fun onPoseSet(pose: GeckoPose) {
+        super.onPoseSet(pose)
+
+        updateAngleTexts(pose)
+    }
+
+    private fun updateAngleTexts(pose: GeckoPose) {
+        pose.configuration.angles.forEach {
+            when(it.tag) {
+                "a" -> txtAngleA.text = pose.getAngle(it.tag).toString()
+                "b" -> txtAngleB.text = pose.getAngle(it.tag).toString()
+            }
+        }
     }
 }

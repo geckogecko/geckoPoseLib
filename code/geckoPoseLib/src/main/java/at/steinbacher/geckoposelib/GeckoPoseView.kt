@@ -55,7 +55,6 @@ class GeckoPoseView @JvmOverloads constructor(
         strokeWidth = 8.0f
     }
 
-
     private var lastMoveX: Float = -1f
     private var lastMoveY: Float = -1f
 

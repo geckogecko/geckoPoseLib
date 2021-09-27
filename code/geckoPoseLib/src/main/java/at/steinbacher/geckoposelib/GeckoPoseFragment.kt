@@ -11,6 +11,7 @@ import java.lang.Exception
 
 abstract class GeckoPoseFragment: ImageCaptureFragment() {
     abstract val geckoPoseConfigurations: List<GeckoPoseConfiguration>
+    abstract val preferredPose: String
     open val inFrameLikelihoodThreshold: Float = 0.8f
 
     lateinit var geckoPoseView: GeckoPoseView
@@ -27,12 +28,21 @@ abstract class GeckoPoseFragment: ImageCaptureFragment() {
             configurations = geckoPoseConfigurations,
             listener = object : GeckoPoseDetectionListener {
                 override fun onSuccess(geckoPoses: List<GeckoPose>) {
+                    val preferred = geckoPoses.getByTag(preferredPose)
                     val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
 
-                    if(best != null) {
-                        geckoPoseView.pose = best
+                    val pose: GeckoPose? = if(preferred != null) {
+                        preferred
+                    }  else if(best != null){
+                        best
                     } else {
-                        Toast.makeText(requireContext(), "onSuccess but no best", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "onSuccess but none found", Toast.LENGTH_SHORT).show()
+                        null
+                    }
+
+                    if(pose != null) {
+                        geckoPoseView.pose = best
+                        onPoseSet(pose)
                     }
                 }
 
@@ -47,6 +57,7 @@ abstract class GeckoPoseFragment: ImageCaptureFragment() {
         )
     }
 
+    open fun onPoseSet(pose: GeckoPose) {}
 
     override fun onPictureReceived(bitmap: Bitmap) {
         setPoseViewPicture(bitmap)

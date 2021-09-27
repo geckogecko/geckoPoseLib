@@ -7,9 +7,10 @@ import java.lang.Math.hypot
 import kotlin.collections.ArrayList
 
 data class GeckoPoseConfiguration(
+    val tag: String,
     val pointTypes: List<Int> = listOf(),
     val lines: List<Line> = listOf(),
-    val angles: List<Angle> = listOf()
+    val angles: List<Angle> = listOf(),
 )
 
 class GeckoPose(
@@ -84,6 +85,9 @@ fun List<GeckoPose>.getBest(threshold: Float): GeckoPose? =
     this.filter { !it.missesPoints }
         .filter { !it.hasPointsBelowThreshold(threshold) }
         .maxByOrNull { it.averageInFrameLikelihood }
+
+fun List<GeckoPose>.getByTag(poseTag: String): GeckoPose? =
+    this.find { it.configuration.tag == poseTag }
 
 
 data class Point(

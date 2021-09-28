@@ -32,16 +32,20 @@ class MainFragment : GeckoPoseFragment() {
             ),
             lines = listOf(
                 Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_HIP, tag = "knee_hip", color = Color.BLUE),
-                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_ANKLE, tag = "knee_ankle", color = Color.BLUE),
+                Line(start = PoseLandmark.LEFT_ANKLE, end = PoseLandmark.LEFT_KNEE, tag = "knee_ankle", color = Color.BLUE),
                 Line(start = PoseLandmark.LEFT_HIP, end = PoseLandmark.LEFT_SHOULDER, tag = "hip_shoulder", color = Color.BLUE),
                 Line(start = PoseLandmark.LEFT_SHOULDER, end = PoseLandmark.LEFT_ELBOW, tag = "shoulder_elbow", color = Color.BLUE),
                 Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist", color = Color.BLUE),
             ),
             angles = listOf(
-                Angle(line1Tag = "knee_hip", line2Tag = "knee_ankle", tag = "a", color = Color.GREEN),
-                Angle(line1Tag = "knee_hip", line2Tag = "hip_shoulder", tag = "b", color = Color.GREEN),
-                Angle(line1Tag = "hip_shoulder", line2Tag = "shoulder_elbow", tag = "c", color = Color.GREEN),
-                Angle(line1Tag = "shoulder_elbow", line2Tag = "elbow_wrist", tag = "d", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.LEFT_ANKLE, middlePointType = PoseLandmark.LEFT_KNEE,
+                    endPointType = PoseLandmark.LEFT_HIP, target = AngleTarget.FIRST, tag = "a", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.LEFT_KNEE, middlePointType = PoseLandmark.LEFT_HIP,
+                    endPointType = PoseLandmark.LEFT_SHOULDER, target = AngleTarget.SECOND, tag = "b", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_SHOULDER,
+                    endPointType = PoseLandmark.LEFT_ELBOW, target = AngleTarget.FIRST, tag = "c", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.LEFT_SHOULDER, middlePointType = PoseLandmark.LEFT_ELBOW,
+                    endPointType = PoseLandmark.LEFT_WRIST, target = AngleTarget.FIRST, tag = "d", color = Color.GREEN),
             )
         ),
         GeckoPoseConfiguration(
@@ -56,16 +60,20 @@ class MainFragment : GeckoPoseFragment() {
             ),
             lines = listOf(
                 Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_HIP, tag = "knee_hip", color = Color.BLUE),
-                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_ANKLE, tag = "knee_ankle", color = Color.BLUE),
+                Line(start = PoseLandmark.RIGHT_ANKLE, end = PoseLandmark.RIGHT_KNEE, tag = "knee_ankle", color = Color.BLUE),
                 Line(start = PoseLandmark.RIGHT_HIP, end = PoseLandmark.RIGHT_SHOULDER, tag = "hip_shoulder", color = Color.BLUE),
                 Line(start = PoseLandmark.RIGHT_SHOULDER, end = PoseLandmark.RIGHT_ELBOW, tag = "shoulder_elbow", color = Color.BLUE),
                 Line(start = PoseLandmark.RIGHT_ELBOW, end = PoseLandmark.RIGHT_WRIST, tag = "elbow_wrist", color = Color.BLUE),
             ),
             angles = listOf(
-                Angle(line1Tag = "knee_hip", line2Tag = "knee_ankle", tag = "a", color = Color.GREEN),
-                Angle(line1Tag = "knee_hip", line2Tag = "hip_shoulder", tag = "b", color = Color.GREEN),
-                Angle(line1Tag = "hip_shoulder", line2Tag = "shoulder_elbow", tag = "c", color = Color.GREEN),
-                Angle(line1Tag = "shoulder_elbow", line2Tag = "elbow_wrist", tag = "d", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_KNEE,
+                    endPointType = PoseLandmark.RIGHT_ANKLE, target = AngleTarget.FIRST, tag = "a", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.RIGHT_SHOULDER, middlePointType = PoseLandmark.RIGHT_HIP,
+                    endPointType = PoseLandmark.RIGHT_KNEE, target = AngleTarget.SECOND, tag = "b", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_SHOULDER,
+                    endPointType = PoseLandmark.RIGHT_ELBOW, target = AngleTarget.FIRST, tag = "c", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.RIGHT_SHOULDER, middlePointType = PoseLandmark.RIGHT_ELBOW,
+                    endPointType = PoseLandmark.RIGHT_WRIST, target = AngleTarget.FIRST, tag = "d", color = Color.GREEN),
             )
         )
     )

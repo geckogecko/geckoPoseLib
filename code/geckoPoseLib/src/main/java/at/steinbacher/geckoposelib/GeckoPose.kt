@@ -1,9 +1,7 @@
 package at.steinbacher.geckoposelib
 
-import android.graphics.Paint
 import android.graphics.PointF
 import com.google.mlkit.vision.pose.PoseLandmark
-import java.lang.Math.hypot
 import kotlin.collections.ArrayList
 
 data class GeckoPoseConfiguration(
@@ -33,28 +31,13 @@ class GeckoPose(
     fun getPose(type: Int): Point
         = points.find { it.type == type } ?: error("Point not found in Pose")
 
-    fun getPointsFromLine(lineTag: String): Pair<Point, Point> {
-        val line = configuration.lines.find { it.tag == lineTag }
-        if(line != null) {
-            return Pair(getPose(line.start), getPose(line.end))
-        } else {
-            error("Line with tag: $lineTag not found!")
-        }
-    }
-
     fun getAnglePoints(angleTag: String): Triple<Point, Point, Point> {
         val angle = configuration.angles.find { it.tag == angleTag }
         if(angle != null) {
-            val (line1Start, line1End) = getPointsFromLine(angle.line1Tag)
-            val (line2Start, line2End) = getPointsFromLine(angle.line2Tag)
-
-            return when {
-                line1Start == line2Start -> Triple(line1End, line1Start, line2End)
-                line2Start == line1End -> Triple(line1Start, line2Start, line2End)
-                line1Start == line2End -> Triple(line1End, line1Start, line2Start)
-                line1Start == line2End -> Triple(line1End, line1Start, line2Start)
-                else -> error("Error in finding angle points!")
-            }
+            val startPoint = getPoint(angle.startPointType)
+            val middlePoint = getPoint(angle.middlePointType)
+            val endPoint = getPoint(angle.endPointType)
+            return Triple(startPoint, middlePoint, endPoint)
         } else {
             error("Angle with tag: $angleTag not found!")
         }
@@ -79,6 +62,8 @@ class GeckoPose(
         val point = points.find { it.type == type } ?: error("Unable to find point: $type in Pose!")
         point.position.set(point.position.x + moveX, point.position.y + moveY)
     }
+
+    fun getPoint(type: Int): Point = points.firstOrNull { it.type == type } ?: error("Unable to find point: $type in Pose!")
 }
 
 fun List<GeckoPose>.getBest(threshold: Float): GeckoPose? =
@@ -111,9 +96,14 @@ data class Line(
     val color: Int
 )
 
+enum class AngleTarget {
+    FIRST, SECOND
+}
 data class Angle(
-    val line1Tag: String,
-    val line2Tag: String,
+    val startPointType: Int,
+    val middlePointType: Int,
+    val endPointType: Int,
+    val target: AngleTarget,
     val tag: String,
     val color: Int
 )

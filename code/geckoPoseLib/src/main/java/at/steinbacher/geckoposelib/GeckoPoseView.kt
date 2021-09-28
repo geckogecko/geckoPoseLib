@@ -172,23 +172,28 @@ class GeckoPoseView @JvmOverloads constructor(
             it.configuration.angles.forEach { angle ->
                 val (start, middle, end) = it.getAnglePoints(angle.tag)
                 val angleValue = it.getAngle(start, middle, end)
-                canvas.drawAngleIndicator(start.position, middle.position, end.position, angleValue, angle.tag, angle.color)
+                canvas.drawAngleIndicator(start.position, middle.position, end.position, angle.target, angle.color)
             }
         }
 
         surfaceView.holder.unlockCanvasAndPost(canvas)
     }
 
-    private fun Canvas.drawAngleIndicator(startPoint: PointF, middlePoint: PointF, endPoint: PointF, angle: Double, displayTag: String, color: Int) {
+    private fun Canvas.drawAngleIndicator(startPoint: PointF, middlePoint: PointF, endPoint: PointF, angleTarget: AngleTarget, color: Int) {
         val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
         val distanceMiddleEnd = getDistanceBetweenPoints(middlePoint, endPoint)
         val biggestDistance = listOf(distanceMiddleStart, distanceMiddleEnd).minOrNull() ?: distanceMiddleStart
         val angleDistance = biggestDistance * 0.35
 
-        val startAngle = if(startPoint.y < middlePoint.y) {
-            360 - Util.getAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+        val anglePair = Util.getAnglePair(startPoint, middlePoint, endPoint)
+
+        val startAngle: Double = if(startPoint.y < middlePoint.y) {
+            360 - Util.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
         } else {
-            Util.getAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+            Util.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+        } + when(angleTarget) {
+            AngleTarget.FIRST -> 0.0
+            AngleTarget.SECOND -> anglePair.firstAngle
         }
 
         val anglePaint = Paint().apply {
@@ -197,17 +202,23 @@ class GeckoPoseView @JvmOverloads constructor(
             style = Paint.Style.STROKE
         }
 
+        val angle = when(angleTarget) {
+            AngleTarget.FIRST -> anglePair.firstAngle.toFloat()
+            AngleTarget.SECOND -> anglePair.secondAngle.toFloat()
+        }
+
         this.drawArc(
             (middlePoint.x - angleDistance).toFloat(),
             (middlePoint.y - angleDistance).toFloat(),
             (middlePoint.x + angleDistance).toFloat(),
             (middlePoint.y + angleDistance).toFloat(),
             startAngle.toFloat(),
-            angle.toFloat(),
+            angle,
             false,
             anglePaint
         )
 
+        /*
         val textPath = Path().apply {
             this.addArc(
                 (middlePoint.x - angleDistance).toFloat(),
@@ -232,6 +243,7 @@ class GeckoPoseView @JvmOverloads constructor(
             (angleDistance / 2).toFloat(),
             textPaint
         )
+         */
     }
 
     private fun getDistanceBetweenPoints(startPoint: PointF, endPoint: PointF)

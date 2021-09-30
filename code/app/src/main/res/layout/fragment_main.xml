@@ -14,7 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/txt_angle_b"
+        app:layout_constraintBottom_toTopOf="@id/txt_angle_a"
         />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -28,23 +28,23 @@
 
     <TextView
         android:id="@+id/txt_angle_a"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:textColor="#4CAF50"
-        app:layout_constraintStart_toStartOf="@id/pose_view"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/txt_angle_b"
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
     <TextView
         android:id="@+id/txt_angle_b"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:textColor="#4CAFAC"
         app:layout_constraintStart_toEndOf="@id/txt_angle_a"
-        app:layout_constraintEnd_toEndOf="@id/pose_view"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -45,7 +45,7 @@ abstract class ImageCaptureFragment: Fragment() {
             .start(REQUEST_IMAGE_CAPTURE)
     }
 
-    protected fun resizeAndRotate(image: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+    protected fun resize(image: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         return if (maxHeight > 0 && maxWidth > 0) {
             val width = image.width
             val height = image.height
@@ -58,7 +58,6 @@ abstract class ImageCaptureFragment: Fragment() {
             } else {
                 finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
             }
-
 
             Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true)
         } else {

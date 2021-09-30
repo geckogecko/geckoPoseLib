@@ -1,7 +1,7 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -65,9 +65,15 @@ abstract class GeckoPoseFragment: ImageCaptureFragment() {
 
     private fun setPoseViewPicture(bitmap: Bitmap) {
         geckoPoseView.post {
-            val scaledBitmap = resizeAndRotate(bitmap, geckoPoseView.width, geckoPoseView.height)
-            geckoPoseView.bitmap = scaledBitmap
+            geckoPoseView.bitmap = bitmap
+
+            val scaledBitmap = resize(
+                image = bitmap,
+                maxWidth = geckoPoseView.previewWidth,
+                maxHeight = geckoPoseView.previewHeight
+            )
             geckoPoseDetection.processImage(scaledBitmap)
+
             onPictureSet()
         }
     }

@@ -144,6 +144,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         selectedPointType = null
         lastMoveX = -1f
         lastMoveY = -1f
+        invalidate()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {

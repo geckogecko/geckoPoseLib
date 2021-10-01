@@ -1,3 +1,3 @@
 # geckoPoseLib
 
-![Demo image](demo_image.jpg?raw=true "Demo image")
+![Demo image](demo_image.png?raw=true "Demo image")

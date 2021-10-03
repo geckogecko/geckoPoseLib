@@ -70,7 +70,7 @@ abstract class GeckoPoseFragment: ImageCaptureFragment() {
         geckoPoseView.post {
             geckoPoseView.bitmap = bitmap
 
-            val scaledBitmap = resize(
+            val scaledBitmap = BitmapUtil.resize(
                 image = bitmap,
                 maxWidth = geckoPoseView.previewWidth,
                 maxHeight = geckoPoseView.previewHeight

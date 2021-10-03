@@ -3,16 +3,13 @@ package at.steinbacher.geckoposelib
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.math.pow
 import kotlin.math.sqrt
-import android.graphics.drawable.Drawable
 import kotlin.math.roundToInt
 
 
@@ -238,12 +235,12 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         val biggestDistance = listOf(distanceMiddleStart, distanceMiddleEnd).minOrNull() ?: distanceMiddleStart
         val angleDistance = biggestDistance * 0.35
 
-        val anglePair = Util.getAnglePair(startPoint, middlePoint, endPoint)
+        val anglePair = AngleUtil.getAnglePair(startPoint, middlePoint, endPoint)
 
         val startAngle: Double = if(startPoint.y < middlePoint.y) {
-            360 - Util.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+            360 - AngleUtil.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
         } else {
-            Util.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+            AngleUtil.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
         } + when(angleTarget) {
             AngleTarget.FIRST -> 0.0
             AngleTarget.SECOND -> anglePair.firstAngle

@@ -6,7 +6,7 @@ import kotlin.math.atan2
 
 data class AnglePair(val firstAngle: Double, val secondAngle: Double)
 
-object Util {
+object AngleUtil {
     fun getSmallestAngle(firstPoint: Point, midPoint: Point, lastPoint: Point): Double {
         return getSmallestAngle(firstPoint.position, midPoint.position, lastPoint.position)
     }

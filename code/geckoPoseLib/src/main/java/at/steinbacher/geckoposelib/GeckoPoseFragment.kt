@@ -2,10 +2,13 @@ package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore.Images.Media.getBitmap
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import java.lang.Exception
 
@@ -59,8 +62,8 @@ abstract class GeckoPoseFragment: ImageCaptureFragment() {
 
     open fun onPoseSet(pose: GeckoPose) {}
 
-    override fun onPictureReceived(bitmap: Bitmap) {
-        setPoseViewPicture(bitmap)
+    override fun onPictureReceived(uri: Uri) {
+        setPoseViewPicture(BitmapUtil.getBitmap(uri, requireContext()))
     }
 
     private fun setPoseViewPicture(bitmap: Bitmap) {

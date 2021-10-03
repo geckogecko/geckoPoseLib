@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
@@ -18,25 +19,13 @@ abstract class ImageCaptureFragment: Fragment() {
      const val REQUEST_IMAGE_CAPTURE = 1001
     }
 
-    abstract fun onPictureReceived(bitmap: Bitmap)
+    abstract fun onPictureReceived(uri: Uri)
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            val uri = data?.data!!
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                ImageDecoder.decodeBitmap(
-                    ImageDecoder.createSource(requireContext().contentResolver, uri)
-                ) { decoder, _, _ ->
-                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                    decoder.isMutableRequired = true
-                }
-            } else {
-                MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
-            }
-
-            onPictureReceived(bitmap)
+            onPictureReceived(data?.data!!)
         }
     }
 

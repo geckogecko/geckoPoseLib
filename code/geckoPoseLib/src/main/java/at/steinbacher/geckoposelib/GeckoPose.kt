@@ -44,10 +44,10 @@ class GeckoPose(
     }
 
     fun getAngle(start: Point, middle: Point, end: Point): Double
-        = Util.getAngle(start, middle, end)
+        = AngleUtil.getAngle(start, middle, end)
 
     fun getAngle(points: Triple<Point, Point, Point>): Double
-            = Util.getAngle(points.first, points.second, points.third)
+            = AngleUtil.getAngle(points.first, points.second, points.third)
 
     fun getAngle(angleTag: String): Double = getAngle(getAnglePoints(angleTag))
 

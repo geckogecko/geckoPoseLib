@@ -2,19 +2,19 @@ package at.steinbacher.geckopose
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import at.steinbacher.geckoposelib.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 
 class MainFragment : GeckoPoseFragment() {
 
-    private lateinit var fabTakePicture: FloatingActionButton
+    private lateinit var fabImageChooser: FloatingActionButton
+    private lateinit var fabTakeImage: FloatingActionButton
+    private lateinit var fabGalleryChooser: FloatingActionButton
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
 
@@ -98,15 +98,27 @@ class MainFragment : GeckoPoseFragment() {
             }
         })
 
-        fabTakePicture = view.findViewById(R.id.fab_take_picture)
+        fabImageChooser = view.findViewById(R.id.fab_image_chooser)
+        fabTakeImage = view.findViewById(R.id.fab_take_image)
+        fabGalleryChooser = view.findViewById(R.id.fab_gallery_chooser)
 
-        fabTakePicture.setOnClickListener {
-            openTakePicture()
+        fabImageChooser.setOnClickListener {
+            openImagePicker()
+        }
+
+        fabTakeImage.setOnClickListener {
+            openTakeImage()
+        }
+
+        fabGalleryChooser.setOnClickListener {
+            openChooseFromGallery()
         }
     }
 
     override fun onPictureSet() {
-        fabTakePicture.visibility = View.GONE
+        fabImageChooser.visibility = View.GONE
+        fabTakeImage.visibility = View.GONE
+        fabGalleryChooser.visibility = View.GONE
 
         txtAngleA.visibility = View.VISIBLE
         txtAngleB.visibility = View.VISIBLE

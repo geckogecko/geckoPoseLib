@@ -40,8 +40,20 @@ abstract class ImageCaptureFragment: Fragment() {
         }
     }
 
-    fun openTakePicture() {
+    fun openImagePicker() {
         ImagePicker.with(this)
+            .start(REQUEST_IMAGE_CAPTURE)
+    }
+
+    fun openTakeImage() {
+        ImagePicker.with(this)
+            .cameraOnly()
+            .start(REQUEST_IMAGE_CAPTURE)
+    }
+
+    fun openChooseFromGallery() {
+        ImagePicker.with(this)
+            .galleryOnly()
             .start(REQUEST_IMAGE_CAPTURE)
     }
 

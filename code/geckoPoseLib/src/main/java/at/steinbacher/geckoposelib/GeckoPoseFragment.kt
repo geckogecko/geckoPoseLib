@@ -44,7 +44,7 @@ abstract class GeckoPoseFragment: ImageCaptureFragment() {
                     }
 
                     if(pose != null) {
-                        geckoPoseView.pose = best
+                        geckoPoseView.pose = pose
                         onPoseSet(pose)
                     }
                 }

@@ -11,7 +11,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
 
 class MainFragment : GeckoPoseFragment() {
-
     private lateinit var fabImageChooser: FloatingActionButton
     private lateinit var fabTakeImage: FloatingActionButton
     private lateinit var fabGalleryChooser: FloatingActionButton
@@ -38,14 +37,14 @@ class MainFragment : GeckoPoseFragment() {
                 Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist", color = Color.BLUE),
             ),
             angles = listOf(
-                Angle(startPointType = PoseLandmark.LEFT_ANKLE, middlePointType = PoseLandmark.LEFT_KNEE,
-                    endPointType = PoseLandmark.LEFT_HIP, target = AngleTarget.FIRST, tag = "a", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_KNEE,
+                    endPointType = PoseLandmark.LEFT_ANKLE, tag = "a", color = Color.GREEN),
                 Angle(startPointType = PoseLandmark.LEFT_KNEE, middlePointType = PoseLandmark.LEFT_HIP,
-                    endPointType = PoseLandmark.LEFT_SHOULDER, target = AngleTarget.SECOND, tag = "b", color = Color.GREEN),
+                    endPointType = PoseLandmark.LEFT_SHOULDER, tag = "b", color = Color.GREEN),
                 Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_SHOULDER,
-                    endPointType = PoseLandmark.LEFT_ELBOW, target = AngleTarget.FIRST, tag = "c", color = Color.GREEN),
+                    endPointType = PoseLandmark.LEFT_ELBOW, tag = "c", color = Color.GREEN),
                 Angle(startPointType = PoseLandmark.LEFT_SHOULDER, middlePointType = PoseLandmark.LEFT_ELBOW,
-                    endPointType = PoseLandmark.LEFT_WRIST, target = AngleTarget.FIRST, tag = "d", color = Color.GREEN),
+                    endPointType = PoseLandmark.LEFT_WRIST, tag = "d", color = Color.GREEN),
             )
         ),
         GeckoPoseConfiguration(
@@ -67,13 +66,13 @@ class MainFragment : GeckoPoseFragment() {
             ),
             angles = listOf(
                 Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_KNEE,
-                    endPointType = PoseLandmark.RIGHT_ANKLE, target = AngleTarget.FIRST, tag = "a", color = Color.GREEN),
-                Angle(startPointType = PoseLandmark.RIGHT_SHOULDER, middlePointType = PoseLandmark.RIGHT_HIP,
-                    endPointType = PoseLandmark.RIGHT_KNEE, target = AngleTarget.SECOND, tag = "b", color = Color.GREEN),
+                    endPointType = PoseLandmark.RIGHT_ANKLE, tag = "a", color = Color.GREEN),
+                Angle(startPointType = PoseLandmark.RIGHT_KNEE, middlePointType = PoseLandmark.RIGHT_HIP,
+                    endPointType = PoseLandmark.RIGHT_SHOULDER, tag = "b", color = Color.GREEN),
                 Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_SHOULDER,
-                    endPointType = PoseLandmark.RIGHT_ELBOW, target = AngleTarget.FIRST, tag = "c", color = Color.GREEN),
+                    endPointType = PoseLandmark.RIGHT_ELBOW, tag = "c", color = Color.GREEN),
                 Angle(startPointType = PoseLandmark.RIGHT_SHOULDER, middlePointType = PoseLandmark.RIGHT_ELBOW,
-                    endPointType = PoseLandmark.RIGHT_WRIST, target = AngleTarget.FIRST, tag = "d", color = Color.GREEN),
+                    endPointType = PoseLandmark.RIGHT_WRIST, tag = "d", color = Color.GREEN),
             )
         )
     )

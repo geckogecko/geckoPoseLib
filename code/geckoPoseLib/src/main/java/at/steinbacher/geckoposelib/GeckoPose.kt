@@ -1,6 +1,7 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.PointF
+import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlin.collections.ArrayList
 
@@ -96,14 +97,10 @@ data class Line(
     val color: Int
 )
 
-enum class AngleTarget {
-    FIRST, SECOND
-}
 data class Angle(
     val startPointType: Int,
     val middlePointType: Int,
     val endPointType: Int,
-    val target: AngleTarget,
     val tag: String,
     val color: Int
 )

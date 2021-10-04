@@ -3,11 +3,14 @@ package at.steinbacher.geckoposelib
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
+import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.math.roundToInt
@@ -224,37 +227,34 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
 
             it.configuration.angles.forEach { angle ->
                 val (start, middle, end) = it.getAnglePoints(angle.tag)
-                canvas.drawAngleIndicator(start.position, middle.position, end.position, angle.target, angle.color)
+                canvas.drawAngleIndicator(start.position, middle.position, end.position, angle.color)
             }
         }
     }
 
-    private fun Canvas.drawAngleIndicator(startPoint: PointF, middlePoint: PointF, endPoint: PointF, angleTarget: AngleTarget, color: Int) {
+    private fun Canvas.drawAngleIndicator(startPoint: PointF, middlePoint: PointF, endPoint: PointF, color: Int) {
         val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
         val distanceMiddleEnd = getDistanceBetweenPoints(middlePoint, endPoint)
         val biggestDistance = listOf(distanceMiddleStart, distanceMiddleEnd).minOrNull() ?: distanceMiddleStart
         val angleDistance = biggestDistance * 0.35
 
-        val anglePair = AngleUtil.getAnglePair(startPoint, middlePoint, endPoint)
+        val angle = AngleUtil.getAngle(startPoint, middlePoint, endPoint)
 
-        val startAngle: Double = if(startPoint.y < middlePoint.y) {
-            360 - AngleUtil.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
+
+        val x2 = startPoint.x - middlePoint.x
+        val y2 = startPoint.y - middlePoint.y
+        val d1 = sqrt(middlePoint.y.pow(2)).toDouble()
+        val d2 = sqrt(x2.pow(2)+y2.pow(2)).toDouble()
+        val startAngle = if(startPoint.x >= middlePoint.x) {
+            Math.toDegrees(acos((-middlePoint.y * y2) / (d1*d2)))
         } else {
-            AngleUtil.getSmallestAngle(PointF(middlePoint.x + 10, middlePoint.y), middlePoint, startPoint)
-        } + when(angleTarget) {
-            AngleTarget.FIRST -> 0.0
-            AngleTarget.SECOND -> anglePair.firstAngle
-        }
+            360 - Math.toDegrees(acos((-middlePoint.y * y2) / (d1*d2)))
+        } + 270
 
         val anglePaint = Paint().apply {
             this.color = color
             strokeWidth = 8.0f
             style = Paint.Style.STROKE
-        }
-
-        val angle = when(angleTarget) {
-            AngleTarget.FIRST -> anglePair.firstAngle.toFloat()
-            AngleTarget.SECOND -> anglePair.secondAngle.toFloat()
         }
 
         this.drawArc(
@@ -263,7 +263,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             (middlePoint.x + angleDistance).toFloat(),
             (middlePoint.y + angleDistance).toFloat(),
             startAngle.toFloat(),
-            angle,
+            angle.toFloat(),
             false,
             anglePaint
         )

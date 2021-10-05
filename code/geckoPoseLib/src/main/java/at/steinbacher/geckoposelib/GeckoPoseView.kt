@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -191,11 +192,15 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         super.onDraw(canvas)
 
         pose?.let {
+            it.configuration.angles.forEach { angle ->
+                canvas.drawAngleIndicator(angle, it)
+            }
+
             it.configuration.lines.forEach { line ->
                 val start = it.getPose(line.start)
                 val end = it.getPose(line.end)
 
-                linePaint.color = line.color
+                linePaint.color = ContextCompat.getColor(context, line.color)
 
                 canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
             }
@@ -206,10 +211,6 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
                 } else {
                     canvas.drawCircle(point.position.x, point.position.y, 10f, pointPaint)
                 }
-            }
-
-            it.configuration.angles.forEach { angle ->
-                canvas.drawAngleIndicator(angle, it)
             }
         }
     }
@@ -234,14 +235,17 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             360 - Math.toDegrees(acos((-middlePoint.y * y2) / (d1*d2)))
         } + 270
 
+        val colorRes = if(angle is MinMaxAngle && angle.isAngleNotInside(angleDegrees)) {
+            angle.errorColor
+        } else {
+            angle.color
+        }
+        val color = ContextCompat.getColor(context, colorRes)
+
         val anglePaint = Paint().apply {
-            this.color = if(angle is MinMaxAngle && angle.isAngleNotInside(angleDegrees)) {
-                angle.errorColor
-            } else {
-                angle.color
-            }
+            this.color = color
             strokeWidth = 8.0f
-            style = Paint.Style.STROKE
+            style = Paint.Style.FILL
         }
 
         this.drawArc(
@@ -251,7 +255,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             (middlePoint.y + angleDistance).toFloat(),
             startAngle.toFloat(),
             angleDegrees.toFloat(),
-            false,
+            true,
             anglePaint
         )
 

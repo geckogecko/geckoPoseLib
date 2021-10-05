@@ -1,6 +1,7 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.PointF
+import androidx.annotation.ColorRes
 import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlin.collections.ArrayList
@@ -99,7 +100,7 @@ data class Line(
     val start: Int,
     val end: Int,
     val tag: String,
-    val color: Int
+    @ColorRes val color: Int
 )
 
 open class Angle(
@@ -107,7 +108,7 @@ open class Angle(
     val middlePointType: Int,
     val endPointType: Int,
     val tag: String,
-    val color: Int
+    @ColorRes val color: Int
 )
 
 class MinMaxAngle(startPointType: Int,
@@ -117,7 +118,7 @@ class MinMaxAngle(startPointType: Int,
                   color: Int,
                   val minAngle: Float,
                   val maxAngle: Float,
-                  val errorColor: Int,
+                  @ColorRes val errorColor: Int,
 ): Angle(startPointType, middlePointType, endPointType, tag, color) {
 
     fun isAngleNotInside(angle: Double): Boolean = !isAngleInside(angle)

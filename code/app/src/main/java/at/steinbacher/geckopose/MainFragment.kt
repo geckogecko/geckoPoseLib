@@ -22,13 +22,13 @@ class MainFragment : GeckoPoseFragment() {
     override val geckoPoseConfigurations = listOf(
         GeckoPoseConfiguration(
             tag = "left_pose",
-            pointTypes = listOf(
-                PoseLandmark.LEFT_HIP,
-                PoseLandmark.LEFT_KNEE,
-                PoseLandmark.LEFT_ANKLE,
-                PoseLandmark.LEFT_SHOULDER,
-                PoseLandmark.LEFT_ELBOW,
-                PoseLandmark.LEFT_WRIST
+            points = listOf(
+                Point(PoseLandmark.LEFT_HIP, R.color.grey, R.color.red),
+                Point(PoseLandmark.LEFT_KNEE, R.color.grey, R.color.red),
+                Point(PoseLandmark.LEFT_ANKLE, R.color.grey, R.color.red),
+                Point(PoseLandmark.LEFT_SHOULDER, R.color.grey, R.color.red),
+                Point(PoseLandmark.LEFT_ELBOW, R.color.grey, R.color.red),
+                Point(PoseLandmark.LEFT_WRIST, R.color.grey, R.color.red),
             ),
             lines = listOf(
                 Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_HIP, tag = "knee_hip", color = R.color.blue),
@@ -50,13 +50,13 @@ class MainFragment : GeckoPoseFragment() {
         ),
         GeckoPoseConfiguration(
             tag = "right_pose",
-            pointTypes = listOf(
-                PoseLandmark.RIGHT_HIP,
-                PoseLandmark.RIGHT_KNEE,
-                PoseLandmark.RIGHT_ANKLE,
-                PoseLandmark.RIGHT_SHOULDER,
-                PoseLandmark.RIGHT_ELBOW,
-                PoseLandmark.RIGHT_WRIST
+            points = listOf(
+                Point(PoseLandmark.RIGHT_HIP, R.color.grey, R.color.red),
+                Point(PoseLandmark.RIGHT_KNEE, R.color.grey, R.color.red),
+                Point(PoseLandmark.RIGHT_ANKLE, R.color.grey, R.color.red),
+                Point(PoseLandmark.RIGHT_SHOULDER, R.color.grey, R.color.red),
+                Point(PoseLandmark.RIGHT_ELBOW, R.color.grey, R.color.red),
+                Point(PoseLandmark.RIGHT_WRIST, R.color.grey, R.color.red),
             ),
             lines = listOf(
                 Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_HIP, tag = "knee_hip", color = R.color.blue),

@@ -3,7 +3,6 @@ package at.steinbacher.geckoposelib
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -14,7 +13,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.sqrt
-import kotlin.math.roundToInt
 
 
 class GeckoPoseView @JvmOverloads constructor(
@@ -137,7 +135,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
                 if(event.isInsidePreview()) {
                     if (selectedPointType == null) {
                         skeletonViewListener?.onPointSelected()
-                        selectedPointType = pose?.getClosestPoint(event.x, event.y)?.type
+                        selectedPointType = pose?.getClosestPoint(event.x, event.y)?.point?.type
 
                         selectedPointType?.let { skeletonViewListener?.onPointSelected() }
                         invalidate()
@@ -205,11 +203,13 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
                 canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
             }
 
-            it.points.forEach { point ->
-                if(point.type == selectedPointType) {
-                    canvas.drawCircle(point.position.x, point.position.y, 15f, selectedPointPaint)
+            it.landmarkPoints.forEach { processedPoint ->
+                if(processedPoint.point.type == selectedPointType) {
+                    selectedPointPaint.color = ContextCompat.getColor(context, processedPoint.point.selectedColor)
+                    canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 15f, selectedPointPaint)
                 } else {
-                    canvas.drawCircle(point.position.x, point.position.y, 10f, pointPaint)
+                    pointPaint.color = ContextCompat.getColor(context, processedPoint.point.color)
+                    canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 10f, pointPaint)
                 }
             }
         }

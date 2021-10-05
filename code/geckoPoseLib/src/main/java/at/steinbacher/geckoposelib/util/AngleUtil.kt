@@ -1,13 +1,11 @@
 package at.steinbacher.geckoposelib.util
 
 import android.graphics.PointF
-import at.steinbacher.geckoposelib.Point
-import java.lang.Math.*
-import java.util.*
+import at.steinbacher.geckoposelib.LandmarkPoint
 import kotlin.math.*
 
 object AngleUtil {
-    fun getAngle(firstPoint: Point, midPoint: Point, lastPoint: Point): Double {
+    fun getAngle(firstPoint: LandmarkPoint, midPoint: LandmarkPoint, lastPoint: LandmarkPoint): Double {
         return getAngle(firstPoint.position, midPoint.position, lastPoint.position)
     }
 

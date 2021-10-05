@@ -1,7 +1,7 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
-import at.steinbacher.geckoposelib.Point.Companion.toPoint
+import at.steinbacher.geckoposelib.LandmarkPoint.Companion.toProcessedPoint
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
@@ -50,9 +50,9 @@ class GeckoPoseDetection(
 
     private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<GeckoPose> = configurations.map {
         GeckoPose(it).apply {
-            configuration.pointTypes.forEach { landmarkType ->
-                pose.getPoseLandmark(landmarkType)?.let { poseLandmark ->
-                    this.points.add(poseLandmark.toPoint())
+            configuration.points.forEach { point ->
+                pose.getPoseLandmark(point.type)?.let { poseLandmark ->
+                    this.landmarkPoints.add(point.toProcessedPoint(poseLandmark))
                 }
             }
         }

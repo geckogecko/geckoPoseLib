@@ -44,6 +44,11 @@ class GeckoPose(
         }
     }
 
+    fun getAnglePointFs(angleTag: String): Triple<PointF, PointF, PointF> {
+        val (start, middle, end) = getAnglePoints(angleTag)
+        return Triple(start.position, middle.position, end.position)
+    }
+
     fun getAngle(start: Point, middle: Point, end: Point): Double
         = AngleUtil.getAngle(start, middle, end)
 
@@ -97,12 +102,26 @@ data class Line(
     val color: Int
 )
 
-data class Angle(
+open class Angle(
     val startPointType: Int,
     val middlePointType: Int,
     val endPointType: Int,
     val tag: String,
     val color: Int
 )
+
+class MinMaxAngle(startPointType: Int,
+                  middlePointType: Int,
+                  endPointType: Int,
+                  tag: String,
+                  color: Int,
+                  val minAngle: Float,
+                  val maxAngle: Float,
+                  val errorColor: Int,
+): Angle(startPointType, middlePointType, endPointType, tag, color) {
+
+    fun isAngleNotInside(angle: Double): Boolean = !isAngleInside(angle)
+    fun isAngleInside(angle: Double): Boolean = angle in minAngle..maxAngle
+}
 
 

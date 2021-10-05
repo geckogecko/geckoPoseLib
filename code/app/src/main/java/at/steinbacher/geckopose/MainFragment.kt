@@ -37,8 +37,8 @@ class MainFragment : GeckoPoseFragment() {
                 Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist", color = Color.BLUE),
             ),
             angles = listOf(
-                Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_KNEE,
-                    endPointType = PoseLandmark.LEFT_ANKLE, tag = "a", color = Color.GREEN),
+                MinMaxAngle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_KNEE,
+                    endPointType = PoseLandmark.LEFT_ANKLE, tag = "a", color = Color.GREEN, 0f, 40f, Color.RED),
                 Angle(startPointType = PoseLandmark.LEFT_KNEE, middlePointType = PoseLandmark.LEFT_HIP,
                     endPointType = PoseLandmark.LEFT_SHOULDER, tag = "b", color = Color.GREEN),
                 Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_SHOULDER,
@@ -65,8 +65,8 @@ class MainFragment : GeckoPoseFragment() {
                 Line(start = PoseLandmark.RIGHT_ELBOW, end = PoseLandmark.RIGHT_WRIST, tag = "elbow_wrist", color = Color.BLUE),
             ),
             angles = listOf(
-                Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_KNEE,
-                    endPointType = PoseLandmark.RIGHT_ANKLE, tag = "a", color = Color.GREEN),
+                MinMaxAngle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_KNEE,
+                    endPointType = PoseLandmark.RIGHT_ANKLE, tag = "a", color = Color.GREEN, 0f, 40f, Color.RED),
                 Angle(startPointType = PoseLandmark.RIGHT_KNEE, middlePointType = PoseLandmark.RIGHT_HIP,
                     endPointType = PoseLandmark.RIGHT_SHOULDER, tag = "b", color = Color.GREEN),
                 Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_SHOULDER,

@@ -209,20 +209,20 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             }
 
             it.configuration.angles.forEach { angle ->
-                val (start, middle, end) = it.getAnglePoints(angle.tag)
-                canvas.drawAngleIndicator(start.position, middle.position, end.position, angle.color)
+                canvas.drawAngleIndicator(angle, it)
             }
         }
     }
 
-    private fun Canvas.drawAngleIndicator(startPoint: PointF, middlePoint: PointF, endPoint: PointF, color: Int) {
+    private fun Canvas.drawAngleIndicator(angle: Angle, pose: GeckoPose) {
+        val (startPoint, middlePoint, endPoint) = pose.getAnglePointFs(angle.tag)
+
         val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
         val distanceMiddleEnd = getDistanceBetweenPoints(middlePoint, endPoint)
         val biggestDistance = listOf(distanceMiddleStart, distanceMiddleEnd).minOrNull() ?: distanceMiddleStart
         val angleDistance = biggestDistance * 0.35
 
-        val angle = AngleUtil.getAngle(startPoint, middlePoint, endPoint)
-
+        val angleDegrees = AngleUtil.getAngle(startPoint, middlePoint, endPoint)
 
         val x2 = startPoint.x - middlePoint.x
         val y2 = startPoint.y - middlePoint.y
@@ -235,7 +235,11 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         } + 270
 
         val anglePaint = Paint().apply {
-            this.color = color
+            this.color = if(angle is MinMaxAngle && angle.isAngleNotInside(angleDegrees)) {
+                angle.errorColor
+            } else {
+                angle.color
+            }
             strokeWidth = 8.0f
             style = Paint.Style.STROKE
         }
@@ -246,7 +250,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             (middlePoint.x + angleDistance).toFloat(),
             (middlePoint.y + angleDistance).toFloat(),
             startAngle.toFloat(),
-            angle.toFloat(),
+            angleDegrees.toFloat(),
             false,
             anglePaint
         )

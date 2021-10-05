@@ -28,29 +28,12 @@ class GeckoPoseView @JvmOverloads constructor(
             imageView.setImageBitmap(field)
 
             field?.let {
-                val f = FloatArray(9)
-                imageView.imageMatrix.getValues(f)
-
-                val scaleX = f[Matrix.MSCALE_X]
-                val scaleY = f[Matrix.MSCALE_Y]
-
-                _previewWidth = (it.width * scaleX).roundToInt()
-                _previewHeight = (it.height * scaleY).roundToInt()
-
                 skeletonView.updateLayoutParams {
-                    width = _previewWidth
-                    height = _previewHeight
+                    width = it.width
+                    height = it.height
                 }
             }
         }
-
-    val previewWidth: Int
-        get() = _previewWidth
-    private var _previewWidth: Int = 0
-
-    val previewHeight: Int
-        get() = _previewHeight
-    private var _previewHeight: Int = 0
 
     var pose: GeckoPose? = null
         set(value) {

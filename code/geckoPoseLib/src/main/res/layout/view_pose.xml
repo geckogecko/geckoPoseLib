@@ -9,12 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="center"
+        android:background="#0000ffff"
         />
 
     <at.steinbacher.geckoposelib.SkeletonView
         android:id="@+id/skeleton_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="#0000ffff"
         app:layout_constraintTop_toTopOf="@id/image_view"
         app:layout_constraintStart_toStartOf="@id/image_view"
         app:layout_constraintEnd_toEndOf="@id/image_view"

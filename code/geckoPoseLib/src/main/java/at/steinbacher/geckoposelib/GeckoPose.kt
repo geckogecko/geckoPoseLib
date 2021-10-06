@@ -11,6 +11,11 @@ data class GeckoPoseConfiguration(
     val points: List<Point> = listOf(),
     val lines: List<Line> = listOf(),
     val angles: List<Angle> = listOf(),
+    @ColorRes val defaultPointColor: Int,
+    @ColorRes val defaultSelectedPointColor: Int,
+    @ColorRes val defaultLineColor: Int,
+    @ColorRes val defaultAngleColor: Int,
+    @ColorRes val defaultNOKAngleColor: Int,
 )
 
 class GeckoPose(
@@ -98,15 +103,15 @@ data class LandmarkPoint(
 
 data class Point(
     val type: Int,
-    @ColorRes val color: Int,
-    @ColorRes val selectedColor: Int
+    @ColorRes val color: Int? = null,
+    @ColorRes val selectedColor: Int? = null
 )
 
 data class Line(
     val start: Int,
     val end: Int,
     val tag: String,
-    @ColorRes val color: Int
+    @ColorRes val color: Int? = null
 )
 
 open class Angle(
@@ -114,17 +119,17 @@ open class Angle(
     val middlePointType: Int,
     val endPointType: Int,
     val tag: String,
-    @ColorRes val color: Int
+    @ColorRes val color: Int? = null
 )
 
 class MinMaxAngle(startPointType: Int,
                   middlePointType: Int,
                   endPointType: Int,
                   tag: String,
-                  color: Int,
+                  color: Int? = null,
                   val minAngle: Float,
                   val maxAngle: Float,
-                  @ColorRes val errorColor: Int,
+                  @ColorRes val errorColor: Int? = null,
 ): Angle(startPointType, middlePointType, endPointType, tag, color) {
 
     fun isAngleNotInside(angle: Double): Boolean = !isAngleInside(angle)

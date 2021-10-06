@@ -198,17 +198,19 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
                 val start = it.getPose(line.start)
                 val end = it.getPose(line.end)
 
-                linePaint.color = ContextCompat.getColor(context, line.color)
+                linePaint.color = ContextCompat.getColor(context, line.color ?: it.configuration.defaultLineColor)
 
                 canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
             }
 
             it.landmarkPoints.forEach { processedPoint ->
                 if(processedPoint.point.type == selectedPointType) {
-                    selectedPointPaint.color = ContextCompat.getColor(context, processedPoint.point.selectedColor)
+                    selectedPointPaint.color = ContextCompat.getColor(context,
+                        processedPoint.point.selectedColor ?: it.configuration.defaultSelectedPointColor)
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 15f, selectedPointPaint)
                 } else {
-                    pointPaint.color = ContextCompat.getColor(context, processedPoint.point.color)
+                    pointPaint.color = ContextCompat.getColor(context,
+                        processedPoint.point.color ?: it.configuration.defaultPointColor)
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 10f, pointPaint)
                 }
             }
@@ -236,9 +238,9 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         } + 270
 
         val colorRes = if(angle is MinMaxAngle && angle.isAngleNotInside(angleDegrees)) {
-            angle.errorColor
+            angle.errorColor ?: pose.configuration.defaultNOKAngleColor
         } else {
-            angle.color
+            angle.color ?: pose.configuration.defaultAngleColor
         }
         val color = ContextCompat.getColor(context, colorRes)
 

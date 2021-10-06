@@ -223,7 +223,9 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
         val distanceMiddleEnd = getDistanceBetweenPoints(middlePoint, endPoint)
         val biggestDistance = listOf(distanceMiddleStart, distanceMiddleEnd).minOrNull() ?: distanceMiddleStart
-        val angleDistance = biggestDistance * 0.35
+
+        val minAngleDistance = resources.getDimensionPixelSize(R.dimen.minAngleDistance)
+        val angleDistance: Int  = if(biggestDistance * 0.35 < minAngleDistance) minAngleDistance else (biggestDistance * 0.35).toInt()
 
         val angleDegrees = AngleUtil.getAngle(startPoint, middlePoint, endPoint)
 
@@ -251,10 +253,10 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         }
 
         this.drawArc(
-            (middlePoint.x - angleDistance).toFloat(),
-            (middlePoint.y - angleDistance).toFloat(),
-            (middlePoint.x + angleDistance).toFloat(),
-            (middlePoint.y + angleDistance).toFloat(),
+            (middlePoint.x - angleDistance),
+            (middlePoint.y - angleDistance),
+            (middlePoint.x + angleDistance),
+            (middlePoint.y + angleDistance),
             startAngle.toFloat(),
             angleDegrees.toFloat(),
             true,

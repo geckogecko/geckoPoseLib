@@ -103,7 +103,7 @@ class MainFragment : GeckoPoseFragment() {
 
         geckoPoseView = view.findViewById(R.id.pose_view)
         geckoPoseView.setOnPointChangedListener(object : GeckoPoseView.OnPointChangedListener {
-            override fun onPointChanged(type: Int) {
+            override fun onPointChanged(type: Int, pose: GeckoPose) {
                 geckoPoseView.pose?.let { updateAngleTexts(it) }
             }
         })

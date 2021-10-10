@@ -45,7 +45,7 @@ class GeckoPoseView @JvmOverloads constructor(
     private val fabSaveEdit: FloatingActionButton
 
     interface OnPointChangedListener {
-        fun onPointChanged(type: Int)
+        fun onPointChanged(type: Int, pose: GeckoPose)
     }
     private var onPointChangedListener: OnPointChangedListener? = null
 
@@ -67,7 +67,7 @@ class GeckoPoseView @JvmOverloads constructor(
             }
 
             override fun onPointChanged(type: Int) {
-                onPointChangedListener?.onPointChanged(type)
+                pose?.let { onPointChangedListener?.onPointChanged(type, it) }
             }
         })
     }

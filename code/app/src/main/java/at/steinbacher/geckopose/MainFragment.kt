@@ -1,12 +1,10 @@
 package at.steinbacher.geckopose
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import at.steinbacher.geckoposelib.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
@@ -102,8 +100,8 @@ class MainFragment : GeckoPoseFragment() {
         txtAngleB = view.findViewById(R.id.txt_angle_b)
 
         geckoPoseView = view.findViewById(R.id.pose_view)
-        geckoPoseView.setOnPointChangedListener(object : GeckoPoseView.OnPointChangedListener {
-            override fun onPointChanged(type: Int, pose: GeckoPose) {
+        geckoPoseView.setOnPoseChangedListener(object : GeckoPoseView.OnPoseChangedListener {
+            override fun onPoseChanged(pose: GeckoPose) {
                 geckoPoseView.pose?.let { updateAngleTexts(it) }
             }
         })

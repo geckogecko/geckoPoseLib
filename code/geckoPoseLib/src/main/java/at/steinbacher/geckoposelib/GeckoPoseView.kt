@@ -44,10 +44,10 @@ class GeckoPoseView @JvmOverloads constructor(
     private val imageView: ImageView
     private val fabSaveEdit: FloatingActionButton
 
-    interface OnPointChangedListener {
-        fun onPointChanged(type: Int, pose: GeckoPose)
+    interface OnPoseChangedListener {
+        fun onPoseChanged(pose: GeckoPose)
     }
-    private var onPointChangedListener: OnPointChangedListener? = null
+    private var onPoseChangedListener: OnPoseChangedListener? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_pose, this, true)
@@ -67,13 +67,13 @@ class GeckoPoseView @JvmOverloads constructor(
             }
 
             override fun onPointChanged(type: Int) {
-                pose?.let { onPointChangedListener?.onPointChanged(type, it) }
+                pose?.let { onPoseChangedListener?.onPoseChanged(it) }
             }
         })
     }
 
-    fun setOnPointChangedListener(listener: OnPointChangedListener) {
-        onPointChangedListener = listener
+    fun setOnPoseChangedListener(listener: OnPoseChangedListener) {
+        onPoseChangedListener = listener
     }
 
     private fun save() {

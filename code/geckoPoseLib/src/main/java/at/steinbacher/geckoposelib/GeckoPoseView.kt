@@ -40,6 +40,14 @@ class GeckoPoseView @JvmOverloads constructor(
             skeletonView.pose = field
         }
 
+    var drawLines
+        set(value) { skeletonView.drawLines = value }
+        get() = skeletonView.drawLines
+
+    var drawAngles
+        set(value) { skeletonView.drawAngles = value }
+        get() = skeletonView.drawAngles
+
     private val skeletonView: SkeletonView
     private val imageView: ImageView
     private val fabSaveEdit: FloatingActionButton
@@ -85,6 +93,18 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
     : View(context, attrs, defStyleAttr) {
 
     var pose: GeckoPose? = null
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var drawLines: Boolean = true
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var drawAngles: Boolean = true
         set(value) {
             field = value
             invalidate()
@@ -190,17 +210,21 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         super.onDraw(canvas)
 
         pose?.let {
-            it.configuration.angles.forEach { angle ->
-                canvas.drawAngleIndicator(angle, it)
+            if(drawAngles) {
+                it.configuration.angles.forEach { angle ->
+                    canvas.drawAngleIndicator(angle, it)
+                }
             }
 
-            it.configuration.lines.forEach { line ->
-                val start = it.getPose(line.start)
-                val end = it.getPose(line.end)
+            if(drawLines) {
+                it.configuration.lines.forEach { line ->
+                    val start = it.getPose(line.start)
+                    val end = it.getPose(line.end)
 
-                linePaint.color = ContextCompat.getColor(context, line.color ?: it.configuration.defaultLineColor)
+                    linePaint.color = ContextCompat.getColor(context, line.color ?: it.configuration.defaultLineColor)
 
-                canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
+                    canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
+                }
             }
 
             it.landmarkPoints.forEach { processedPoint ->

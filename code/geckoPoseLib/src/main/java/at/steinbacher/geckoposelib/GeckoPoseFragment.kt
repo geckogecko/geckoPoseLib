@@ -75,6 +75,8 @@ abstract class GeckoPoseFragment: ImageCaptureFragment() {
             )
 
             geckoPoseView.bitmap = scaledBitmap
+            geckoPoseView.drawLines = false
+            geckoPoseView.drawAngles = false
             geckoPoseDetection.processImage(scaledBitmap)
 
             onPictureSet()

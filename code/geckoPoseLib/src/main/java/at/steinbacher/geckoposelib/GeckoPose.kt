@@ -2,6 +2,8 @@ package at.steinbacher.geckoposelib
 
 import android.graphics.PointF
 import androidx.annotation.ColorRes
+import at.steinbacher.geckoposelib.Angle.Companion.copy
+import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copy
 import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlin.collections.ArrayList
@@ -20,9 +22,9 @@ data class GeckoPoseConfiguration(
     companion object {
         fun GeckoPoseConfiguration.copy() = GeckoPoseConfiguration(
             tag = this.tag,
-            points = this.points.toMutableList(),
-            lines = this.lines.toMutableList(),
-            angles = this.angles.toMutableList(),
+            points = this.points.map { it.copy() },
+            lines = this.lines.map { it.copy() },
+            angles = this.angles.map { it.copy() },
             defaultPointColor = this.defaultPointColor,
             defaultSelectedPointColor = this.defaultSelectedPointColor,
             defaultLineColor = this.defaultLineColor,
@@ -49,7 +51,7 @@ class GeckoPose(
     companion object {
         fun GeckoPose.copy(): GeckoPose {
             return GeckoPose(this.configuration.copy()).also {
-                it.landmarkPoints.addAll(this.landmarkPoints.toMutableList())
+                it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copy() })
             }
         }
     }
@@ -120,6 +122,13 @@ data class LandmarkPoint(
             point = this,
             inFrameLikelihood = poseLandmark.inFrameLikelihood
         )
+
+        fun LandmarkPoint.copy() = LandmarkPoint(
+            position = PointF(this.position.x, this.position.y),
+            point = this.point.copy(),
+            inFrameLikelihood = this.inFrameLikelihood
+
+        )
     }
 }
 
@@ -127,14 +136,31 @@ data class Point(
     val type: Int,
     @ColorRes val color: Int? = null,
     @ColorRes val selectedColor: Int? = null
-)
+) {
+    companion object {
+        fun Point.copy() = Point(
+            type = this.type,
+            color = this.color,
+            selectedColor = this.selectedColor
+        )
+    }
+}
 
 data class Line(
     val start: Int,
     val end: Int,
     val tag: String,
     @ColorRes val color: Int? = null
-)
+) {
+    companion object {
+        fun Line.copy() = Line(
+            start = this.start,
+            end = this.end,
+            tag = this.tag,
+            color = this.color
+        )
+    }
+}
 
 open class Angle(
     val startPointType: Int,
@@ -142,7 +168,17 @@ open class Angle(
     val endPointType: Int,
     val tag: String,
     @ColorRes val color: Int? = null
-)
+) {
+    companion object {
+        fun Angle.copy() = Angle(
+            startPointType = this.startPointType,
+            middlePointType = this.middlePointType,
+            endPointType = this.endPointType,
+            tag = this.tag,
+            color = this.color
+        )
+    }
+}
 
 class MinMaxAngle(startPointType: Int,
                   middlePointType: Int,
@@ -153,6 +189,19 @@ class MinMaxAngle(startPointType: Int,
                   val maxAngle: Float,
                   @ColorRes val errorColor: Int? = null,
 ): Angle(startPointType, middlePointType, endPointType, tag, color) {
+
+    companion object {
+        fun MinMaxAngle.copy() = MinMaxAngle(
+            startPointType = this.startPointType,
+            middlePointType = this.middlePointType,
+            endPointType = this.endPointType,
+            tag = this.tag,
+            color = this.color,
+            minAngle = this.minAngle,
+            maxAngle = this.maxAngle,
+            errorColor = this.errorColor
+        )
+    }
 
     fun isAngleNotInside(angle: Double): Boolean = !isAngleInside(angle)
     fun isAngleInside(angle: Double): Boolean = angle in minAngle..maxAngle

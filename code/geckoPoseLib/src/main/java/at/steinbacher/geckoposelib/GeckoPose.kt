@@ -16,7 +16,21 @@ data class GeckoPoseConfiguration(
     @ColorRes val defaultLineColor: Int,
     @ColorRes val defaultAngleColor: Int,
     @ColorRes val defaultNOKAngleColor: Int,
-)
+) {
+    companion object {
+        fun GeckoPoseConfiguration.copy() = GeckoPoseConfiguration(
+            tag = this.tag,
+            points = this.points.toMutableList(),
+            lines = this.lines.toMutableList(),
+            angles = this.angles.toMutableList(),
+            defaultPointColor = this.defaultPointColor,
+            defaultSelectedPointColor = this.defaultSelectedPointColor,
+            defaultLineColor = this.defaultLineColor,
+            defaultAngleColor = this.defaultAngleColor,
+            defaultNOKAngleColor = this.defaultNOKAngleColor
+        )
+    }
+}
 
 class GeckoPose(
     val configuration: GeckoPoseConfiguration
@@ -32,10 +46,18 @@ class GeckoPose(
     val averageInFrameLikelihood: Float
         get() = landmarkPoints.fold(0f) { acc, it -> acc + it.inFrameLikelihood } / landmarkPoints.size
 
+    companion object {
+        fun GeckoPose.copy(): GeckoPose {
+            return GeckoPose(this.configuration.copy()).also {
+                it.landmarkPoints.addAll(this.landmarkPoints.toMutableList())
+            }
+        }
+    }
+
     fun hasPointsBelowThreshold(threshold: Float): Boolean
         = landmarkPoints.any { it.inFrameLikelihood < threshold }
 
-    fun getPose(type: Int): LandmarkPoint
+    fun getLandmarkPoint(type: Int): LandmarkPoint
         = landmarkPoints.find { it.point.type == type } ?: error("Point not found in Pose")
 
     fun getAnglePoints(angleTag: String): Triple<LandmarkPoint, LandmarkPoint, LandmarkPoint> {

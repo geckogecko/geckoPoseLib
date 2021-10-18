@@ -218,8 +218,8 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
 
             if(drawLines) {
                 it.configuration.lines.forEach { line ->
-                    val start = it.getPose(line.start)
-                    val end = it.getPose(line.end)
+                    val start = it.getLandmarkPoint(line.start)
+                    val end = it.getLandmarkPoint(line.end)
 
                     linePaint.color = ContextCompat.getColor(context, line.color ?: it.configuration.defaultLineColor)
 

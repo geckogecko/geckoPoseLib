@@ -3,12 +3,15 @@ package at.steinbacher.geckoposelib
 import android.graphics.PointF
 import androidx.annotation.ColorRes
 import at.steinbacher.geckoposelib.Angle.Companion.copy
+import at.steinbacher.geckoposelib.GeckoPoseConfiguration.Companion.copy
 import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copy
+import at.steinbacher.geckoposelib.Line.Companion.copy
+import at.steinbacher.geckoposelib.Point.Companion.copy
 import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlin.collections.ArrayList
 
-data class GeckoPoseConfiguration(
+class GeckoPoseConfiguration(
     val tag: String,
     val points: List<Point> = listOf(),
     val lines: List<Line> = listOf(),
@@ -111,7 +114,7 @@ fun List<GeckoPose>.getByTag(poseTag: String): GeckoPose? =
     this.find { it.configuration.tag == poseTag }
 
 
-data class LandmarkPoint(
+class LandmarkPoint(
     val position: PointF,
     val point: Point,
     val inFrameLikelihood: Float
@@ -132,7 +135,7 @@ data class LandmarkPoint(
     }
 }
 
-data class Point(
+class Point(
     val type: Int,
     @ColorRes val color: Int? = null,
     @ColorRes val selectedColor: Int? = null
@@ -146,7 +149,7 @@ data class Point(
     }
 }
 
-data class Line(
+class Line(
     val start: Int,
     val end: Int,
     val tag: String,

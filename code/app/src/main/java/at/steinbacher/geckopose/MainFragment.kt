@@ -1,11 +1,14 @@
 package at.steinbacher.geckopose
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import at.steinbacher.geckoposelib.*
+import at.steinbacher.geckoposelib.GeckoPose.Companion.copy
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
 

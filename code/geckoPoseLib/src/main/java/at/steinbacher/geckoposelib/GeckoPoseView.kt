@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.util.AngleUtil
+import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.math.acos
 import kotlin.math.pow
@@ -25,6 +26,7 @@ class GeckoPoseView @JvmOverloads constructor(
         set(value) {
             field = value
             imageView.setImageBitmap(field)
+            skeletonView.bitmap = field
 
             field?.let {
                 skeletonView.updateLayoutParams {
@@ -97,6 +99,8 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             field = value
             invalidate()
         }
+
+    var bitmap: Bitmap? = null
 
     var drawLines: Boolean = true
         set(value) {
@@ -234,7 +238,22 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 15f, selectedPointPaint)
                 } else {
                     pointPaint.color = ContextCompat.getColor(context,
-                        processedPoint.point.color ?: it.configuration.defaultPointColor)
+                        if(processedPoint.point.color != null) {
+                            processedPoint.point.color
+                        } else {
+                            if(bitmap != null) {
+                                BitmapUtil.getContrastColor(
+                                    bitmap = bitmap!!,
+                                    x = processedPoint.position.x.toInt(),
+                                    y = processedPoint.position.y.toInt(),
+                                    contrastColorLight = it.configuration.defaultPointColorLight,
+                                    contrastColorDark = it.configuration.defaultPointColorDark,
+                                )
+                            } else {
+                                it.configuration.defaultPointColorLight
+                            }
+                        }
+                    )
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 10f, pointPaint)
                 }
             }

@@ -2,10 +2,12 @@ package at.steinbacher.geckoposelib.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.ColorRes
 
 object BitmapUtil {
     fun getBitmap(uri: Uri, context: Context): Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -36,6 +38,24 @@ object BitmapUtil {
             Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true)
         } else {
             error("maxWidth or maxHeight is 0")
+        }
+    }
+
+    fun getContrastColor(bitmap: Bitmap, x: Int, y: Int, @ColorRes contrastColorLight: Int, @ColorRes contrastColorDark: Int): Int {
+        val pixel = bitmap.getPixel(x, y)
+        return getContrastColor(pixel, contrastColorLight, contrastColorDark)
+    }
+
+    private fun getContrastColor(color: Int, @ColorRes contrastColorLight: Int, @ColorRes contrastColorDark: Int): Int {
+        val r = color shr 16 and 0xFF
+        val g = color shr 8 and 0xFF
+        val b = color and 0xFF
+        val a = 1 - (0.299 * r + 0.578 * g + 0.114 * b) / 255
+
+        return if (a < 0.5) {
+            contrastColorDark
+        } else {
+            contrastColorLight
         }
     }
 }

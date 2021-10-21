@@ -22,15 +22,4 @@
         app:layout_constraintEnd_toEndOf="@id/image_view"
         app:layout_constraintBottom_toBottomOf="@id/image_view"
         />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_save_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:background="#0000ffff"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

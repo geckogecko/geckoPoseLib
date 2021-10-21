@@ -52,28 +52,26 @@ class GeckoPoseView @JvmOverloads constructor(
 
     private val skeletonView: SkeletonView
     private val imageView: ImageView
-    private val fabSaveEdit: FloatingActionButton
 
     interface OnPoseChangedListener {
         fun onPoseChanged(pose: GeckoPose)
     }
     private var onPoseChangedListener: OnPoseChangedListener? = null
 
+    interface OnPointEditListener {
+        fun onPointEditStarted()
+    }
+    private var onPointEditListener: OnPointEditListener? = null
+
     init {
         LayoutInflater.from(context).inflate(R.layout.view_pose, this, true)
-
-        fabSaveEdit = findViewById(R.id.fab_save_edit)
-        fabSaveEdit.setOnClickListener {
-            save()
-            fabSaveEdit.visibility = GONE
-        }
 
         imageView = findViewById(R.id.image_view)
 
         skeletonView = findViewById(R.id.skeleton_view)
         skeletonView.setSkeletonViewListener(object : SkeletonView.SkeletonViewListener {
             override fun onPointSelected() {
-                fabSaveEdit.visibility = VISIBLE
+                onPointEditListener?.onPointEditStarted()
             }
 
             override fun onPointChanged(type: Int) {
@@ -86,7 +84,7 @@ class GeckoPoseView @JvmOverloads constructor(
         onPoseChangedListener = listener
     }
 
-    private fun save() {
+    fun saveEdit() {
         skeletonView.saveSelectedPoint()
     }
 }

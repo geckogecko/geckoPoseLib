@@ -38,8 +38,14 @@ class GeckoPoseView @JvmOverloads constructor(
 
     var pose: GeckoPose? = null
         set(value) {
+            val poseWasNotNull = pose != null
+
             field = value
             skeletonView.pose = field
+
+            if(poseWasNotNull) {
+                field?.let { onPoseChangedListener?.onPoseChanged(it) }
+            }
         }
 
     var drawLines

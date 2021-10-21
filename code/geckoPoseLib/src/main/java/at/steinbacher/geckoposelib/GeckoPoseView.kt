@@ -129,6 +129,8 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
     private var lastMoveX: Float = -1f
     private var lastMoveY: Float = -1f
 
+    private var touchDownCounter = 0
+
     init {
         setWillNotDraw(false)
     }
@@ -155,6 +157,8 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         return when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 if(event.isInsidePreview()) {
+                    touchDownCounter++
+
                     if (selectedPointType == null) {
                         skeletonViewListener?.onPointSelected()
                         selectedPointType = pose?.getClosestPoint(event.x, event.y)?.point?.type
@@ -187,8 +191,14 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
                 }
             }
             MotionEvent.ACTION_UP -> {
-                lastMoveX = -1f
-                lastMoveY = -1f
+                if(touchDownCounter > 1) {
+                    saveSelectedPoint()
+                    touchDownCounter = 0
+                } else {
+                    lastMoveX = -1f
+                    lastMoveY = -1f
+                }
+
                 true
             }
 

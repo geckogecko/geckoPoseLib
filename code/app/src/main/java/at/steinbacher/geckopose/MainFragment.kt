@@ -1,5 +1,7 @@
 package at.steinbacher.geckopose
 
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,20 +9,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.GeckoPose.Companion.copy
+import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
+import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
+import java.lang.Exception
 
-class MainFragment : GeckoPoseFragment() {
+class MainFragment : ImageCaptureFragment() {
     private lateinit var fabImageChooser: FloatingActionButton
-    private lateinit var fabTakeImage: FloatingActionButton
-    private lateinit var fabGalleryChooser: FloatingActionButton
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
+    private lateinit var geckoPoseView: GeckoPoseView
 
-    override val preferredPose: String = "left_pose"
-    override val geckoPoseConfigurations = listOf(
+    private lateinit var geckoPoseDetection: GeckoPoseDetection
+
+    private val inFrameLikelihoodThreshold: Float = 0.8f
+
+    private val preferredPose: String = "left_pose"
+    private val geckoPoseConfigurations = listOf(
         GeckoPoseConfiguration(
             tag = "left_pose",
             points = listOf(
@@ -112,34 +121,72 @@ class MainFragment : GeckoPoseFragment() {
         })
 
         fabImageChooser = view.findViewById(R.id.fab_image_chooser)
-        fabTakeImage = view.findViewById(R.id.fab_take_image)
-        fabGalleryChooser = view.findViewById(R.id.fab_gallery_chooser)
 
         fabImageChooser.setOnClickListener {
             openImagePicker()
         }
 
-        fabTakeImage.setOnClickListener {
-            openTakeImage()
-        }
+        geckoPoseDetection = GeckoPoseDetection(
+            detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
+            configurations = geckoPoseConfigurations,
+            listener = object : GeckoPoseDetectionListener {
+                override fun onSuccess(geckoPoses: List<GeckoPose>) {
+                    val preferred = geckoPoses.getByTag(preferredPose)
+                    val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
 
-        fabGalleryChooser.setOnClickListener {
-            openChooseFromGallery()
+                    val pose: GeckoPose? = if(preferred != null) {
+                        preferred
+                    }  else if(best != null){
+                        best
+                    } else {
+                        Toast.makeText(requireContext(), "onSuccess but none found", Toast.LENGTH_SHORT).show()
+                        null
+                    }
+
+                    if(pose != null) {
+                        geckoPoseView.pose = pose
+                        onPoseSet(pose)
+                    }
+                }
+
+                override fun onCompletedWithoutSuccess() {
+                    Toast.makeText(requireContext(), "onCompletedWithoutSuccess", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onFailure(exception: Exception) {
+                    Toast.makeText(requireContext(), "onFailure", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
+    override fun onPictureReceived(uri: Uri) {
+        setPoseViewPicture(BitmapUtil.getBitmap(uri, requireContext()))
+    }
+
+    private fun setPoseViewPicture(bitmap: Bitmap) {
+        geckoPoseView.post {
+            val scaledBitmap = BitmapUtil.resize(
+                image = bitmap,
+                maxWidth = geckoPoseView.width,
+                maxHeight = geckoPoseView.height
+            )
+
+            geckoPoseView.bitmap = scaledBitmap
+            geckoPoseDetection.processImage(scaledBitmap)
+
+            onPictureSet()
         }
     }
 
-    override fun onPictureSet() {
+    private fun onPictureSet() {
         fabImageChooser.visibility = View.GONE
-        fabTakeImage.visibility = View.GONE
-        fabGalleryChooser.visibility = View.GONE
 
         txtAngleA.visibility = View.VISIBLE
         txtAngleB.visibility = View.VISIBLE
     }
 
-    override fun onPoseSet(pose: GeckoPose) {
-        super.onPoseSet(pose)
-
+    private fun onPoseSet(pose: GeckoPose) {
         updateAngleTexts(pose)
     }
 

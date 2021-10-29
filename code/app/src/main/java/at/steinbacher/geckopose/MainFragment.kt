@@ -3,6 +3,7 @@ package at.steinbacher.geckopose
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +11,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.GeckoPose.Companion.copy
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
+import java.io.File
 import java.lang.Exception
 
 class MainFragment : ImageCaptureFragment() {
@@ -123,7 +126,20 @@ class MainFragment : ImageCaptureFragment() {
         fabImageChooser = view.findViewById(R.id.fab_image_chooser)
 
         fabImageChooser.setOnClickListener {
-            openImagePicker()
+
+            val photoFile = File.createTempFile(
+                "IMG_",
+                ".jpg",
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            )
+
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                photoFile
+            )
+
+            openImagePicker(uri)
         }
 
         geckoPoseDetection = GeckoPoseDetection(
@@ -162,6 +178,14 @@ class MainFragment : ImageCaptureFragment() {
 
     override fun onPictureReceived(uri: Uri) {
         setPoseViewPicture(BitmapUtil.getBitmap(uri, requireContext()))
+    }
+
+    override fun onTakePictureFailed() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChoosePictureFailed() {
+        TODO("Not yet implemented")
     }
 
     private fun setPoseViewPicture(bitmap: Bitmap) {

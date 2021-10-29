@@ -2,47 +2,78 @@ package at.steinbacher.geckoposelib
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.graphics.Matrix
 import android.net.Uri
-import android.os.Build
-import androidx.exifinterface.media.ExifInterface
-import androidx.fragment.app.Fragment
-import com.github.dhaval2404.imagepicker.ImagePicker
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import com.github.dhaval2404.imagepicker.ImagePicker
+import java.io.File
 
 abstract class ImageCaptureFragment: Fragment() {
-
-    companion object {
-     const val REQUEST_IMAGE_CAPTURE = 1001
-    }
-
     abstract fun onPictureReceived(uri: Uri)
+    abstract fun onTakePictureFailed()
+    abstract fun onChoosePictureFailed()
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    private lateinit var receivedImageUri: Uri
 
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            onPictureReceived(data?.data!!)
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if(success) {
+            onPictureReceived(receivedImageUri)
+        } else {
+            onTakePictureFailed()
         }
     }
 
-    fun openImagePicker() {
-        ImagePicker.with(this)
-            .start(REQUEST_IMAGE_CAPTURE)
+    private val choosePicture = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if(result.resultCode == RESULT_OK) {
+            onPictureReceived(result.data?.data!!)
+        } else {
+            onChoosePictureFailed()
+        }
     }
 
-    fun openTakeImage() {
-        ImagePicker.with(this)
-            .cameraOnly()
-            .start(REQUEST_IMAGE_CAPTURE)
+    private val takeVideo = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if(result.resultCode == RESULT_OK) {
+
+        } else {
+
+        }
     }
 
-    fun openChooseFromGallery() {
-        ImagePicker.with(this)
-            .galleryOnly()
-            .start(REQUEST_IMAGE_CAPTURE)
+    private val chooseVideo = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if(result.resultCode == RESULT_OK) {
+
+        } else {
+
+        }
+    }
+
+
+    fun openImagePicker(uri: Uri) {
+        val intent = Intent(Intent.ACTION_PICK).apply {
+            type = "video/*"
+        }
+        chooseVideo.launch(intent)
+    }
+
+    fun openTakeImage(uri: Uri) {
+        receivedImageUri = uri
+        takePicture.launch(receivedImageUri)
+    }
+
+    fun openTakeVideo() {
+        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        takeVideo.launch(intent)
+    }
+
+    fun openChooseImage() {
+        val intent = Intent(Intent.ACTION_PICK).apply {
+            type = "image/*"
+        }
+
+        choosePicture.launch(intent)
     }
 }

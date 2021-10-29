@@ -1,6 +1,7 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
+import android.provider.MediaStore
 import at.steinbacher.geckoposelib.LandmarkPoint.Companion.toProcessedPoint
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose

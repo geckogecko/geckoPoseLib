@@ -31,18 +31,21 @@ abstract class ImageCaptureFragment: Fragment() {
 
     fun openImagePicker() {
         ImagePicker.with(this)
+            .crop()
             .start(REQUEST_IMAGE_CAPTURE)
     }
 
     fun openTakeImage() {
         ImagePicker.with(this)
             .cameraOnly()
+            .crop()
             .start(REQUEST_IMAGE_CAPTURE)
     }
 
     fun openChooseFromGallery() {
         ImagePicker.with(this)
             .galleryOnly()
+            .crop()
             .start(REQUEST_IMAGE_CAPTURE)
     }
 }

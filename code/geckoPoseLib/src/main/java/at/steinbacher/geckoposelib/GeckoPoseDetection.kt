@@ -10,7 +10,7 @@ import java.lang.Exception
 
 
 interface GeckoPoseDetectionListener {
-    fun onSuccess(geckoPoses: List<GeckoPose>)
+    fun onSuccess(geckoPoses: List<GeckoPose?>)
     fun onCompletedWithoutSuccess()
     fun onFailure(exception: Exception)
 }
@@ -48,12 +48,25 @@ class GeckoPoseDetection(
             }
     }
 
-    private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<GeckoPose> = configurations.map {
-        GeckoPose(it).apply {
-            configuration.points.forEach { point ->
-                pose.getPoseLandmark(point.type)?.let { poseLandmark ->
-                    this.landmarkPoints.add(point.toProcessedPoint(poseLandmark))
-                }
+    private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<GeckoPose?> = configurations.map {
+        val landmarkPoints = ArrayList<LandmarkPoint>()
+        var missesPoints = false
+        it.points.forEach { point ->
+            val poseLandmark = pose.getPoseLandmark(point.type)
+
+            if(poseLandmark != null) {
+                landmarkPoints.add(point.toProcessedPoint(poseLandmark))
+            } else {
+                missesPoints = true
+                return@forEach
+            }
+        }
+
+        if(missesPoints) {
+            null
+        } else {
+            GeckoPose(it).apply {
+                this.landmarkPoints.addAll(landmarkPoints)
             }
         }
     }

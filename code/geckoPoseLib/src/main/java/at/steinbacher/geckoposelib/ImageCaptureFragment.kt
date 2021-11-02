@@ -32,7 +32,12 @@ abstract class ImageCaptureFragment: Fragment() {
     fun openImagePicker() {
         ImagePicker.with(this)
             .cropSquare()
+            .setImageProviderInterceptor { imageProvider -> onImagePickerSelected(imageProvider.name) }
             .start(REQUEST_IMAGE_CAPTURE)
+    }
+
+    open fun onImagePickerSelected(name: String) {
+        Log.i("ImageCaptureFragment", "onImagePickerSelected: $name")
     }
 
     fun openTakeImage() {

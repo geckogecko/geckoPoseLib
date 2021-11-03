@@ -146,7 +146,7 @@ class MainFragment : ImageCaptureFragment() {
             detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
             configurations = geckoPoseConfigurations,
             listener = object : GeckoPoseDetectionListener {
-                override fun onSuccess(geckoPoses: List<GeckoPose>) {
+                override fun onSuccess(geckoPoses: List<GeckoPose?>) {
                     val preferred = geckoPoses.getByTag(preferredPose)
                     val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
 

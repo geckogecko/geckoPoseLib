@@ -3,14 +3,9 @@ package at.steinbacher.geckoposelib
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import com.github.dhaval2404.imagepicker.ImagePicker
-import java.io.File
 
 abstract class ImageCaptureFragment: Fragment() {
     abstract fun onPictureReceived(uri: Uri)

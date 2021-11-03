@@ -107,13 +107,14 @@ class GeckoPose(
     fun getPoint(type: Int): LandmarkPoint = landmarkPoints.firstOrNull { it.point.type == type } ?: error("Unable to find point: $type in Pose!")
 }
 
-fun List<GeckoPose>.getBest(threshold: Float): GeckoPose? =
-    this.filter { !it.missesPoints }
+fun List<GeckoPose?>.getBest(threshold: Float): GeckoPose? =
+    this.filterNotNull()
+        .filter { !it.missesPoints }
         .filter { !it.hasPointsBelowThreshold(threshold) }
         .maxByOrNull { it.averageInFrameLikelihood }
 
-fun List<GeckoPose>.getByTag(poseTag: String): GeckoPose? =
-    this.find { it.configuration.tag == poseTag }
+fun List<GeckoPose?>.getByTag(poseTag: String): GeckoPose? =
+    this.find { it?.configuration?.tag == poseTag }
 
 
 class LandmarkPoint(

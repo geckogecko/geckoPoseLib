@@ -7,7 +7,10 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.annotation.ColorRes
+import at.steinbacher.geckoposelib.GeckoPose
+import com.google.mlkit.vision.pose.Pose
 
 object BitmapUtil {
     fun getBitmap(uri: Uri, context: Context): Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -21,7 +24,7 @@ object BitmapUtil {
         MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
     }
 
-    fun resize(image: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+    fun resize(image: Bitmap, maxWidth: Int, maxHeight: Int): Triple<Bitmap, Float, Float> {
         return if (maxHeight > 0 && maxWidth > 0) {
             val width = image.width
             val height = image.height
@@ -29,13 +32,17 @@ object BitmapUtil {
             val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
             var finalWidth = maxWidth
             var finalHeight = maxHeight
+
             if (ratioMax > ratioBitmap) {
                 finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
             } else {
                 finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
             }
 
-            Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true)
+            val scaleX = finalWidth / width.toFloat()
+            val scaleY = finalHeight / height.toFloat()
+
+            Triple(Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true), scaleX, scaleY)
         } else {
             error("maxWidth or maxHeight is 0")
         }

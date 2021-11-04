@@ -11,7 +11,7 @@ import java.lang.Exception
 
 
 interface GeckoPoseDetectionListener {
-    fun onSuccess(geckoPoses: List<GeckoPose?>)
+    fun onSuccess(bitmap: Bitmap, geckoPoses: List<GeckoPose?>)
     fun onCompletedWithoutSuccess()
     fun onFailure(exception: Exception)
 }
@@ -39,7 +39,7 @@ class GeckoPoseDetection(
                 successCalled = true
 
                 val geckoPoses = processPose(configurations, pose)
-                listener.onSuccess(geckoPoses)
+                listener.onSuccess(bitmap, geckoPoses)
             }
             .addOnFailureListener{ listener.onFailure(it) }
             .addOnCompleteListener {

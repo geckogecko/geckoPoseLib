@@ -12,8 +12,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.fragment.ImageCaptureFragment
+import at.steinbacher.geckoposelib.GeckoPose.Companion.copyMove
+import at.steinbacher.geckoposelib.GeckoPose.Companion.copyScale
 import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
+import at.steinbacher.geckoposelib.util.BitmapPoseUtil
+import at.steinbacher.geckoposelib.util.BitmapPoseUtil.scale
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
@@ -162,7 +165,7 @@ class MainFragment : ImageVideoSelectionFragment() {
             detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
             configurations = geckoPoseConfigurations,
             listener = object : GeckoPoseDetectionListener {
-                override fun onSuccess(geckoPoses: List<GeckoPose?>) {
+                override fun onSuccess(bitmap: Bitmap, geckoPoses: List<GeckoPose?>) {
                     val preferred = geckoPoses.getByTag(preferredPose)
                     val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
 
@@ -176,8 +179,14 @@ class MainFragment : ImageVideoSelectionFragment() {
                     }
 
                     if(pose != null) {
-                        geckoPoseView.pose = pose
-                        onPoseSet(pose)
+                        val (croppedAndScaledBitmap, croppedAndScaledPose) = BitmapPoseUtil.cropToPose(bitmap, pose, 0.2f)
+                            .scale(geckoPoseView.width, geckoPoseView.height)
+
+                        geckoPoseView.bitmap = croppedAndScaledBitmap
+                        onPictureSet()
+
+                        geckoPoseView.pose = croppedAndScaledPose
+                        onPoseSet(croppedAndScaledPose)
                     }
                 }
 
@@ -217,18 +226,7 @@ class MainFragment : ImageVideoSelectionFragment() {
     }
 
     private fun setPoseViewPicture(bitmap: Bitmap) {
-        geckoPoseView.post {
-            val scaledBitmap = BitmapUtil.resize(
-                image = bitmap,
-                maxWidth = geckoPoseView.width,
-                maxHeight = geckoPoseView.height
-            )
-
-            geckoPoseView.bitmap = scaledBitmap
-            geckoPoseDetection.processImage(scaledBitmap)
-
-            onPictureSet()
-        }
+        geckoPoseDetection.processImage(bitmap)
     }
 
     private fun onPictureSet() {

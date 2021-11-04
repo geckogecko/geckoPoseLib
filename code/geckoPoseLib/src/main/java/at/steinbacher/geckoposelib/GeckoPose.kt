@@ -5,6 +5,8 @@ import androidx.annotation.ColorRes
 import at.steinbacher.geckoposelib.Angle.Companion.copy
 import at.steinbacher.geckoposelib.GeckoPoseConfiguration.Companion.copy
 import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copy
+import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copyMove
+import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copyScale
 import at.steinbacher.geckoposelib.Line.Companion.copy
 import at.steinbacher.geckoposelib.Point.Companion.copy
 import at.steinbacher.geckoposelib.util.AngleUtil
@@ -59,6 +61,18 @@ class GeckoPose(
                 it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copy() })
             }
         }
+        fun GeckoPose.copyScale(scaleX: Float, scaleY: Float): GeckoPose {
+            return GeckoPose(this.configuration.copy()).also {
+                it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copyScale(scaleX, scaleY) })
+            }
+        }
+
+        fun GeckoPose.copyMove(cropX: Int, cropY: Int): GeckoPose {
+            return GeckoPose(this.configuration.copy()).also {
+                it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copyMove(cropX, cropY) })
+            }
+        }
+
     }
 
     fun hasPointsBelowThreshold(threshold: Float): Boolean
@@ -134,6 +148,18 @@ class LandmarkPoint(
             point = this.point.copy(),
             inFrameLikelihood = this.inFrameLikelihood
 
+        )
+
+        fun LandmarkPoint.copyScale(scaleX: Float, scaleY: Float) = LandmarkPoint(
+            position = PointF(this.position.x * scaleX, this.position.y * scaleY),
+            point = this.point.copy(),
+            inFrameLikelihood = this.inFrameLikelihood
+        )
+
+        fun LandmarkPoint.copyMove(cropX: Int, cropY: Int) = LandmarkPoint(
+            position = PointF(this.position.x + cropX, this.position.y + cropY),
+            point = this.point.copy(),
+            inFrameLikelihood = this.inFrameLikelihood
         )
     }
 }

@@ -3,23 +3,30 @@ package at.steinbacher.geckopose
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.GeckoPose.Companion.copy
+import at.steinbacher.geckoposelib.GeckoPose.Companion.copyMove
+import at.steinbacher.geckoposelib.GeckoPose.Companion.copyScale
+import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
+import at.steinbacher.geckoposelib.util.BitmapPoseUtil
+import at.steinbacher.geckoposelib.util.BitmapPoseUtil.scale
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
+import java.io.File
 import java.lang.Exception
 
-class MainFragment : ImageCaptureFragment() {
+class MainFragment : ImageVideoSelectionFragment() {
     private lateinit var fabImageChooser: FloatingActionButton
+    private lateinit var fabVideoChooser: FloatingActionButton
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
     private lateinit var geckoPoseView: GeckoPoseView
@@ -121,16 +128,44 @@ class MainFragment : ImageCaptureFragment() {
         })
 
         fabImageChooser = view.findViewById(R.id.fab_image_chooser)
-
         fabImageChooser.setOnClickListener {
-            openImagePicker()
+            val photoFile = File.createTempFile(
+                "IMAGE_",
+                ".jpeg",
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            )
+
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                photoFile
+            )
+
+            openImagePicker(uri)
+        }
+
+        fabVideoChooser = view.findViewById(R.id.fab_video_chooser)
+        fabVideoChooser.setOnClickListener {
+            val photoFile = File.createTempFile(
+                "VIDEO_",
+                ".mp4",
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            )
+
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                photoFile
+            )
+
+            openVideoPicker(uri)
         }
 
         geckoPoseDetection = GeckoPoseDetection(
             detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
             configurations = geckoPoseConfigurations,
             listener = object : GeckoPoseDetectionListener {
-                override fun onSuccess(geckoPoses: List<GeckoPose?>) {
+                override fun onSuccess(bitmap: Bitmap, geckoPoses: List<GeckoPose?>) {
                     val preferred = geckoPoses.getByTag(preferredPose)
                     val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
 
@@ -144,8 +179,14 @@ class MainFragment : ImageCaptureFragment() {
                     }
 
                     if(pose != null) {
-                        geckoPoseView.pose = pose
-                        onPoseSet(pose)
+                        val (croppedAndScaledBitmap, croppedAndScaledPose) = BitmapPoseUtil.cropToPose(bitmap, pose, 0.2f)
+                            .scale(geckoPoseView.width, geckoPoseView.height)
+
+                        geckoPoseView.bitmap = croppedAndScaledBitmap
+                        onPictureSet()
+
+                        geckoPoseView.pose = croppedAndScaledPose
+                        onPoseSet(croppedAndScaledPose)
                     }
                 }
 
@@ -164,23 +205,33 @@ class MainFragment : ImageCaptureFragment() {
         setPoseViewPicture(BitmapUtil.getBitmap(uri, requireContext()))
     }
 
+    override fun onTakePictureFailed() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChoosePictureFailed() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onVideoReceived(uri: Uri) {
+        Log.i("GEORG", "onVideoReceived: ${uri.path}")
+    }
+
+    override fun onTakeVideoFailed() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChooseVideoFailed() {
+        TODO("Not yet implemented")
+    }
+
     private fun setPoseViewPicture(bitmap: Bitmap) {
-        geckoPoseView.post {
-            val scaledBitmap = BitmapUtil.resize(
-                image = bitmap,
-                maxWidth = geckoPoseView.width,
-                maxHeight = geckoPoseView.height
-            )
-
-            geckoPoseView.bitmap = scaledBitmap
-            geckoPoseDetection.processImage(scaledBitmap)
-
-            onPictureSet()
-        }
+        geckoPoseDetection.processImage(bitmap)
     }
 
     private fun onPictureSet() {
         fabImageChooser.visibility = View.GONE
+        fabVideoChooser.visibility = View.GONE
 
         txtAngleA.visibility = View.VISIBLE
         txtAngleB.visibility = View.VISIBLE

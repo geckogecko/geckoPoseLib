@@ -8,12 +8,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.GeckoPose.Companion.copy
+import at.steinbacher.geckoposelib.fragment.ImageCaptureFragment
+import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.pose.PoseLandmark
@@ -21,8 +21,9 @@ import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import java.io.File
 import java.lang.Exception
 
-class MainFragment : ImageCaptureFragment() {
+class MainFragment : ImageVideoSelectionFragment() {
     private lateinit var fabImageChooser: FloatingActionButton
+    private lateinit var fabVideoChooser: FloatingActionButton
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
     private lateinit var geckoPoseView: GeckoPoseView
@@ -124,12 +125,10 @@ class MainFragment : ImageCaptureFragment() {
         })
 
         fabImageChooser = view.findViewById(R.id.fab_image_chooser)
-
         fabImageChooser.setOnClickListener {
-
             val photoFile = File.createTempFile(
-                "IMG_",
-                ".jpg",
+                "IMAGE_",
+                ".jpeg",
                 requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             )
 
@@ -140,6 +139,23 @@ class MainFragment : ImageCaptureFragment() {
             )
 
             openImagePicker(uri)
+        }
+
+        fabVideoChooser = view.findViewById(R.id.fab_video_chooser)
+        fabVideoChooser.setOnClickListener {
+            val photoFile = File.createTempFile(
+                "VIDEO_",
+                ".mp4",
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            )
+
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                photoFile
+            )
+
+            openVideoPicker(uri)
         }
 
         geckoPoseDetection = GeckoPoseDetection(
@@ -188,6 +204,18 @@ class MainFragment : ImageCaptureFragment() {
         TODO("Not yet implemented")
     }
 
+    override fun onVideoReceived(uri: Uri) {
+        Log.i("GEORG", "onVideoReceived: ${uri.path}")
+    }
+
+    override fun onTakeVideoFailed() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChooseVideoFailed() {
+        TODO("Not yet implemented")
+    }
+
     private fun setPoseViewPicture(bitmap: Bitmap) {
         geckoPoseView.post {
             val scaledBitmap = BitmapUtil.resize(
@@ -205,6 +233,7 @@ class MainFragment : ImageCaptureFragment() {
 
     private fun onPictureSet() {
         fabImageChooser.visibility = View.GONE
+        fabVideoChooser.visibility = View.GONE
 
         txtAngleA.visibility = View.VISIBLE
         txtAngleB.visibility = View.VISIBLE

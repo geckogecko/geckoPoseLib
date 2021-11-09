@@ -162,7 +162,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                if(event.isInsidePreview()) {
+                if(event.isInsidePreview() && isClickable) {
                     touchDownCounter++
 
                     if (selectedPointType == null) {

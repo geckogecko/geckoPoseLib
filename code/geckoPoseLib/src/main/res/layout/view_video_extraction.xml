@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:use_controller="false"
+        app:surface_type="texture_view"
+        />
+
+    <at.steinbacher.geckoposelib.SkeletonView
+        android:id="@+id/skeleton_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#0000ffff"
+        app:layout_constraintTop_toTopOf="@id/player_view"
+        app:layout_constraintStart_toStartOf="@id/player_view"
+        app:layout_constraintEnd_toEndOf="@id/player_view"
+        app:layout_constraintBottom_toBottomOf="@id/player_view"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

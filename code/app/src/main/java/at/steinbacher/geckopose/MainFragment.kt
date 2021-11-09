@@ -9,103 +9,54 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.GeckoPose.Companion.copyMove
-import at.steinbacher.geckoposelib.GeckoPose.Companion.copyScale
 import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
 import at.steinbacher.geckoposelib.util.BitmapPoseUtil
 import at.steinbacher.geckoposelib.util.BitmapPoseUtil.scale
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.mlkit.vision.pose.PoseLandmark
-import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
-import java.lang.Exception
 
 class MainFragment : ImageVideoSelectionFragment() {
+
     private lateinit var fabImageChooser: FloatingActionButton
     private lateinit var fabVideoChooser: FloatingActionButton
+    private lateinit var fabSeekTo: FloatingActionButton
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
     private lateinit var geckoPoseView: GeckoPoseView
+    private lateinit var videoExtractionView: GeckoVideoExtractionView
 
-    private lateinit var geckoPoseDetection: GeckoPoseDetection
+    private lateinit var singleImagePoseDetection: SingleImagePoseDetection
 
     private val inFrameLikelihoodThreshold: Float = 0.8f
 
-    private val preferredPose: String = "left_pose"
-    private val geckoPoseConfigurations = listOf(
-        GeckoPoseConfiguration(
-            tag = "left_pose",
-            points = listOf(
-                Point(PoseLandmark.LEFT_HIP),
-                Point(PoseLandmark.LEFT_KNEE),
-                Point(PoseLandmark.LEFT_ANKLE),
-                Point(PoseLandmark.LEFT_SHOULDER),
-                Point(PoseLandmark.LEFT_ELBOW),
-                Point(PoseLandmark.LEFT_WRIST),
-            ),
-            lines = listOf(
-                Line(start = PoseLandmark.LEFT_KNEE, end = PoseLandmark.LEFT_HIP, tag = "knee_hip"),
-                Line(start = PoseLandmark.LEFT_ANKLE, end = PoseLandmark.LEFT_KNEE, tag = "knee_ankle"),
-                Line(start = PoseLandmark.LEFT_HIP, end = PoseLandmark.LEFT_SHOULDER, tag = "hip_shoulder"),
-                Line(start = PoseLandmark.LEFT_SHOULDER, end = PoseLandmark.LEFT_ELBOW, tag = "shoulder_elbow"),
-                Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist"),
-            ),
-            angles = listOf(
-                MinMaxAngle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_KNEE,
-                    endPointType = PoseLandmark.LEFT_ANKLE, tag = "a", minAngle = 0f, maxAngle = 40f),
-                Angle(startPointType = PoseLandmark.LEFT_KNEE, middlePointType = PoseLandmark.LEFT_HIP,
-                    endPointType = PoseLandmark.LEFT_SHOULDER, tag = "b"),
-                Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_SHOULDER,
-                    endPointType = PoseLandmark.LEFT_ELBOW, tag = "c"),
-                Angle(startPointType = PoseLandmark.LEFT_SHOULDER, middlePointType = PoseLandmark.LEFT_ELBOW,
-                    endPointType = PoseLandmark.LEFT_WRIST, tag = "d"),
-            ),
-            defaultPointColorLight = R.color.white,
-            defaultPointColorDark = R.color.black,
-            defaultSelectedPointColor = R.color.red,
-            defaultLineColor = R.color.blue,
-            defaultAngleColor = R.color.color_angle_ok,
-            defaultNOKAngleColor = R.color.color_angle_nok,
-        ),
-        GeckoPoseConfiguration(
-            tag = "right_pose",
-            points = listOf(
-                Point(PoseLandmark.RIGHT_HIP),
-                Point(PoseLandmark.RIGHT_KNEE),
-                Point(PoseLandmark.RIGHT_ANKLE),
-                Point(PoseLandmark.RIGHT_SHOULDER),
-                Point(PoseLandmark.RIGHT_ELBOW),
-                Point(PoseLandmark.RIGHT_WRIST),
-            ),
-            lines = listOf(
-                Line(start = PoseLandmark.RIGHT_KNEE, end = PoseLandmark.RIGHT_HIP, tag = "knee_hip"),
-                Line(start = PoseLandmark.RIGHT_ANKLE, end = PoseLandmark.RIGHT_KNEE, tag = "knee_ankle"),
-                Line(start = PoseLandmark.RIGHT_HIP, end = PoseLandmark.RIGHT_SHOULDER, tag = "hip_shoulder"),
-                Line(start = PoseLandmark.RIGHT_SHOULDER, end = PoseLandmark.RIGHT_ELBOW, tag = "shoulder_elbow"),
-                Line(start = PoseLandmark.RIGHT_ELBOW, end = PoseLandmark.RIGHT_WRIST, tag = "elbow_wrist"),
-            ),
-            angles = listOf(
-                MinMaxAngle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_KNEE,
-                    endPointType = PoseLandmark.RIGHT_ANKLE, tag = "a", minAngle = 0f, maxAngle = 40f),
-                Angle(startPointType = PoseLandmark.RIGHT_KNEE, middlePointType = PoseLandmark.RIGHT_HIP,
-                    endPointType = PoseLandmark.RIGHT_SHOULDER, tag = "b"),
-                Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_SHOULDER,
-                    endPointType = PoseLandmark.RIGHT_ELBOW, tag = "c"),
-                Angle(startPointType = PoseLandmark.RIGHT_SHOULDER, middlePointType = PoseLandmark.RIGHT_ELBOW,
-                    endPointType = PoseLandmark.RIGHT_WRIST, tag = "d"),
-            ),
-            defaultPointColorLight = R.color.white,
-            defaultPointColorDark = R.color.black,
-            defaultSelectedPointColor = R.color.red,
-            defaultLineColor = R.color.blue,
-            defaultAngleColor = R.color.color_angle_ok,
-            defaultNOKAngleColor = R.color.color_angle_nok,
-        )
-    )
+    private val choosePoseLogic: ChoosePoseLogic = { geckoPoses ->
+        val preferred = geckoPoses.getByTag(preferredPose)
+        val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
+
+        if(preferred != null) {
+            preferred
+        }  else if(best != null){
+            best
+        } else {
+            null
+        }
+    }
+
+    private val manipulatePoseLogic: ManipulatePoseLogic = { bitmap: Bitmap, pose: GeckoPose ->
+        BitmapPoseUtil.cropToPose(bitmap, pose, 0.2f)
+            .scale(geckoPoseView.width, geckoPoseView.height)
+
+        Pair(bitmap, pose)
+    }
+
+    private val preferredPose: String = "right_pose"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -126,6 +77,8 @@ class MainFragment : ImageVideoSelectionFragment() {
                 geckoPoseView.pose?.let { updateAngleTexts(it) }
             }
         })
+
+        fabSeekTo = view.findViewById(R.id.fab_seek_to)
 
         fabImageChooser = view.findViewById(R.id.fab_image_chooser)
         fabImageChooser.setOnClickListener {
@@ -161,44 +114,13 @@ class MainFragment : ImageVideoSelectionFragment() {
             openVideoPicker(uri)
         }
 
-        geckoPoseDetection = GeckoPoseDetection(
-            detectorMode = AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE,
-            configurations = geckoPoseConfigurations,
-            listener = object : GeckoPoseDetectionListener {
-                override fun onSuccess(bitmap: Bitmap, geckoPoses: List<GeckoPose?>) {
-                    val preferred = geckoPoses.getByTag(preferredPose)
-                    val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
-
-                    val pose: GeckoPose? = if(preferred != null) {
-                        preferred
-                    }  else if(best != null){
-                        best
-                    } else {
-                        Toast.makeText(requireContext(), "onSuccess but none found", Toast.LENGTH_SHORT).show()
-                        null
-                    }
-
-                    if(pose != null) {
-                        val (croppedAndScaledBitmap, croppedAndScaledPose) = BitmapPoseUtil.cropToPose(bitmap, pose, 0.2f)
-                            .scale(geckoPoseView.width, geckoPoseView.height)
-
-                        geckoPoseView.bitmap = croppedAndScaledBitmap
-                        onPictureSet()
-
-                        geckoPoseView.pose = croppedAndScaledPose
-                        onPoseSet(croppedAndScaledPose)
-                    }
-                }
-
-                override fun onCompletedWithoutSuccess() {
-                    Toast.makeText(requireContext(), "onCompletedWithoutSuccess", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onFailure(exception: Exception) {
-                    Toast.makeText(requireContext(), "onFailure", Toast.LENGTH_SHORT).show()
-                }
-            }
+        singleImagePoseDetection = SingleImagePoseDetection(
+            configurations = tennisConfiguration,
         )
+
+        videoExtractionView = view.findViewById(R.id.video_extraction_view)
+        videoExtractionView.choosePoseLogic = choosePoseLogic
+        videoExtractionView.poseDetection = singleImagePoseDetection
     }
 
     override fun onPictureReceived(uri: Uri) {
@@ -214,7 +136,36 @@ class MainFragment : ImageVideoSelectionFragment() {
     }
 
     override fun onVideoReceived(uri: Uri) {
-        Log.i("GEORG", "onVideoReceived: ${uri.path}")
+        fabImageChooser.visibility = View.GONE
+        fabVideoChooser.visibility = View.GONE
+
+        fabSeekTo.visibility = View.VISIBLE
+
+        videoExtractionView.video = uri
+        videoExtractionView.setVideoExtractionListener(object : GeckoVideoExtractionView.VideoExtractionListener {
+            override fun onFrameSet(frame: Bitmap, pose: GeckoPose) {
+                fabSeekTo.isEnabled = true
+            }
+
+            override fun onPoseNotRecognized(frame: Bitmap) {
+                Log.i(TAG, "onPoseNotRecognized: ")
+            }
+
+            override fun onProgress(percentage: Int) {
+
+            }
+
+            override fun onFinishedEnd(poseFrames: List<PoseFrame>) {
+                poseFrames.forEach {
+                    Log.i("GEORG", "onFinishedEnd: ${it.geckoPose?.getAngle("a")}")
+                }
+            }
+        })
+
+        fabSeekTo.setOnClickListener {
+            fabSeekTo.isEnabled = false
+            videoExtractionView.seekForward()
+        }
     }
 
     override fun onTakeVideoFailed() {
@@ -226,7 +177,22 @@ class MainFragment : ImageVideoSelectionFragment() {
     }
 
     private fun setPoseViewPicture(bitmap: Bitmap) {
-        geckoPoseDetection.processImage(bitmap)
+        CoroutineScope(Dispatchers.IO).launch {
+            val poses = singleImagePoseDetection.processImage(bitmap)
+            val pose = poses?.let { choosePoseLogic.invoke(it) }
+            if(pose != null) {
+                val (manipulatedBitmap, manipulatedPose) = manipulatePoseLogic.invoke(bitmap, pose)
+
+                withContext(Dispatchers.Main) {
+                    geckoPoseView.bitmap = manipulatedBitmap
+                    onPictureSet()
+
+
+                    geckoPoseView.pose = manipulatedPose
+                    onPoseSet(manipulatedPose)
+                }
+            }
+        }
     }
 
     private fun onPictureSet() {
@@ -248,5 +214,9 @@ class MainFragment : ImageVideoSelectionFragment() {
                 "b" -> txtAngleB.text = pose.getAngle(it.tag).toString()
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "MainFragment"
     }
 }

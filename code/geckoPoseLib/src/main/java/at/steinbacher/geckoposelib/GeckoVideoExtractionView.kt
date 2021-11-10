@@ -21,6 +21,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>)
+
+@Serializable
 data class PoseFrame(val timestamp: Long, val geckoPose: GeckoPose?)
 
 class GeckoVideoExtractionView @JvmOverloads constructor(

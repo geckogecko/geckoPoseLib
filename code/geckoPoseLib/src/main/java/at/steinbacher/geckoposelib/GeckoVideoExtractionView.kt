@@ -18,7 +18,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PoseFrame(val timestamp: Long, val geckoPose: GeckoPose?)
 
 class GeckoVideoExtractionView @JvmOverloads constructor(

@@ -21,8 +21,6 @@ import kotlinx.coroutines.withContext
 
 data class PoseFrame(val timestamp: Long, val geckoPose: GeckoPose?)
 
-
-
 class GeckoVideoExtractionView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -1,6 +1,5 @@
 package at.steinbacher.geckoposelib
 
-import android.graphics.PointF
 import androidx.annotation.ColorRes
 import at.steinbacher.geckoposelib.Angle.Companion.copy
 import at.steinbacher.geckoposelib.GeckoPoseConfiguration.Companion.copy
@@ -11,8 +10,10 @@ import at.steinbacher.geckoposelib.Line.Companion.copy
 import at.steinbacher.geckoposelib.Point.Companion.copy
 import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
+import kotlinx.serialization.Serializable
 import kotlin.collections.ArrayList
 
+@Serializable
 class GeckoPoseConfiguration(
     val tag: String,
     val points: List<Point> = listOf(),
@@ -41,6 +42,7 @@ class GeckoPoseConfiguration(
     }
 }
 
+@Serializable
 class GeckoPose(
     val configuration: GeckoPoseConfiguration
 ){
@@ -115,7 +117,8 @@ class GeckoPose(
 
     fun updatePoint(type: Int, moveX: Float, moveY: Float) {
         val point = landmarkPoints.find { it.point.type == type } ?: error("Unable to find point: $type in Pose!")
-        point.position.set(point.position.x + moveX, point.position.y + moveY)
+        point.position.x = point.position.x + moveX
+        point.position.y = point.position.y + moveY
     }
 
     fun getPoint(type: Int): LandmarkPoint = landmarkPoints.firstOrNull { it.point.type == type } ?: error("Unable to find point: $type in Pose!")
@@ -131,6 +134,7 @@ fun List<GeckoPose?>.getByTag(poseTag: String): GeckoPose? =
     this.find { it?.configuration?.tag == poseTag }
 
 
+@Serializable
 class LandmarkPoint(
     val position: PointF,
     val point: Point,
@@ -138,7 +142,7 @@ class LandmarkPoint(
 ) {
     companion object {
         fun Point.toProcessedPoint(poseLandmark: PoseLandmark) = LandmarkPoint(
-            position = poseLandmark.position,
+            position = PointF(poseLandmark.position.x, poseLandmark.position.y),
             point = this,
             inFrameLikelihood = poseLandmark.inFrameLikelihood
         )
@@ -164,6 +168,7 @@ class LandmarkPoint(
     }
 }
 
+@Serializable
 class Point(
     val type: Int,
     @ColorRes val color: Int? = null,
@@ -178,6 +183,7 @@ class Point(
     }
 }
 
+@Serializable
 class Line(
     val start: Int,
     val end: Int,
@@ -194,6 +200,7 @@ class Line(
     }
 }
 
+@Serializable
 open class Angle(
     val startPointType: Int,
     val middlePointType: Int,
@@ -238,5 +245,8 @@ class MinMaxAngle(startPointType: Int,
     fun isAngleNotInside(angle: Double): Boolean = !isAngleInside(angle)
     fun isAngleInside(angle: Double): Boolean = angle in minAngle..maxAngle
 }
+
+@Serializable
+data class PointF(var x: Float, var y: Float)
 
 

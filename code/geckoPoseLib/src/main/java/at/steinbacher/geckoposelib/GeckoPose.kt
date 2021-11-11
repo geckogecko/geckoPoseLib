@@ -165,6 +165,11 @@ class LandmarkPoint(
             point = this.point.copy(),
             inFrameLikelihood = this.inFrameLikelihood
         )
+
+        fun LandmarkPoint.distanceTo(second: LandmarkPoint): Double = Math.hypot(
+            (second.position.x-this.position.x).toDouble(),
+            (second.position.y-this.position.y).toDouble()
+        )
     }
 }
 

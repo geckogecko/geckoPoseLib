@@ -8,7 +8,19 @@ import kotlinx.serialization.Serializable
 data class VideoPoseAnalysis(
     val frameDifferences: List<FrameDifference>,
     val frameData: List<FrameData>
-)
+) {
+    fun getAngleFrameData(angleTag: String): List<DataEntry> = frameData.map { frameData ->
+        DataEntry(frameData.frame.timestamp, frameData.getAngleAnalysis(angleTag).angle)
+    }
+
+    fun getPointDifferenceData(pointType: Int): List<DataEntry> = frameDifferences.map { frameDifference ->
+        DataEntry(frameDifference.secondFrame.timestamp, frameDifference.getPointDifference(pointType).difference)
+    }
+
+    fun getAngleDifferenceData(angleTag: String): List<DataEntry> = frameDifferences.map { frameDifference ->
+        DataEntry(frameDifference.secondFrame.timestamp, frameDifference.getAngleDifference(angleTag).difference)
+    }
+}
 
 @Serializable
 data class FrameDifference(
@@ -16,7 +28,10 @@ data class FrameDifference(
     val secondFrame: PoseFrame,
     val pointDifferences: List<PointDifference>,
     val angleDifferences: List<AngleDifference>
-)
+) {
+    fun getPointDifference(pointType: Int): PointDifference = pointDifferences.first { it.pointType == pointType }
+    fun getAngleDifference(angleTag: String): AngleDifference = angleDifferences.first { it.angleTag == angleTag }
+}
 
 @Serializable
 data class PointDifference(
@@ -34,13 +49,17 @@ data class AngleDifference(
 data class FrameData(
     val frame: PoseFrame,
     val angleAnalysis: List<AngleAnalysis>
-)
+) {
+    fun getAngleAnalysis(angleTag: String): AngleAnalysis = angleAnalysis.first { it.angleTag == angleTag }
+}
 
 @Serializable
 data class AngleAnalysis(
     val angleTag: String,
     val angle: Double
 )
+
+data class DataEntry(val timestamp: Long, val value: Double)
 
 object PoseVideoUtil {
     fun getVideoPoseAnalysis(reverenceDistance: Double, poseVideo: PoseVideo): VideoPoseAnalysis {

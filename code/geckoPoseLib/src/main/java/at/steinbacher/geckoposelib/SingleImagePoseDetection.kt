@@ -1,13 +1,10 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
-import android.util.Log
-import at.steinbacher.geckoposelib.LandmarkPoint.Companion.toProcessedPoint
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
-import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume

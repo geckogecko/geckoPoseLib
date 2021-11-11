@@ -1,6 +1,5 @@
 package at.steinbacher.geckoposelib.util
 
-import at.steinbacher.geckoposelib.LandmarkPoint.Companion.distanceTo
 import at.steinbacher.geckoposelib.PoseFrame
 import at.steinbacher.geckoposelib.PoseVideo
 import kotlinx.serialization.Serializable

@@ -1,17 +1,9 @@
 package at.steinbacher.geckoposelib
 
 import androidx.annotation.ColorRes
-import at.steinbacher.geckoposelib.Angle.Companion.copy
-import at.steinbacher.geckoposelib.GeckoPoseConfiguration.Companion.copy
-import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copy
-import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copyMove
-import at.steinbacher.geckoposelib.LandmarkPoint.Companion.copyScale
-import at.steinbacher.geckoposelib.Line.Companion.copy
-import at.steinbacher.geckoposelib.Point.Companion.copy
 import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlinx.serialization.Serializable
-import kotlin.collections.ArrayList
 
 @Serializable
 class GeckoPoseConfiguration(
@@ -26,20 +18,18 @@ class GeckoPoseConfiguration(
     @ColorRes val defaultAngleColor: Int,
     @ColorRes val defaultNOKAngleColor: Int,
 ) {
-    companion object {
-        fun GeckoPoseConfiguration.copy() = GeckoPoseConfiguration(
-            tag = this.tag,
-            points = this.points.map { it.copy() },
-            lines = this.lines.map { it.copy() },
-            angles = this.angles.map { it.copy() },
-            defaultPointColorLight = this.defaultPointColorLight,
-            defaultPointColorDark = this.defaultPointColorDark,
-            defaultSelectedPointColor = this.defaultSelectedPointColor,
-            defaultLineColor = this.defaultLineColor,
-            defaultAngleColor = this.defaultAngleColor,
-            defaultNOKAngleColor = this.defaultNOKAngleColor
-        )
-    }
+    fun copy() = GeckoPoseConfiguration(
+        tag = this.tag,
+        points = this.points.map { it.copy() },
+        lines = this.lines.map { it.copy() },
+        angles = this.angles.map { it.copy() },
+        defaultPointColorLight = this.defaultPointColorLight,
+        defaultPointColorDark = this.defaultPointColorDark,
+        defaultSelectedPointColor = this.defaultSelectedPointColor,
+        defaultLineColor = this.defaultLineColor,
+        defaultAngleColor = this.defaultAngleColor,
+        defaultNOKAngleColor = this.defaultNOKAngleColor
+    )
 }
 
 @Serializable
@@ -56,26 +46,6 @@ class GeckoPose(
 
     val averageInFrameLikelihood: Float
         get() = landmarkPoints.fold(0f) { acc, it -> acc + it.inFrameLikelihood } / landmarkPoints.size
-
-    companion object {
-        fun GeckoPose.copy(): GeckoPose {
-            return GeckoPose(this.configuration.copy()).also {
-                it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copy() })
-            }
-        }
-        fun GeckoPose.copyScale(scaleX: Float, scaleY: Float): GeckoPose {
-            return GeckoPose(this.configuration.copy()).also {
-                it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copyScale(scaleX, scaleY) })
-            }
-        }
-
-        fun GeckoPose.copyMove(cropX: Int, cropY: Int): GeckoPose {
-            return GeckoPose(this.configuration.copy()).also {
-                it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copyMove(cropX, cropY) })
-            }
-        }
-
-    }
 
     fun hasPointsBelowThreshold(threshold: Float): Boolean
         = landmarkPoints.any { it.inFrameLikelihood < threshold }
@@ -122,6 +92,23 @@ class GeckoPose(
     }
 
     fun getPoint(type: Int): LandmarkPoint = landmarkPoints.firstOrNull { it.point.type == type } ?: error("Unable to find point: $type in Pose!")
+
+    fun copy(): GeckoPose {
+        return GeckoPose(this.configuration.copy()).also {
+            it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copy() })
+        }
+    }
+    fun copyScale(scaleX: Float, scaleY: Float): GeckoPose {
+        return GeckoPose(this.configuration.copy()).also {
+            it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copyScale(scaleX, scaleY) })
+        }
+    }
+
+    fun copyMove(cropX: Int, cropY: Int): GeckoPose {
+        return GeckoPose(this.configuration.copy()).also {
+            it.landmarkPoints.addAll(this.landmarkPoints.map { lp -> lp.copyMove(cropX, cropY) })
+        }
+    }
 }
 
 fun List<GeckoPose?>.getBest(threshold: Float): GeckoPose? =
@@ -140,37 +127,29 @@ class LandmarkPoint(
     val point: Point,
     val inFrameLikelihood: Float
 ) {
-    companion object {
-        fun Point.toProcessedPoint(poseLandmark: PoseLandmark) = LandmarkPoint(
-            position = PointF(poseLandmark.position.x, poseLandmark.position.y),
-            point = this,
-            inFrameLikelihood = poseLandmark.inFrameLikelihood
-        )
+    fun copy() = LandmarkPoint(
+        position = PointF(this.position.x, this.position.y),
+        point = this.point.copy(),
+        inFrameLikelihood = this.inFrameLikelihood
 
-        fun LandmarkPoint.copy() = LandmarkPoint(
-            position = PointF(this.position.x, this.position.y),
-            point = this.point.copy(),
-            inFrameLikelihood = this.inFrameLikelihood
+    )
 
-        )
+    fun copyScale(scaleX: Float, scaleY: Float) = LandmarkPoint(
+        position = PointF(this.position.x * scaleX, this.position.y * scaleY),
+        point = this.point.copy(),
+        inFrameLikelihood = this.inFrameLikelihood
+    )
 
-        fun LandmarkPoint.copyScale(scaleX: Float, scaleY: Float) = LandmarkPoint(
-            position = PointF(this.position.x * scaleX, this.position.y * scaleY),
-            point = this.point.copy(),
-            inFrameLikelihood = this.inFrameLikelihood
-        )
+    fun copyMove(cropX: Int, cropY: Int) = LandmarkPoint(
+        position = PointF(this.position.x + cropX, this.position.y + cropY),
+        point = this.point.copy(),
+        inFrameLikelihood = this.inFrameLikelihood
+    )
 
-        fun LandmarkPoint.copyMove(cropX: Int, cropY: Int) = LandmarkPoint(
-            position = PointF(this.position.x + cropX, this.position.y + cropY),
-            point = this.point.copy(),
-            inFrameLikelihood = this.inFrameLikelihood
-        )
-
-        fun LandmarkPoint.distanceTo(second: LandmarkPoint): Double = Math.hypot(
-            (second.position.x-this.position.x).toDouble(),
-            (second.position.y-this.position.y).toDouble()
-        )
-    }
+    fun distanceTo(second: LandmarkPoint): Double = Math.hypot(
+        (second.position.x-this.position.x).toDouble(),
+        (second.position.y-this.position.y).toDouble()
+    )
 }
 
 @Serializable
@@ -179,13 +158,17 @@ class Point(
     @ColorRes val color: Int? = null,
     @ColorRes val selectedColor: Int? = null
 ) {
-    companion object {
-        fun Point.copy() = Point(
-            type = this.type,
-            color = this.color,
-            selectedColor = this.selectedColor
-        )
-    }
+    fun toProcessedPoint(poseLandmark: PoseLandmark) = LandmarkPoint(
+        position = PointF(poseLandmark.position.x, poseLandmark.position.y),
+        point = this,
+        inFrameLikelihood = poseLandmark.inFrameLikelihood
+    )
+
+    fun copy() = Point(
+        type = this.type,
+        color = this.color,
+        selectedColor = this.selectedColor
+    )
 }
 
 @Serializable
@@ -195,14 +178,12 @@ class Line(
     val tag: String,
     @ColorRes val color: Int? = null
 ) {
-    companion object {
-        fun Line.copy() = Line(
-            start = this.start,
-            end = this.end,
-            tag = this.tag,
-            color = this.color
-        )
-    }
+    fun copy() = Line(
+        start = this.start,
+        end = this.end,
+        tag = this.tag,
+        color = this.color
+    )
 }
 
 @Serializable
@@ -213,15 +194,13 @@ open class Angle(
     val tag: String,
     @ColorRes val color: Int? = null
 ) {
-    companion object {
-        fun Angle.copy() = Angle(
-            startPointType = this.startPointType,
-            middlePointType = this.middlePointType,
-            endPointType = this.endPointType,
-            tag = this.tag,
-            color = this.color
-        )
-    }
+    open fun copy() = Angle(
+        startPointType = this.startPointType,
+        middlePointType = this.middlePointType,
+        endPointType = this.endPointType,
+        tag = this.tag,
+        color = this.color
+    )
 }
 
 class MinMaxAngle(startPointType: Int,
@@ -234,18 +213,16 @@ class MinMaxAngle(startPointType: Int,
                   @ColorRes val errorColor: Int? = null,
 ): Angle(startPointType, middlePointType, endPointType, tag, color) {
 
-    companion object {
-        fun MinMaxAngle.copy() = MinMaxAngle(
-            startPointType = this.startPointType,
-            middlePointType = this.middlePointType,
-            endPointType = this.endPointType,
-            tag = this.tag,
-            color = this.color,
-            minAngle = this.minAngle,
-            maxAngle = this.maxAngle,
-            errorColor = this.errorColor
-        )
-    }
+    override fun copy() = MinMaxAngle(
+        startPointType = this.startPointType,
+        middlePointType = this.middlePointType,
+        endPointType = this.endPointType,
+        tag = this.tag,
+        color = this.color,
+        minAngle = this.minAngle,
+        maxAngle = this.maxAngle,
+        errorColor = this.errorColor
+    )
 
     fun isAngleNotInside(angle: Double): Boolean = !isAngleInside(angle)
     fun isAngleInside(angle: Double): Boolean = angle in minAngle..maxAngle

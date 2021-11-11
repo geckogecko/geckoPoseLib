@@ -2,11 +2,8 @@ package at.steinbacher.geckoposelib.util
 
 import android.graphics.Bitmap
 import at.steinbacher.geckoposelib.GeckoPose
-import at.steinbacher.geckoposelib.GeckoPose.Companion.copyMove
-import at.steinbacher.geckoposelib.GeckoPose.Companion.copyScale
 
 object BitmapPoseUtil {
-
     fun cropToPose(bitmap: Bitmap, pose: GeckoPose, marginPercentage: Float): Pair<Bitmap, GeckoPose> {
         val (croppedToPoseBitmap, cropX, cropY) = cropPose(bitmap, pose, marginPercentage)
         val croppedPose = pose.copyMove(-cropX, -cropY)

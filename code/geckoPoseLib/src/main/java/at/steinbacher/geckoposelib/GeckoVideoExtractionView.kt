@@ -37,6 +37,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     var poseFrames: ArrayList<PoseFrame> = ArrayList()
 
+    var previousFramePose: GeckoPose? = null
     var currentFramePose: GeckoPose? = null
         set(value) {
             field = value
@@ -70,7 +71,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     interface VideoExtractionListener {
         fun onFrameSet(frame: Bitmap, pose: GeckoPose)
-        fun onPoseNotRecognized(frame: Bitmap)
+        fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?)
         fun onProgress(percentage: Int)
         fun onFinishedEnd(poseFrames: List<PoseFrame>)
     }
@@ -144,10 +145,14 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                 val pose = choosePoseLogic.invoke(poses)
 
                 withContext(Dispatchers.Main) {
+                    if(currentFramePose != null) {
+                        previousFramePose = currentFramePose
+                    }
+
                     currentFramePose = pose
 
                     if(pose == null) {
-                        videoExtractionListener?.onPoseNotRecognized(frame)
+                        videoExtractionListener?.onPoseNotRecognized(frame, previousFramePose)
                     } else if(canSeekForward()) {
                         if (mode == Mode.Manual) {
                             videoExtractionListener?.onFrameSet(frame, pose)

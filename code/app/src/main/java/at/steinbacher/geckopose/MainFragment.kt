@@ -148,7 +148,7 @@ class MainFragment : ImageVideoSelectionFragment() {
                 fabSeekTo.isEnabled = true
             }
 
-            override fun onPoseNotRecognized(frame: Bitmap) {
+            override fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?) {
 
             }
 

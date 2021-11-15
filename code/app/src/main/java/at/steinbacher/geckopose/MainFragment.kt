@@ -142,13 +142,14 @@ class MainFragment : ImageVideoSelectionFragment() {
         fabSeekTo.visibility = View.VISIBLE
 
         videoExtractionView.video = uri
+        videoExtractionView.mode = GeckoVideoExtractionView.Mode.Manual
         videoExtractionView.setVideoExtractionListener(object : GeckoVideoExtractionView.VideoExtractionListener {
             override fun onFrameSet(frame: Bitmap, pose: GeckoPose) {
                 fabSeekTo.isEnabled = true
             }
 
             override fun onPoseNotRecognized(frame: Bitmap) {
-                Log.i(TAG, "onPoseNotRecognized: ")
+
             }
 
             override fun onProgress(percentage: Int) {
@@ -156,9 +157,6 @@ class MainFragment : ImageVideoSelectionFragment() {
             }
 
             override fun onFinishedEnd(poseFrames: List<PoseFrame>) {
-                poseFrames.forEach {
-                    Log.i("GEORG", "onFinishedEnd: ${it.geckoPose?.getAngle("a")}")
-                }
             }
         })
 

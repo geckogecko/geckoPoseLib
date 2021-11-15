@@ -51,7 +51,7 @@ class SingleImagePoseDetection(
         it.points.forEach { point ->
             val poseLandmark = pose.getPoseLandmark(point.type)
 
-            if(poseLandmark != null) {
+            if(poseLandmark != null && poseLandmark.position.x >= 0 && poseLandmark.position.y >= 0) {
                 landmarkPoints.add(point.toProcessedPoint(poseLandmark))
             } else {
                 missesPoints = true

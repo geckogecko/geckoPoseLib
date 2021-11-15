@@ -3,6 +3,7 @@ package at.steinbacher.geckoposelib
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout

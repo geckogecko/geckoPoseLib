@@ -89,6 +89,8 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
     }
 
     fun seekForward() {
+        skeletonView.pose = null
+
         poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek))
 
         currentSeek += seekForwardStepsMs
@@ -144,13 +146,11 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                 withContext(Dispatchers.Main) {
                     currentFramePose = pose
 
-                    if(canSeekForward()) {
+                    if(pose == null) {
+                        videoExtractionListener?.onPoseNotRecognized(frame)
+                    } else if(canSeekForward()) {
                         if (mode == Mode.Manual) {
-                            if (pose != null) {
-                                videoExtractionListener?.onFrameSet(frame, pose)
-                            } else {
-                                videoExtractionListener?.onPoseNotRecognized(frame)
-                            }
+                            videoExtractionListener?.onFrameSet(frame, pose)
                         } else {
                             seekForward()
                         }

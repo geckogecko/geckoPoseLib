@@ -142,7 +142,6 @@ class MainFragment : ImageVideoSelectionFragment() {
         fabSeekTo.visibility = View.VISIBLE
 
         videoExtractionView.video = uri
-        videoExtractionView.mode = GeckoVideoExtractionView.Mode.Manual
         videoExtractionView.setVideoExtractionListener(object : GeckoVideoExtractionView.VideoExtractionListener {
             override fun onFrameSet(frame: Bitmap, pose: GeckoPose) {
                 fabSeekTo.isEnabled = true

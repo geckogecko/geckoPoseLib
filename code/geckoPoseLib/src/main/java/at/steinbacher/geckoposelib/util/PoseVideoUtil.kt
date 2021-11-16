@@ -20,6 +20,8 @@ data class VideoPoseAnalysis(
     fun getAngleDifferenceData(angleTag: String): List<DataEntry> = frameDifferences.map { frameDifference ->
         DataEntry(frameDifference.secondFrame.timestamp, frameDifference.getAngleDifference(angleTag).difference)
     }
+
+    fun getPoseFrame(poseMark: String): PoseFrame? = this.frameData.find { it.frame.poseMark == poseMark }?.frame
 }
 
 @Serializable

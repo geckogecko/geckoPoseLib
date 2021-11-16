@@ -49,11 +49,6 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     var choosePoseLogic: ChoosePoseLogic = { null }
 
-    enum class Mode {
-        Manual, Automatic
-    }
-    var mode: Mode = Mode.Automatic
-
     var isEditable: Boolean
         get() = skeletonView.isClickable
         set(value) {
@@ -61,6 +56,8 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         }
 
     private var previousFramePose: GeckoPose? = null
+
+    private var currentPoseMark: String? = null
 
     private val playerView: PlayerView
     private val skeletonView: SkeletonView
@@ -100,13 +97,17 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
     fun seekForward() {
         skeletonView.pose = null
 
-        poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek))
+        poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
 
         currentSeek += seekForwardStepsMs
         player?.seekTo(currentSeek)
     }
 
     fun canSeekForward() = currentSeek <= player?.duration ?: 0
+
+    fun markCurrentPoseFrame(poseMark: String) {
+        currentPoseMark = poseMark
+    }
 
     private fun initVideo(uri: Uri) {
         val mediaMetadataReceiver = MediaMetadataRetriever()
@@ -159,16 +160,16 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
                     currentFramePose = pose
 
-                    if(pose == null) {
-                        videoExtractionListener?.onPoseNotRecognized(frame, previousFramePose)
-                    } else if(canSeekForward()) {
-                        if (mode == Mode.Manual) {
-                            videoExtractionListener?.onFrameSet(frame, pose)
-                        } else {
-                            seekForward()
+                    when {
+                        pose == null -> {
+                            videoExtractionListener?.onPoseNotRecognized(frame, previousFramePose)
                         }
-                    } else {
-                        videoExtractionListener?.onFinishedEnd(poseFrames)
+                        canSeekForward() -> {
+                            videoExtractionListener?.onFrameSet(frame, pose)
+                        }
+                        else -> {
+                            videoExtractionListener?.onFinishedEnd(poseFrames)
+                        }
                     }
                 }
             }

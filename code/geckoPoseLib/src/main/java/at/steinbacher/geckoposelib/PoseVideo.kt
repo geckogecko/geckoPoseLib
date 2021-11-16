@@ -8,4 +8,4 @@ data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>) {
 }
 
 @Serializable
-data class PoseFrame(val timestamp: Long, val geckoPose: GeckoPose?)
+data class PoseFrame(val timestamp: Long, val geckoPose: GeckoPose?, var poseMark: String?)

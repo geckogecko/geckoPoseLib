@@ -49,6 +49,14 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     var choosePoseLogic: ChoosePoseLogic = { null }
 
+    var drawLines
+        set(value) { skeletonView.drawLines = value }
+        get() = skeletonView.drawLines
+
+    var drawAngles
+        set(value) { skeletonView.drawAngles = value }
+        get() = skeletonView.drawAngles
+
     var isEditable: Boolean
         get() = skeletonView.isClickable
         set(value) {

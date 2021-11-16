@@ -37,7 +37,6 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     var poseFrames: ArrayList<PoseFrame> = ArrayList()
 
-    var previousFramePose: GeckoPose? = null
     var currentFramePose: GeckoPose? = null
         set(value) {
             field = value
@@ -54,6 +53,14 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         Manual, Automatic
     }
     var mode: Mode = Mode.Automatic
+
+    var isEditable: Boolean
+        get() = skeletonView.isClickable
+        set(value) {
+            skeletonView.isClickable = value
+        }
+
+    private var previousFramePose: GeckoPose? = null
 
     private val playerView: PlayerView
     private val skeletonView: SkeletonView
@@ -82,7 +89,8 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
         playerView = findViewById(R.id.player_view)
         skeletonView = findViewById(R.id.skeleton_view)
-        skeletonView.isClickable = false
+
+        isEditable = false
     }
 
     fun setVideoExtractionListener(listener: VideoExtractionListener) {

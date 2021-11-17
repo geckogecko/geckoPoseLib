@@ -22,10 +22,10 @@ interface PoseVideoDao {
     suspend fun insert(geckoPoseEntity: PoseVideoEntity)
 
     @Query("SELECT * FROM pose_video_table")
-    fun getAll(): Flow<PoseVideoEntity>
+    fun getAll(): Flow<List<PoseVideoEntity>>
 
     @Query("SELECT * FROM pose_video_table WHERE isUserData = :isUserData")
-    fun getAllByUserData(isUserData: Boolean): Flow<PoseVideoEntity>
+    fun getAllByUserData(isUserData: Boolean): Flow<List<PoseVideoEntity>>
 
     @Query("SELECT * FROM pose_video_table WHERE tag LIKE :tag LIMIT 1")
     fun getByTag(tag: String): PoseVideoEntity

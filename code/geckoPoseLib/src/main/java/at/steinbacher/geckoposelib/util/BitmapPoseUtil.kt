@@ -1,7 +1,7 @@
 package at.steinbacher.geckoposelib.util
 
 import android.graphics.Bitmap
-import at.steinbacher.geckoposelib.GeckoPose
+import at.steinbacher.geckoposelib.data.GeckoPose
 
 object BitmapPoseUtil {
     fun cropToPose(bitmap: Bitmap, pose: GeckoPose, marginPercentage: Float): Pair<Bitmap, GeckoPose> {

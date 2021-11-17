@@ -10,6 +10,10 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import at.steinbacher.geckoposelib.*
+import at.steinbacher.geckoposelib.data.Angle
+import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.MinMaxAngle
+import at.steinbacher.geckoposelib.data.PointF
 import at.steinbacher.geckoposelib.util.AngleUtil
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import kotlin.math.acos

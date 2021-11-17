@@ -1,4 +1,4 @@
-package at.steinbacher.geckoposelib
+package at.steinbacher.geckoposelib.data
 
 import androidx.annotation.ColorRes
 import at.steinbacher.geckoposelib.util.AngleUtil

@@ -1,7 +1,5 @@
 package at.steinbacher.geckoposelib.data
 
-import at.steinbacher.geckoposelib.PoseFrame
-import at.steinbacher.geckoposelib.PoseVideo
 import kotlinx.serialization.Serializable
 
 @Serializable

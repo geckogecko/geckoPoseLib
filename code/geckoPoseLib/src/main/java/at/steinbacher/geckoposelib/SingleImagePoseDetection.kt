@@ -1,6 +1,9 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
+import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.GeckoPoseConfiguration
+import at.steinbacher.geckoposelib.data.LandmarkPoint
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection

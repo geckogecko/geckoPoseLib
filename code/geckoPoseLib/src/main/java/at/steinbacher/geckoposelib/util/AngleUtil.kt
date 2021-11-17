@@ -1,7 +1,7 @@
 package at.steinbacher.geckoposelib.util
 
-import at.steinbacher.geckoposelib.LandmarkPoint
-import at.steinbacher.geckoposelib.PointF
+import at.steinbacher.geckoposelib.data.LandmarkPoint
+import at.steinbacher.geckoposelib.data.PointF
 import kotlin.math.*
 
 object AngleUtil {

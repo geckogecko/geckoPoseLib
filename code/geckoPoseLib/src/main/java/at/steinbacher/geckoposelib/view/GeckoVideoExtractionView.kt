@@ -11,6 +11,8 @@ import android.view.TextureView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.*
+import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.PoseFrame
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player

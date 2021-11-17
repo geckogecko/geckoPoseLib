@@ -2,15 +2,11 @@ package at.steinbacher.geckoposelib.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
 import androidx.annotation.ColorRes
-import at.steinbacher.geckoposelib.GeckoPose
-import com.google.mlkit.vision.pose.Pose
 
 object BitmapUtil {
     fun getBitmap(uri: Uri, context: Context): Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

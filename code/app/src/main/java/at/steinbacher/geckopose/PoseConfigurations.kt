@@ -1,6 +1,6 @@
 package at.steinbacher.geckopose
 
-import at.steinbacher.geckoposelib.*
+import at.steinbacher.geckoposelib.data.*
 import com.google.mlkit.vision.pose.PoseLandmark
 
 val cyclingConfiguration = listOf(

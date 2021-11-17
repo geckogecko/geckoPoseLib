@@ -3,6 +3,7 @@ package at.steinbacher.geckoposelib.room
 import androidx.room.*
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.PoseVideo
+import at.steinbacher.geckoposelib.view.GeckoPoseView
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 
@@ -32,14 +33,13 @@ interface PoseVideoDao {
 }
 
 class PoseVideoTypeConverter {
-
     @TypeConverter
-    fun geckoPoseToString(geckoPose: GeckoPose): String {
-        return Json.encodeToString(GeckoPose.serializer(), geckoPose)
+    fun poseVideoToString(poseVideo: PoseVideo): String {
+        return Json.encodeToString(PoseVideo.serializer(), poseVideo)
     }
 
     @TypeConverter
-    fun stringToGeckoPose(geckoPoseString: String): GeckoPose {
-        return Json.decodeFromString(GeckoPose.serializer(), geckoPoseString)
+    fun stringToPoseVideo(poseVideoString: String): PoseVideo {
+        return Json.decodeFromString(PoseVideo.serializer(), poseVideoString)
     }
 }

@@ -1,4 +1,4 @@
-package at.steinbacher.geckoposelib
+package at.steinbacher.geckoposelib.view
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.TextureView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
+import at.steinbacher.geckoposelib.*
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -18,7 +19,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 
 class GeckoVideoExtractionView @JvmOverloads constructor(
     context: Context,

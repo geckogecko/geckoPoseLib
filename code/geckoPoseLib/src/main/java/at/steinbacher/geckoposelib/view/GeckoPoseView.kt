@@ -1,20 +1,14 @@
-package at.steinbacher.geckoposelib
+package at.steinbacher.geckoposelib.view
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
-import at.steinbacher.geckoposelib.util.AngleUtil
-import at.steinbacher.geckoposelib.util.BitmapUtil
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlin.math.acos
-import kotlin.math.pow
-import kotlin.math.sqrt
+import at.steinbacher.geckoposelib.GeckoPose
+import at.steinbacher.geckoposelib.R
 
 
 class GeckoPoseView @JvmOverloads constructor(

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainFragment">
 
-    <at.steinbacher.geckoposelib.GeckoPoseView
+    <at.steinbacher.geckoposelib.view.GeckoPoseView
         android:id="@+id/pose_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -17,7 +17,7 @@
         app:layout_constraintBottom_toTopOf="@id/txt_angle_a"
         />
 
-    <at.steinbacher.geckoposelib.GeckoVideoExtractionView
+    <at.steinbacher.geckoposelib.view.GeckoVideoExtractionView
         android:id="@+id/video_extraction_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

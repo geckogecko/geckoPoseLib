@@ -1,4 +1,4 @@
-package at.steinbacher.geckoposelib
+package at.steinbacher.geckoposelib.view
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
+import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.util.AngleUtil
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import kotlin.math.acos

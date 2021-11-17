@@ -12,7 +12,7 @@
         app:surface_type="texture_view"
         />
 
-    <at.steinbacher.geckoposelib.SkeletonView
+    <at.steinbacher.geckoposelib.view.SkeletonView
         android:id="@+id/skeleton_view"
         android:layout_width="0dp"
         android:layout_height="0dp"

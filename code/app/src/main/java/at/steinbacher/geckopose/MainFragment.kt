@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +14,8 @@ import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
 import at.steinbacher.geckoposelib.util.BitmapPoseUtil
 import at.steinbacher.geckoposelib.util.BitmapPoseUtil.scale
 import at.steinbacher.geckoposelib.util.BitmapUtil
+import at.steinbacher.geckoposelib.view.GeckoPoseView
+import at.steinbacher.geckoposelib.view.GeckoVideoExtractionView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

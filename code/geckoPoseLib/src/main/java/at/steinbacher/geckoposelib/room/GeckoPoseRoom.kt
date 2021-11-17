@@ -6,32 +6,31 @@ import at.steinbacher.geckoposelib.PoseVideo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 
-@Entity(tableName = "gecko_poses_table")
-class GeckoPoseEntity(
+@Entity(tableName = "pose_video_table")
+class PoseVideoEntity(
     @PrimaryKey var id: Int,
-    val geckoPose: GeckoPose,
+    val PoseVideo: PoseVideo,
     val timestamp: Long,
     val isUserData: Boolean,
     val tag: String?
 )
 
 @Dao
-interface GeckoPoseDao {
-
+interface PoseVideoDao {
     @Insert
-    suspend fun insert(geckoPoseEntity: GeckoPoseEntity)
+    suspend fun insert(geckoPoseEntity: PoseVideoEntity)
 
-    @Query("SELECT * FROM gecko_poses_table")
-    fun getAll(): Flow<GeckoPoseEntity>
+    @Query("SELECT * FROM pose_video_table")
+    fun getAll(): Flow<PoseVideoEntity>
 
-    @Query("SELECT * FROM gecko_poses_table WHERE isUserData = :isUserData")
-    fun getAllByUserData(isUserData: Boolean): Flow<GeckoPoseEntity>
+    @Query("SELECT * FROM pose_video_table WHERE isUserData = :isUserData")
+    fun getAllByUserData(isUserData: Boolean): Flow<PoseVideoEntity>
 
-    @Query("SELECT * FROM gecko_poses_table WHERE tag LIKE :tag LIMIT 1")
-    fun getByTag(tag: String): GeckoPoseEntity
+    @Query("SELECT * FROM pose_video_table WHERE tag LIKE :tag LIMIT 1")
+    fun getByTag(tag: String): PoseVideoEntity
 }
 
-class GeckoPoseTypeConverter {
+class PoseVideoTypeConverter {
 
     @TypeConverter
     fun geckoPoseToString(geckoPose: GeckoPose): String {

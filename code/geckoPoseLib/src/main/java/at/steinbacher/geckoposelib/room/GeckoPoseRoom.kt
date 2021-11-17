@@ -19,7 +19,7 @@ class PoseVideoEntity(
 @Dao
 interface PoseVideoDao {
     @Insert
-    suspend fun insert(geckoPoseEntity: PoseVideoEntity)
+    fun insert(geckoPoseEntity: PoseVideoEntity)
 
     @Query("SELECT * FROM pose_video_table")
     fun getAll(): Flow<List<PoseVideoEntity>>

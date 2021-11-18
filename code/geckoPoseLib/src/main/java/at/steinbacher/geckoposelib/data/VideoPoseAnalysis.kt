@@ -23,8 +23,8 @@ data class VideoPoseAnalysis(
 
     companion object {
         fun create(reverenceDistance: Double, poseVideo: PoseVideo): VideoPoseAnalysis {
-            val allPointTypes = poseVideo.getFirstNotNullPose()!!.landmarkPoints.map { it.point.type }
-            val allAnglesTags = poseVideo.getFirstNotNullPose()!!.configuration.angles.map { it.tag }
+            val allPointTypes = poseVideo.getFirstNotNullPose().landmarkPoints.map { it.point.type }
+            val allAnglesTags = poseVideo.getFirstNotNullPose().configuration.angles.map { it.tag }
 
             val frameDifferences: ArrayList<FrameDifference> = ArrayList()
 

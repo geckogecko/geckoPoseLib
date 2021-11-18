@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 
 @Entity(tableName = "pose_video_table")
+@TypeConverters(PoseVideoTypeConverter::class)
 class PoseVideoEntity(
-    val PoseVideo: PoseVideo,
+    val poseVideo: PoseVideo,
     val timestamp: Long,
     val isUserData: Boolean,
     val tag: String?

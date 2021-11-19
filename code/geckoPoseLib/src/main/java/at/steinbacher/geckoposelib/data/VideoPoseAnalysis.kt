@@ -21,6 +21,8 @@ data class VideoPoseAnalysis(
 
     fun getPoseFrame(poseMark: String): PoseFrame? = this.frameData.find { it.frame.poseMark == poseMark }?.frame
 
+    fun getPoseFrameIndex(poseMark: String): Int = this.frameData.indexOfFirst { it.frame.poseMark == poseMark }
+
     companion object {
         fun create(reverenceDistance: Double, poseVideo: PoseVideo): VideoPoseAnalysis {
             val allPointTypes = poseVideo.getFirstNotNullPose().landmarkPoints.map { it.point.type }

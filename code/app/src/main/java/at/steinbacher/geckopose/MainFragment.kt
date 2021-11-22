@@ -32,6 +32,7 @@ class MainFragment : ImageVideoSelectionFragment() {
     private lateinit var fabImageChooser: FloatingActionButton
     private lateinit var fabVideoChooser: FloatingActionButton
     private lateinit var fabSeekTo: FloatingActionButton
+    private lateinit var fabSeekBack: FloatingActionButton
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
     private lateinit var geckoPoseView: GeckoPoseView
@@ -84,6 +85,7 @@ class MainFragment : ImageVideoSelectionFragment() {
         })
 
         fabSeekTo = view.findViewById(R.id.fab_seek_to)
+        fabSeekBack = view.findViewById(R.id.fab_seek_back)
 
         fabImageChooser = view.findViewById(R.id.fab_image_chooser)
         fabImageChooser.setOnClickListener {
@@ -126,6 +128,7 @@ class MainFragment : ImageVideoSelectionFragment() {
         videoExtractionView = view.findViewById(R.id.video_extraction_view)
         videoExtractionView.choosePoseLogic = choosePoseLogic
         videoExtractionView.poseDetection = singleImagePoseDetection
+        videoExtractionView.isEditable = true
     }
 
     override fun onPictureReceived(uri: Uri) {
@@ -145,11 +148,13 @@ class MainFragment : ImageVideoSelectionFragment() {
         fabVideoChooser.visibility = View.GONE
 
         fabSeekTo.visibility = View.VISIBLE
+        fabSeekBack.visibility = View.VISIBLE
 
         videoExtractionView.video = uri
         videoExtractionView.setVideoExtractionListener(object : GeckoVideoExtractionView.VideoExtractionListener {
             override fun onFrameSet(frame: Bitmap, pose: GeckoPose) {
                 fabSeekTo.isEnabled = true
+                fabSeekBack.isEnabled = true
             }
 
             override fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?) {
@@ -167,6 +172,11 @@ class MainFragment : ImageVideoSelectionFragment() {
         fabSeekTo.setOnClickListener {
             fabSeekTo.isEnabled = false
             videoExtractionView.seekForward()
+        }
+
+        fabSeekBack.setOnClickListener {
+            fabSeekBack.isEnabled = false
+            videoExtractionView.seekBackward()
         }
     }
 

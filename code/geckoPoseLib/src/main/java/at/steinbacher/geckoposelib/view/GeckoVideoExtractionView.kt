@@ -45,7 +45,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
             skeletonView.pose = field
         }
 
-    var seekForwardStepsMs = 1000
+    var seekStepsMs = 1000
 
     lateinit var poseDetection: SingleImagePoseDetection
 
@@ -107,13 +107,26 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
     fun seekForward() {
         skeletonView.pose = null
 
-        poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
+        val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
-        currentSeek += seekForwardStepsMs
+        if(poseFrame == null) {
+            poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
+        }
+
+        currentSeek += seekStepsMs
         player?.seekTo(currentSeek)
     }
 
     fun canSeekForward() = currentSeek <= player?.duration ?: 0
+
+    fun seekBackward() {
+        skeletonView.pose = null
+
+        currentSeek -= seekStepsMs
+        player?.seekTo(currentSeek)
+    }
+
+    fun canSeekBackward() = currentSeek > 0
 
     fun markCurrentPoseFrame(poseMark: String) {
         currentPoseMark = poseMark
@@ -158,28 +171,48 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     private fun onSeekCompleted(frame: Bitmap) {
         CoroutineScope(Dispatchers.IO).launch {
-            val poses = poseDetection.processImage(frame)
+            val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
-            if(poses != null) {
-                val pose = choosePoseLogic.invoke(poses)
+            if (poseFrame?.geckoPose == null) {
+                //first time we seek to this frame
+
+                val poses = poseDetection.processImage(frame)
+
+                if (poses != null) {
+                    val pose = choosePoseLogic.invoke(poses)
+
+                    withContext(Dispatchers.Main) {
+                        if (currentFramePose != null) {
+                            previousFramePose = currentFramePose
+                        }
+
+                        currentFramePose = pose
+
+                        if(pose == null) {
+                            videoExtractionListener?.onPoseNotRecognized(frame, previousFramePose)
+                        } else {
+                            videoExtractionListener?.onFrameSet(frame, pose)
+                        }
+
+                        if(!canSeekForward()) {
+                            videoExtractionListener?.onFinishedEnd(poseFrames)
+                        }
+                    }
+                }
+            } else {
+                //we moved to this frame by backward/forward
 
                 withContext(Dispatchers.Main) {
-                    if(currentFramePose != null) {
+                    if (currentFramePose != null) {
                         previousFramePose = currentFramePose
                     }
 
-                    currentFramePose = pose
+                    currentFramePose = poseFrame.geckoPose
 
-                    when {
-                        pose == null -> {
-                            videoExtractionListener?.onPoseNotRecognized(frame, previousFramePose)
-                        }
-                        canSeekForward() -> {
-                            videoExtractionListener?.onFrameSet(frame, pose)
-                        }
-                        else -> {
-                            videoExtractionListener?.onFinishedEnd(poseFrames)
-                        }
+                    videoExtractionListener?.onFrameSet(frame, poseFrame.geckoPose)
+
+                    if(!canSeekForward()) {
+                        videoExtractionListener?.onFinishedEnd(poseFrames)
                     }
                 }
             }

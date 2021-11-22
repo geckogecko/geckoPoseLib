@@ -122,6 +122,12 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
     fun seekBackward() {
         skeletonView.pose = null
 
+        val poseFrame = poseFrames.find { it.timestamp == currentSeek }
+
+        if(poseFrame == null) {
+            poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
+        }
+
         currentSeek -= seekStepsMs
         player?.seekTo(currentSeek)
     }

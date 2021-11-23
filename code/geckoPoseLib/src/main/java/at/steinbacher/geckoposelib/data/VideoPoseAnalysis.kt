@@ -30,7 +30,7 @@ data class VideoPoseAnalysis(
     fun getFrameDifferenceSecond(poseMark: String): FrameDifference? = this.frameDifferences.find { it.secondFrame.poseMark == poseMark }
 
     companion object {
-        fun create(reverenceDistance: Double, poseVideo: PoseVideo): VideoPoseAnalysis {
+        fun create(poseVideo: PoseVideo): VideoPoseAnalysis {
             val allPointTypes = poseVideo.getFirstNotNullPose().landmarkPoints.map { it.point.type }
             val allAnglesTags = poseVideo.getFirstNotNullPose().configuration.angles.map { it.tag }
 
@@ -48,8 +48,6 @@ data class VideoPoseAnalysis(
                     //points
                     allPointTypes.forEach {
                         val distance = firstFrame.geckoPose.getLandmarkPoint(it).distanceTo(secondFrame.geckoPose.getLandmarkPoint(it))
-                            .toRelative(reverenceDistance)
-
                         pointDifferences.add(PointDifference(pointType = it, difference = distance))
                     }
 
@@ -85,8 +83,6 @@ data class VideoPoseAnalysis(
 
             return VideoPoseAnalysis(frameDifferences = frameDifferences, frameData = frameData)
         }
-
-        fun Double.toRelative(reverenceDistance: Double) = (this * 100) / reverenceDistance
     }
 }
 

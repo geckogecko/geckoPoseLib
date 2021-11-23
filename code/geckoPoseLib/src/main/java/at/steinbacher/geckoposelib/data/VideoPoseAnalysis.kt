@@ -19,9 +19,15 @@ data class VideoPoseAnalysis(
         DataEntry(frameDifference.secondFrame.timestamp, frameDifference.getAngleDifference(angleTag).difference)
     }
 
+    fun getPoseFrameIndex(poseMark: String): Int = this.frameData.indexOfFirst { it.frame.poseMark == poseMark }
+
     fun getPoseFrame(poseMark: String): PoseFrame? = this.frameData.find { it.frame.poseMark == poseMark }?.frame
 
-    fun getPoseFrameIndex(poseMark: String): Int = this.frameData.indexOfFirst { it.frame.poseMark == poseMark }
+    fun getFrameDifferenceFirstIndex(poseMark: String): Int = this.frameDifferences.indexOfFirst { it.firstFrame.poseMark == poseMark }
+    fun getFrameDifferenceSecondIndex(poseMark: String): Int = this.frameDifferences.indexOfFirst { it.secondFrame.poseMark == poseMark }
+
+    fun getFrameDifferenceFirst(poseMark: String): FrameDifference? = this.frameDifferences.find { it.firstFrame.poseMark == poseMark }
+    fun getFrameDifferenceSecond(poseMark: String): FrameDifference? = this.frameDifferences.find { it.secondFrame.poseMark == poseMark }
 
     companion object {
         fun create(reverenceDistance: Double, poseVideo: PoseVideo): VideoPoseAnalysis {

@@ -4,56 +4,88 @@ import java.lang.Exception
 import kotlin.math.abs
 
 
-data class ComparablePoint(val time: Long, val value: Float)
-data class ComparableLine(val points: List<ComparablePoint>) {
-    fun getPoint(time: Long) = points.find { it.time == time }
+data class ComparableLine(val points: List<Float>) {
+    fun scale(sampleSize: Int): ComparableLine {
+        if(this.points.size < sampleSize) {
+            throw Exception("Sample size > line size! $sampleSize - ${this.points.size}")
+        }
+
+        val sampleSteps = this.points.size / sampleSize.toFloat()
+
+        var currentScaledPointsIndex = 0
+        val scaledPoints = ArrayList<Float>()
+        for(i in 0 until sampleSize) {
+            scaledPoints.add(0f)
+        }
+
+        val currentSampleTargets = ArrayList<Float>()
+        var currentStepLimit = sampleSteps
+        for(i in this.points.indices) {
+            if(i < currentStepLimit) {
+                currentSampleTargets.add(this.points[i])
+            } else {
+                scaledPoints[currentScaledPointsIndex] = currentSampleTargets.average().toFloat()
+                currentScaledPointsIndex++
+                currentStepLimit += sampleSteps
+                currentSampleTargets.clear()
+                currentSampleTargets.add(this.points[i])
+            }
+        }
+        scaledPoints[sampleSize-1] = currentSampleTargets.average().toFloat()
+
+        return ComparableLine(scaledPoints.toList())
+    }
 }
 
-class LineComparison(private val verticalGridCount: Int) {
+class LineComparison(
+    private val sampleSizeVertical: Int,
+    private val sampleSizeHorizontal: Int
+) {
 
     /**
      * @return the higher the value the different the lines are
      */
     fun compare(first: ComparableLine, second: ComparableLine): Float {
-        val minVerticalValue = listOf(first.points.minOf { it.value }, second.points.minOf { it.value }).minOrNull()
-        val maxVerticalValue = listOf(first.points.maxOf { it.value }, second.points.maxOf { it.value }).maxOrNull()
+        val scaledFirst = first.scale(sampleSizeHorizontal)
+        val scaledSecond= second.scale(sampleSizeHorizontal)
 
-        if(minVerticalValue != null && maxVerticalValue != null) {
-            val comparisonGrid = ComparisonGrid(verticalGridCount, minVerticalValue, maxVerticalValue)
+        val minVerticalValue = listOf(scaledFirst.points.minOrNull()!!, scaledSecond.points.minOrNull()!!).minOrNull()!!.toFloat()
+        val maxVerticalValue = listOf(scaledFirst.points.maxOrNull()!!, scaledSecond.points.maxOrNull()!!).maxOrNull()!!.toFloat()
 
-            var score = 0
-            first.points.forEach {
-                val gridNumberThis = comparisonGrid.getVerticalGridNumber(it.value)
+        val comparisonGrid = ComparisonGrid(minVerticalValue, maxVerticalValue, sampleSizeVertical)
 
-                val pointTo = second.getPoint(it.time)
-                if(pointTo != null) {
-                    val gridNumberTo = comparisonGrid.getVerticalGridNumber(pointTo.value)
-                    val tempScore = abs(gridNumberThis - gridNumberTo)
-                    score += tempScore
-                } else {
-                    throw Exception("Comparison failed! comparteTo Line misses point at ${it.time}")
-                }
-            }
+        var score = 0
+        scaledFirst.points.forEachIndexed { index, pointFirst ->
+            val pointSecond = scaledSecond.points[index]
 
-            return score / first.points.size.toFloat()
-        } else {
-            throw Exception("Unable to process line! min or max not found")
+            val gridNumberFirst = comparisonGrid.getVerticalGridNumber(pointFirst)
+            val gridNumberSecond = comparisonGrid.getVerticalGridNumber(pointSecond)
+
+            score += abs(gridNumberFirst - gridNumberSecond)
         }
+
+        return score / first.points.size.toFloat()
     }
 
-    data class ComparisonGrid(val verticalGridCount: Int, val minVerticalValue: Float, val maxVerticalValue: Float) {
+    data class ComparisonGrid(
+        val minVerticalValue: Float,
+        val maxVerticalValue: Float,
+        val verticalGridCount: Int
+
+    ) {
+
         private val valueRange = maxVerticalValue - minVerticalValue
         private val gridValueStep = valueRange / verticalGridCount
 
         fun getVerticalGridNumber(value: Float): Int {
-            if(value == maxVerticalValue) {
+            if (value == maxVerticalValue) {
                 return verticalGridCount
             }
 
             var gridStep = 1
             var currentGridLimit = minVerticalValue + gridValueStep
-            while(gridStep <= verticalGridCount) {
-                if(value < currentGridLimit) {
+            while (gridStep <= verticalGridCount) {
+                if (value < currentGridLimit) {
                     return gridStep
                 }
 

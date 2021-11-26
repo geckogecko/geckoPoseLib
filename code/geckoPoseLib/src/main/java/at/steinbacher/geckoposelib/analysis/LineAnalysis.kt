@@ -37,7 +37,7 @@ data class ComparableLine(val points: List<Float>) {
     }
 }
 
-class LineComparison(
+class LineAnalysis(
     private val sampleSizeVertical: Int,
     private val sampleSizeHorizontal: Int
 ) {
@@ -65,6 +65,15 @@ class LineComparison(
         }
 
         return score / first.points.size.toFloat()
+    }
+
+    fun getSampled(line: ComparableLine): List<Int> {
+        val minVerticalValue = line.points.minOrNull()!!
+        val maxVerticalValue = line.points.maxOrNull()!!
+
+        val comparisonGrid = ComparisonGrid(minVerticalValue, maxVerticalValue, sampleSizeVertical)
+
+        return line.points.map { comparisonGrid.getVerticalGridNumber(it) }
     }
 
     data class ComparisonGrid(

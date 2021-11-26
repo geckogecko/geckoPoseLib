@@ -102,6 +102,41 @@ data class VideoPoseAnalysis(
     fun getFrameDifferenceSecond(poseMark: String): FrameDifference? = this.frameDifferences.find { it.secondFrame.poseMark == poseMark }
 
     fun getPointingAngles(lineTag: String): List<PointingAngleAnalysis> = this.frameData.map { it.getPointingAngleAnalysis(lineTag) }
+    fun getPointingAngles(lineTag: String, startFrameTag: String, endFrameTag: String): List<PointingAngleAnalysis> {
+        val result: ArrayList<PointingAngleAnalysis> = ArrayList()
+
+        forEachFrameIndexed(startFrameTag, endFrameTag) { _, frameData ->
+            result.add(frameData.getPointingAngleAnalysis(lineTag))
+        }
+
+        return result
+    }
+
+    fun forEachFrameIndexed(startFrameTag: String, endFrameTag: String, onFrame: (index: Int, frameData: FrameData) -> Unit) {
+        val startFrameIndex = getPoseFrameIndex(startFrameTag)
+        val endFrameIndex =getPoseFrameIndex(endFrameTag)
+
+        if(startFrameIndex != -1 && endFrameIndex != -1) {
+            for(i in startFrameIndex..endFrameIndex) {
+                onFrame.invoke(i, frameData[i])
+            }
+        } else {
+            throw Exception("Unable to find Start or End Frame")
+        }
+    }
+
+    fun forEachFrameDifferenceIndexed(startFrameTag: String, endFrameTag: String, onFrameDifference: (index: Int, frameDifference: FrameDifference) -> Unit) {
+        val startFrameIndex = getFrameDifferenceFirstIndex(startFrameTag)
+        val endFrameIndex = getFrameDifferenceFirstIndex(endFrameTag)
+
+        if(startFrameIndex != -1 && endFrameIndex != -1) {
+            for(i in startFrameIndex..endFrameIndex) {
+                onFrameDifference.invoke(i, frameDifferences[i])
+            }
+        } else {
+            throw Exception("Unable to find Start or End Frame")
+        }
+    }
 }
 
 @Serializable

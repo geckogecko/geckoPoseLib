@@ -1,12 +1,84 @@
 package at.steinbacher.geckoposelib.data
 
+import at.steinbacher.geckoposelib.util.AngleUtil
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class VideoPoseAnalysis(
-    val frameDifferences: List<FrameDifference>,
-    val frameData: List<FrameData>
+    val poseVideo: PoseVideo
 ) {
+    val frameDifferences: List<FrameDifference>
+    val frameData: List<FrameData>
+
+    init {
+        val allPointTypes = poseVideo.getFirstNotNullPose().landmarkPoints.map { it.point.type }
+        val allAnglesTags = poseVideo.getFirstNotNullPose().configuration.angles.map { it.tag }
+        val allLineTags = poseVideo.getFirstNotNullPose().configuration.lines.map { it.tag }
+
+        val frameDifferences: ArrayList<FrameDifference> = ArrayList()
+
+        //differences
+        for (i in 0..poseVideo.poseFrames.size - 2) {
+            val firstFrame = poseVideo.poseFrames[i]
+            val secondFrame = poseVideo.poseFrames[i + 1]
+
+            val pointDifferences: ArrayList<PointDifference> = ArrayList()
+            val angleDifferences: ArrayList<AngleDifference> = ArrayList()
+
+            if (firstFrame.geckoPose != null && secondFrame.geckoPose != null) {
+                //points
+                allPointTypes.forEach {
+                    val distance = firstFrame.geckoPose.getLandmarkPoint(it).distanceTo(secondFrame.geckoPose.getLandmarkPoint(it))
+                    pointDifferences.add(PointDifference(pointType = it, difference = distance))
+                }
+
+                //angles
+                allAnglesTags.forEach {
+                    val difference = firstFrame.geckoPose.getAngle(it) - secondFrame.geckoPose.getAngle(it)
+                    angleDifferences.add(AngleDifference(angleTag = it, difference = difference))
+                }
+            }
+
+            frameDifferences.add(
+                FrameDifference(
+                    firstFrame = firstFrame,
+                    secondFrame = secondFrame,
+                    pointDifferences = pointDifferences,
+                    angleDifferences = angleDifferences
+                )
+            )
+        }
+
+        //data
+        val frameData: ArrayList<FrameData> = ArrayList()
+        poseVideo.poseFrames.forEach { poseFrame ->
+            val angleAnalysis: ArrayList<AngleAnalysis> = ArrayList()
+            allAnglesTags.forEach { angleTag ->
+                val angle = poseFrame.geckoPose?.getAngle(angleTag)
+                if (angle != null) {
+                    angleAnalysis.add(AngleAnalysis(angleTag = angleTag, angle = angle))
+                }
+            }
+
+            val pointingAngleAnalyses: ArrayList<PointingAngleAnalysis> = ArrayList()
+            allLineTags.forEach { lineTag ->
+                val line = poseFrame.geckoPose?.configuration?.lines?.first { it.tag == lineTag }
+                val startPoint = line?.let { poseFrame.geckoPose.getLandmarkPoint(it.start).position }
+                val endPoint = line?.end?.let { poseFrame.geckoPose.getLandmarkPoint(it).position }
+
+                if(startPoint != null && endPoint != null) {
+                    val pointingAngle = AngleUtil.getClockWiseAngle(startPoint, endPoint)
+                    pointingAngleAnalyses.add(PointingAngleAnalysis(lineTag, pointingAngle.toFloat()))
+                }
+            }
+
+            frameData.add(FrameData(frame = poseFrame, angleAnalysis = angleAnalysis, pointingAngleAnalyses = pointingAngleAnalyses))
+        }
+
+        this.frameDifferences = frameDifferences
+        this.frameData = frameData
+    }
+
     fun getAngleFrameData(angleTag: String): List<DataEntry> = frameData.map { frameData ->
         DataEntry(frameData.frame.timestamp, frameData.getAngleAnalysis(angleTag).angle)
     }
@@ -29,61 +101,7 @@ data class VideoPoseAnalysis(
     fun getFrameDifferenceFirst(poseMark: String): FrameDifference? = this.frameDifferences.find { it.firstFrame.poseMark == poseMark }
     fun getFrameDifferenceSecond(poseMark: String): FrameDifference? = this.frameDifferences.find { it.secondFrame.poseMark == poseMark }
 
-    companion object {
-        fun create(poseVideo: PoseVideo): VideoPoseAnalysis {
-            val allPointTypes = poseVideo.getFirstNotNullPose().landmarkPoints.map { it.point.type }
-            val allAnglesTags = poseVideo.getFirstNotNullPose().configuration.angles.map { it.tag }
-
-            val frameDifferences: ArrayList<FrameDifference> = ArrayList()
-
-            //differences
-            for (i in 0..poseVideo.poseFrames.size - 2) {
-                val firstFrame = poseVideo.poseFrames[i]
-                val secondFrame = poseVideo.poseFrames[i + 1]
-
-                val pointDifferences: ArrayList<PointDifference> = ArrayList()
-                val angleDifferences: ArrayList<AngleDifference> = ArrayList()
-
-                if (firstFrame.geckoPose != null && secondFrame.geckoPose != null) {
-                    //points
-                    allPointTypes.forEach {
-                        val distance = firstFrame.geckoPose.getLandmarkPoint(it).distanceTo(secondFrame.geckoPose.getLandmarkPoint(it))
-                        pointDifferences.add(PointDifference(pointType = it, difference = distance))
-                    }
-
-                    //angles
-                    allAnglesTags.forEach {
-                        val difference = firstFrame.geckoPose.getAngle(it) - secondFrame.geckoPose.getAngle(it)
-                        angleDifferences.add(AngleDifference(angleTag = it, difference = difference))
-                    }
-                }
-
-                frameDifferences.add(
-                    FrameDifference(
-                        firstFrame = firstFrame,
-                        secondFrame = secondFrame,
-                        pointDifferences = pointDifferences,
-                        angleDifferences = angleDifferences
-                    )
-                )
-            }
-
-            //data
-            val frameData: ArrayList<FrameData> = ArrayList()
-            poseVideo.poseFrames.forEach { poseFrame ->
-                val angleAnalysis: ArrayList<AngleAnalysis> = ArrayList()
-                allAnglesTags.forEach { angleTag ->
-                    val angle = poseFrame.geckoPose?.getAngle(angleTag)
-                    if (angle != null) {
-                        angleAnalysis.add(AngleAnalysis(angleTag = angleTag, angle = angle))
-                    }
-                }
-                frameData.add(FrameData(frame = poseFrame, angleAnalysis = angleAnalysis))
-            }
-
-            return VideoPoseAnalysis(frameDifferences = frameDifferences, frameData = frameData)
-        }
-    }
+    fun getPointingAngles(lineTag: String): List<PointingAngleAnalysis> = this.frameData.map { it.getPointingAngleAnalysis(lineTag) }
 }
 
 @Serializable
@@ -112,15 +130,23 @@ data class AngleDifference(
 @Serializable
 data class FrameData(
     val frame: PoseFrame,
-    val angleAnalysis: List<AngleAnalysis>
+    val angleAnalysis: List<AngleAnalysis>,
+    val pointingAngleAnalyses: List<PointingAngleAnalysis>
 ) {
     fun getAngleAnalysis(angleTag: String): AngleAnalysis = angleAnalysis.first { it.angleTag == angleTag }
+    fun getPointingAngleAnalysis(lineTag: String): PointingAngleAnalysis = pointingAngleAnalyses.first { it.lineTag == lineTag }
 }
 
 @Serializable
 data class AngleAnalysis(
     val angleTag: String,
     val angle: Double
+)
+
+@Serializable
+data class PointingAngleAnalysis(
+    val lineTag: String,
+    val clockwiseAngle: Float,
 )
 
 data class DataEntry(val timestamp: Long, val value: Double)

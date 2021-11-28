@@ -10,9 +10,9 @@ data class ComparableAngle(val originalAngle: Float, val sampleSizeVertical: Int
 
     //https://math.stackexchange.com/a/110236
     fun distance(to: ComparableAngle): Float {
-        val a = to.originalAngle - originalAngle
-        val b = to.originalAngle - originalAngle + 360
-        val c = to.originalAngle - originalAngle - 360
+        val a = abs(to.originalAngle - originalAngle)
+        val b = abs(to.originalAngle - originalAngle + 360)
+        val c = abs(to.originalAngle - originalAngle - 360)
 
         return listOf(a, b, c).minOrNull()!!
     }
@@ -60,5 +60,19 @@ data class ComparableAngles(
 
 
         return scaledPointsVertical.map { ComparableAngle(it, sampleSizeVertical) }
+    }
+}
+
+class AngleComparison(angles1: ComparableAngles, angles2: ComparableAngles) {
+    val sampledDifferences: List<Int> = calculateDifferences(angles1, angles2)
+
+    private fun calculateDifferences(angles1: ComparableAngles, angles2: ComparableAngles): List<Int> {
+        val differences = ArrayList<Int>()
+
+        for(i in angles1.sampledAngles.indices) {
+            differences.add(angles1.sampledAngles[i].sampledDistance(angles2.sampledAngles[i]))
+        }
+
+        return differences
     }
 }

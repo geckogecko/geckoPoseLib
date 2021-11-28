@@ -42,7 +42,7 @@ dependencies {
     implementation(project(":geckoPoseLib"))
     implementation 'com.google.mlkit:pose-detection-accurate:17.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-RC'
 
     testImplementation 'junit:junit:4.13.2'
 

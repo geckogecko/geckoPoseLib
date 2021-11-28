@@ -30,16 +30,16 @@ data class ComparableAngles(
     val sampledAngles: List<ComparableAngle> = createSamplesAngles()
 
     private fun createSamplesAngles(): List<ComparableAngle> {
-        if(originalAngles.size < sampleSizeVertical) {
-            throw Exception("Sample size > line size! $sampleSizeVertical - ${originalAngles.size}")
+        if(originalAngles.size < sampleSizeHorizontal) {
+            throw Exception("Sample size > line size! $sampleSizeHorizontal - ${originalAngles.size}")
         }
 
-        val sampleSteps = originalAngles.size / sampleSizeVertical.toFloat()
+        val sampleSteps = originalAngles.size / sampleSizeHorizontal.toFloat()
 
         //sample vertical
         var currentScaledPointsIndex = 0
         val scaledPointsVertical = ArrayList<Float>()
-        for(i in 0 until sampleSizeVertical) {
+        for(i in 0 until sampleSizeHorizontal) {
             scaledPointsVertical.add(0f)
         }
 
@@ -56,7 +56,7 @@ data class ComparableAngles(
                 currentSampleTargets.add(originalAngles[i])
             }
         }
-        scaledPointsVertical[sampleSizeVertical-1] = currentSampleTargets.average().toFloat()
+        scaledPointsVertical[sampleSizeHorizontal-1] = currentSampleTargets.average().toFloat()
 
 
         return scaledPointsVertical.map { ComparableAngle(it, sampleSizeVertical) }

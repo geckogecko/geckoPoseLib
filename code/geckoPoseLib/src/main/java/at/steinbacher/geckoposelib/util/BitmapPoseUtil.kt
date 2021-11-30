@@ -2,13 +2,15 @@ package at.steinbacher.geckoposelib.util
 
 import android.graphics.Bitmap
 import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.OnImagePose
 
-object BitmapPoseUtil {
-    fun cropToPose(bitmap: Bitmap, pose: GeckoPose, marginPercentage: Float): Pair<Bitmap, GeckoPose> {
-        val (croppedToPoseBitmap, cropX, cropY) = cropPose(bitmap, pose, marginPercentage)
-        val croppedPose = pose.copyMove(-cropX, -cropY)
+object BitmapOnImagePoseUtil {
+    /*
+    fun cropToPose(bitmap: Bitmap, onImagePose: OnImagePose, marginPercentage: Float): Pair<Bitmap, OnImagePose> {
+        val (croppedToPoseBitmap, cropX, cropY) = cropPose(bitmap, onImagePose, marginPercentage)
+       onImagePose.pose.move(-cropX, -cropY)
 
-        return Pair(croppedToPoseBitmap, croppedPose)
+        return Pair(croppedToPoseBitmap, onImagePose)
     }
 
     fun Pair<Bitmap, GeckoPose>.scale(maxWidth: Int, maxHeight: Int): Pair<Bitmap, GeckoPose> {
@@ -24,13 +26,13 @@ object BitmapPoseUtil {
     }
 
 
-    private fun cropPose(bitmap: Bitmap, pose: GeckoPose, marginPercentage: Float): Triple<Bitmap, Int, Int> {
+    private fun cropPose(bitmap: Bitmap, onImagePose: OnImagePose, marginPercentage: Float): Triple<Bitmap, Int, Int> {
         var topMost: Float = Float.MAX_VALUE
         var leftMost: Float = Float.MAX_VALUE
         var rightMost: Float = 0.0f
         var bottomMost: Float = 0.0f
 
-        pose.landmarkPoints.forEach {
+        onImagePose.pose.landmarkPoints.forEach {
             if(it.position.y < topMost) {
                 topMost = it.position.y
             }
@@ -64,4 +66,5 @@ object BitmapPoseUtil {
 
         return Triple(croppedBitmap, leftMost.toInt() - borderWidth.toInt(), topMost.toInt() - borderHeight.toInt())
     }
+     */
 }

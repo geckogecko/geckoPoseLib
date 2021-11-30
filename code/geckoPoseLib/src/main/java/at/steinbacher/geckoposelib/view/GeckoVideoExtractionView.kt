@@ -11,7 +11,7 @@ import android.view.TextureView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.OnImagePose
 import at.steinbacher.geckoposelib.data.PoseFrame
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -39,10 +39,10 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     var poseFrames: ArrayList<PoseFrame> = ArrayList()
 
-    var currentFramePose: GeckoPose? = null
+    var currentFramePose: OnImagePose? = null
         set(value) {
             field = value
-            skeletonView.pose = field
+            skeletonView.pose = field?.pose
         }
 
     var seekStepsMs = 1000
@@ -65,7 +65,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
             skeletonView.isClickable = value
         }
 
-    private var previousFramePose: GeckoPose? = null
+    private var previousFramePose: OnImagePose? = null
 
     private var currentPoseMark: String? = null
 
@@ -84,8 +84,8 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
     private var totalVideoLength: Long = 0
 
     interface VideoExtractionListener {
-        fun onFrameSet(frame: Bitmap, pose: GeckoPose)
-        fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?)
+        fun onFrameSet(frame: Bitmap, pose: OnImagePose)
+        fun onPoseNotRecognized(frame: Bitmap, previousPose: OnImagePose?)
         fun onProgress(percentage: Int)
         fun onFinishedEnd(poseFrames: List<PoseFrame>)
     }
@@ -110,7 +110,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
         if(poseFrame == null) {
-            poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
+            poseFrames.add(PoseFrame(onImagePose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
         }
 
         currentSeek += seekStepsMs
@@ -125,7 +125,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
         if(poseFrame == null) {
-            poseFrames.add(PoseFrame(geckoPose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
+            poseFrames.add(PoseFrame(onImagePose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
         }
 
         currentSeek -= seekStepsMs
@@ -179,7 +179,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         CoroutineScope(Dispatchers.IO).launch {
             val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
-            if (poseFrame?.geckoPose == null) {
+            if (poseFrame?.onImagePose == null) {
                 //first time we seek to this frame
 
                 val poses = poseDetection.processImage(frame)
@@ -213,9 +213,9 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                         previousFramePose = currentFramePose
                     }
 
-                    currentFramePose = poseFrame.geckoPose
+                    currentFramePose = poseFrame.onImagePose
 
-                    videoExtractionListener?.onFrameSet(frame, poseFrame.geckoPose)
+                    videoExtractionListener?.onFrameSet(frame, poseFrame.onImagePose)
 
                     if(!canSeekForward()) {
                         videoExtractionListener?.onFinishedEnd(poseFrames)

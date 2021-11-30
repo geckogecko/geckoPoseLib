@@ -7,8 +7,9 @@ import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
-import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.R
+import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.OnImagePose
 
 
 class GeckoPoseView @JvmOverloads constructor(

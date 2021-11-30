@@ -1,9 +1,7 @@
 package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
-import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.GeckoPoseConfiguration
-import at.steinbacher.geckoposelib.data.LandmarkPoint
+import at.steinbacher.geckoposelib.data.*
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
@@ -13,8 +11,8 @@ import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-typealias ChoosePoseLogic = (geckoPoses: List<GeckoPose?>) -> GeckoPose?
-typealias ManipulatePoseLogic = (bitmap: Bitmap, pose: GeckoPose) -> Pair<Bitmap, GeckoPose>
+typealias ChoosePoseLogic = (geckoPoses: List<OnImagePose?>) -> OnImagePose?
+typealias ManipulatePoseLogic = (bitmap: Bitmap, onImagePose: OnImagePose) -> Pair<Bitmap, OnImagePose>
 
 class SingleImagePoseDetection(
     private val configurations: List<GeckoPoseConfiguration>
@@ -24,7 +22,7 @@ class SingleImagePoseDetection(
         .build()
     private val poseDetector = PoseDetection.getClient(options)
 
-    suspend fun processImage(bitmap: Bitmap): List<GeckoPose?>? = suspendCoroutine { cont ->
+    suspend fun processImage(bitmap: Bitmap): List<OnImagePose?>? = suspendCoroutine { cont ->
         val inputImage = InputImage.fromBitmap(bitmap, 0)
 
         var successCalled = false
@@ -48,7 +46,7 @@ class SingleImagePoseDetection(
             }
     }
 
-    private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<GeckoPose?> = configurations.map {
+    private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<OnImagePose?> = configurations.map {
         val landmarkPoints = ArrayList<LandmarkPoint>()
         var missesPoints = false
         it.points.forEach { point ->
@@ -65,9 +63,7 @@ class SingleImagePoseDetection(
         if(missesPoints) {
             null
         } else {
-            GeckoPose(it).apply {
-                this.landmarkPoints.addAll(landmarkPoints)
-            }
+            OnImagePose(pose = GeckoPose(configuration = it, landmarkPoints = landmarkPoints))
         }
     }
 }

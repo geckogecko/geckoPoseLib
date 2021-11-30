@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.data.Angle
 import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.MinMaxAngle
+import at.steinbacher.geckoposelib.data.OnImagePose
 import at.steinbacher.geckoposelib.data.PointF
 import at.steinbacher.geckoposelib.util.AngleUtil
 import at.steinbacher.geckoposelib.util.BitmapUtil
@@ -221,11 +221,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             360 - Math.toDegrees(acos((-middlePoint.y * y2) / (d1*d2)))
         } + 270
 
-        val colorRes = if(angle is MinMaxAngle && angle.isAngleNotInside(angleDegrees)) {
-            angle.errorColor ?: pose.configuration.defaultNOKAngleColor
-        } else {
-            angle.color ?: pose.configuration.defaultAngleColor
-        }
+        val colorRes = angle.color ?: pose.configuration.defaultAngleColor
         val color = ContextCompat.getColor(context, colorRes)
 
         val anglePaint = Paint().apply {
@@ -244,34 +240,6 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             true,
             anglePaint
         )
-
-        /*
-        //draw the tag of the angle inside the angle indication
-        val textPath = Path().apply {
-            this.addArc(
-                (middlePoint.x - angleDistance).toFloat(),
-                (middlePoint.y - angleDistance).toFloat(),
-                (middlePoint.x + angleDistance).toFloat(),
-                (middlePoint.y + angleDistance).toFloat(),
-                startAngle.toFloat(),
-                angle.toFloat()
-            )
-        }
-
-        val textPaint = Paint().apply {
-            this.color = color
-            textSize = resources.getDimensionPixelSize(at.steinbacher.geckoposelib.R.dimen.angleFontSize).toFloat()
-        }
-
-        val arcLength = (angle/360)*(2*angleDistance*Math.PI)
-        this.drawTextOnPath(
-            displayTag,
-            textPath,
-            (arcLength / 2).toFloat(),
-            (angleDistance / 2).toFloat(),
-            textPaint
-        )
-         */
     }
 
     private fun getDistanceBetweenPoints(startPoint: PointF, endPoint: PointF)

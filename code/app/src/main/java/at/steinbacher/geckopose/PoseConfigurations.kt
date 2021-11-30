@@ -22,8 +22,8 @@ val cyclingConfiguration = listOf(
             Line(start = PoseLandmark.LEFT_ELBOW, end = PoseLandmark.LEFT_WRIST, tag = "elbow_wrist"),
         ),
         angles = listOf(
-            MinMaxAngle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_KNEE,
-                endPointType = PoseLandmark.LEFT_ANKLE, tag = "a", minAngle = 0f, maxAngle = 40f),
+            Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_KNEE,
+                endPointType = PoseLandmark.LEFT_ANKLE, tag = "a"),
             Angle(startPointType = PoseLandmark.LEFT_KNEE, middlePointType = PoseLandmark.LEFT_HIP,
                 endPointType = PoseLandmark.LEFT_SHOULDER, tag = "b"),
             Angle(startPointType = PoseLandmark.LEFT_HIP, middlePointType = PoseLandmark.LEFT_SHOULDER,
@@ -56,8 +56,8 @@ val cyclingConfiguration = listOf(
             Line(start = PoseLandmark.RIGHT_ELBOW, end = PoseLandmark.RIGHT_WRIST, tag = "elbow_wrist"),
         ),
         angles = listOf(
-            MinMaxAngle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_KNEE,
-                endPointType = PoseLandmark.RIGHT_ANKLE, tag = "a", minAngle = 0f, maxAngle = 40f),
+            Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_KNEE,
+                endPointType = PoseLandmark.RIGHT_ANKLE, tag = "a"),
             Angle(startPointType = PoseLandmark.RIGHT_KNEE, middlePointType = PoseLandmark.RIGHT_HIP,
                 endPointType = PoseLandmark.RIGHT_SHOULDER, tag = "b"),
             Angle(startPointType = PoseLandmark.RIGHT_HIP, middlePointType = PoseLandmark.RIGHT_SHOULDER,

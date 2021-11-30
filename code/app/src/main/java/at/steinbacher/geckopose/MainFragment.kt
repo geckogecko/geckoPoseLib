@@ -10,13 +10,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.FileProvider
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.PoseFrame
-import at.steinbacher.geckoposelib.data.getBest
-import at.steinbacher.geckoposelib.data.getByTag
+import at.steinbacher.geckoposelib.data.*
 import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
-import at.steinbacher.geckoposelib.util.BitmapPoseUtil
-import at.steinbacher.geckoposelib.util.BitmapPoseUtil.scale
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import at.steinbacher.geckoposelib.view.GeckoPoseView
 import at.steinbacher.geckoposelib.view.GeckoVideoExtractionView
@@ -42,9 +37,9 @@ class MainFragment : ImageVideoSelectionFragment() {
 
     private val inFrameLikelihoodThreshold: Float = 0.8f
 
-    private val choosePoseLogic: ChoosePoseLogic = { geckoPoses ->
-        val preferred = geckoPoses.getByTag(preferredPose)
-        val best = geckoPoses.getBest(inFrameLikelihoodThreshold)
+    private val choosePoseLogic: ChoosePoseLogic = { onImagePoses ->
+        val preferred = onImagePoses.getByTag(preferredPose)
+        val best = onImagePoses.getBest(inFrameLikelihoodThreshold)
 
         if(preferred != null) {
             preferred
@@ -55,11 +50,14 @@ class MainFragment : ImageVideoSelectionFragment() {
         }
     }
 
-    private val manipulatePoseLogic: ManipulatePoseLogic = { bitmap: Bitmap, pose: GeckoPose ->
-        BitmapPoseUtil.cropToPose(bitmap, pose, 0.2f)
+    private val manipulatePoseLogic: ManipulatePoseLogic = { bitmap: Bitmap, onImagePose: OnImagePose ->
+        /*
+        BitmapPoseUtil.cropToPose(bitmap, onImagePose.pose, 0.2f)
             .scale(geckoPoseView.width, geckoPoseView.height)
 
-        Pair(bitmap, pose)
+         */
+
+        Pair(bitmap, onImagePose)
     }
 
     private val preferredPose: String = "right_pose"
@@ -152,12 +150,12 @@ class MainFragment : ImageVideoSelectionFragment() {
 
         videoExtractionView.video = uri
         videoExtractionView.setVideoExtractionListener(object : GeckoVideoExtractionView.VideoExtractionListener {
-            override fun onFrameSet(frame: Bitmap, pose: GeckoPose) {
+            override fun onFrameSet(frame: Bitmap, pose: OnImagePose) {
                 fabSeekTo.isEnabled = true
                 fabSeekBack.isEnabled = true
             }
 
-            override fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?) {
+            override fun onPoseNotRecognized(frame: Bitmap, previousPose: OnImagePose?) {
 
             }
 
@@ -199,9 +197,8 @@ class MainFragment : ImageVideoSelectionFragment() {
                     geckoPoseView.bitmap = manipulatedBitmap
                     onPictureSet()
 
-
-                    geckoPoseView.pose = manipulatedPose
-                    onPoseSet(manipulatedPose)
+                    geckoPoseView.pose = manipulatedPose.pose
+                    onPoseSet(manipulatedPose.pose)
                 }
             }
         }

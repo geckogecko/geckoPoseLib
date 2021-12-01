@@ -8,6 +8,8 @@ data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>) {
     val normalizedPoses: List<NormalizedPoseFrame> = poseFrames.map {
         NormalizedPoseFrame(timestamp = it.timestamp, geckoPose = it.onImagePose?.normalizedPose, poseMark = it.poseMark)
     }
+
+    val firstNotNullNormalizedPose: GeckoPose = normalizedPoses.find { it.geckoPose != null }?.geckoPose ?: error("All poses are null")
 }
 
 @Serializable

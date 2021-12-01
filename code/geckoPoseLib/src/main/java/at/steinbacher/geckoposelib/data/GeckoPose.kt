@@ -40,32 +40,6 @@ class OnImagePose(
     val pose: GeckoPose,
 ) {
     var normalizedPose: GeckoPose = pose.copyAndNormalize()
-
-    /*
-    private fun applyNormalizedPose(): GeckoPose {
-        val referenceDistance = poseCenterPoint.distanceTo(referencePoint)
-        val normalizedReferenceDistance
-            = normalizedGeckoPose.poseCenterPoint.distanceTo(normalizedGeckoPose.getLandmarkPoint(referencePointType).position)
-
-        val scaleFactor = (referenceDistance / normalizedReferenceDistance).toFloat()
-
-        val scaledPose =  normalizedGeckoPose.copyScale(scaleFactor, scaleFactor)
-
-        val scaledToTargetCenterDistanceX = abs(scaledPose.poseCenterPoint.x - poseCenterPoint.x).toInt()
-        val scaledToTargetCenterDistanceY = abs(scaledPose.poseCenterPoint.y - poseCenterPoint.y).toInt()
-
-        return scaledPose.copyMove(moveX = scaledToTargetCenterDistanceX, moveY = scaledToTargetCenterDistanceY)
-    }
-     */
-}
-
-fun calculateCenterPoint(landmarkPoints: List<LandmarkPoint>): PointF  {
-    val minX = landmarkPoints.minByOrNull { it.position.x }!!.position.x
-    val maxX = landmarkPoints.maxByOrNull { it.position.x }!!.position.x
-    val minY = landmarkPoints.minByOrNull { it.position.y }!!.position.y
-    val maxY = landmarkPoints.maxByOrNull { it.position.y }!!.position.y
-
-    return PointF(x = maxX - minX, y = maxY - minY)
 }
 
 @Serializable
@@ -188,6 +162,15 @@ class GeckoPose(
             configuration = this.configuration.copy(),
             landmarkPoints = normalizedPoints
         )
+    }
+
+    private fun calculateCenterPoint(landmarkPoints: List<LandmarkPoint>): PointF  {
+        val minX = landmarkPoints.minByOrNull { it.position.x }!!.position.x
+        val maxX = landmarkPoints.maxByOrNull { it.position.x }!!.position.x
+        val minY = landmarkPoints.minByOrNull { it.position.y }!!.position.y
+        val maxY = landmarkPoints.maxByOrNull { it.position.y }!!.position.y
+
+        return PointF(x = maxX - minX, y = maxY - minY)
     }
 }
 

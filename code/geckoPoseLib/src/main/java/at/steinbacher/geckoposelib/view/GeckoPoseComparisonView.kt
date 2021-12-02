@@ -23,7 +23,7 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
     private var secondScaledPose: GeckoPose? = null
         set(value) {
             field = value
-            firstSkeletonView.pose = value
+            secondSkeletonView.pose = value
         }
 
     private val firstSkeletonView: SkeletonView

@@ -5,6 +5,7 @@ import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlinx.serialization.Serializable
 import kotlin.math.abs
+import kotlin.math.min
 
 
 @Serializable
@@ -132,32 +133,30 @@ class GeckoPose(
         val minY = landmarkPoints.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
         val maxY = landmarkPoints.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
 
-        val width = maxX - minX
-        val height = maxY - minY
+        val maxHalfWidth = listOf(poseCenterPoint.x - minX, maxX - poseCenterPoint.x).maxOrNull() ?: error("maxHalfWidth is null!")
+        val maxHalfHeight = listOf(poseCenterPoint.y - minY, maxY - poseCenterPoint.y).maxOrNull() ?: error("maxHalfHeight is null!")
+        val newWidth = maxHalfWidth * 2
+        val newHeight = maxHalfHeight * 2
 
-        val squareSideLength  = when {
-            width > height -> width
-            height > width -> height
-            else -> width
+        val newSideLength  = when {
+            newWidth > newHeight -> newWidth
+            newHeight > newWidth -> newHeight
+            else -> newWidth
         }
-        val halfSquareSideLength = squareSideLength/2
-        val sideDifference = abs(width-height)
+        val newSideLengthHalf = newSideLength/2
 
         //we move all points by halfSquareSideLength to be sure they are all in bounds of the new squared boundary box
-        val movedPoints = landmarkPoints.map { it.copyMove(halfSquareSideLength.toInt(), halfSquareSideLength.toInt()) }
+        val movedPoints = landmarkPoints.map { it.copyMove(newSideLengthHalf.toInt(), newSideLengthHalf.toInt()) }
+        val movedPoseCenter = PointF(poseCenterPoint.x + newSideLengthHalf, poseCenterPoint.y + newSideLengthHalf)
 
-        val topLeft = if(width > height) {
-            PointF(minX + halfSquareSideLength, minY - (sideDifference/2) + halfSquareSideLength)
-        } else {
-            PointF(minX - (sideDifference/2) + halfSquareSideLength, minY + halfSquareSideLength)
-        }
+        val topLeft = PointF(movedPoseCenter.x - newSideLengthHalf, movedPoseCenter.y - newSideLengthHalf)
 
         val normalizedPoints = movedPoints.map {
             val topLeftPointDistanceX = it.position.x - topLeft.x
             val topLeftPointDistanceY = it.position.y - topLeft.y
 
-            val normalizedX = ((topLeftPointDistanceX / squareSideLength) * 100)
-            val normalizedY = ((topLeftPointDistanceY / squareSideLength) * 100)
+            val normalizedX = ((topLeftPointDistanceX / newSideLength) * 100)
+            val normalizedY = ((topLeftPointDistanceY / newSideLength) * 100)
 
             val normalizedPosition = PointF(
                 x = if(normalizedX > 0) normalizedX else 0f,

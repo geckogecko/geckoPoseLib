@@ -165,10 +165,10 @@ class GeckoPose(
     }
 
     private fun calculateCenterPoint(landmarkPoints: List<LandmarkPoint>): PointF  {
-        val minX = landmarkPoints.minByOrNull { it.position.x }!!.position.x
-        val maxX = landmarkPoints.maxByOrNull { it.position.x }!!.position.x
-        val minY = landmarkPoints.minByOrNull { it.position.y }!!.position.y
-        val maxY = landmarkPoints.maxByOrNull { it.position.y }!!.position.y
+        val minX = landmarkPoints.minByOrNull { it.position.x }?.position?.x ?: error("minX is null!")
+        val maxX = landmarkPoints.maxByOrNull { it.position.x }?.position?.x ?: error("maxX is null!")
+        val minY = landmarkPoints.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
+        val maxY = landmarkPoints.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
 
         return PointF(x = maxX - minX, y = maxY - minY)
     }

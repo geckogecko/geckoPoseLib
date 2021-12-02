@@ -7,10 +7,14 @@
     <at.steinbacher.geckoposelib.view.SkeletonView
         android:id="@+id/first_skeleton_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        />
 
     <at.steinbacher.geckoposelib.view.SkeletonView
         android:id="@+id/second_skeleton_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

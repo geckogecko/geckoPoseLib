@@ -31,7 +31,8 @@ class GeckoPoseConfiguration(
         defaultSelectedPointColor = this.defaultSelectedPointColor,
         defaultLineColor = this.defaultLineColor,
         defaultAngleColor = this.defaultAngleColor,
-        defaultNOKAngleColor = this.defaultNOKAngleColor
+        defaultNOKAngleColor = this.defaultNOKAngleColor,
+        poseCenterPointsTargets = this.poseCenterPointsTargets
     )
 }
 

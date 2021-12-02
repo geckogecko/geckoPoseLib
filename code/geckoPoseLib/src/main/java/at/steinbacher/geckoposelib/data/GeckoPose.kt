@@ -127,13 +127,13 @@ class GeckoPose(
     }
 
     fun copyAndNormalize(): GeckoPose {
-        val minX: Float = landmarkPoints.minByOrNull { it.position.x }!!.position.x
-        val maxX: Float = landmarkPoints.maxByOrNull { it.position.x }!!.position.x
-        val minY: Float = landmarkPoints.minByOrNull { it.position.y }!!.position.y
-        val maxY: Float = landmarkPoints.maxByOrNull { it.position.y }!!.position.y
+        val minX = landmarkPoints.minByOrNull { it.position.x }?.position?.x ?: error("minX is null!")
+        val maxX = landmarkPoints.maxByOrNull { it.position.x }?.position?.x ?: error("maxX is null!")
+        val minY = landmarkPoints.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
+        val maxY = landmarkPoints.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
 
         val width = maxX - minX
-        val height = minY - maxY
+        val height = maxY - minY
 
         val squareSideLength  = when {
             width > height -> width
@@ -141,19 +141,27 @@ class GeckoPose(
             else -> width
         }
         val halfSquareSideLength = squareSideLength/2
+        val sideDifference = abs(width-height)
 
         //we move all points by halfSquareSideLength to be sure they are all in bounds of the new squared boundary box
         val movedPoints = landmarkPoints.map { it.copyMove(halfSquareSideLength.toInt(), halfSquareSideLength.toInt()) }
 
-        val topLeft = PointF(minX, minY)
+        val topLeft = if(width > height) {
+            PointF(minX + halfSquareSideLength, minY - (sideDifference/2) + halfSquareSideLength)
+        } else {
+            PointF(minX - (sideDifference/2) + halfSquareSideLength, minY + halfSquareSideLength)
+        }
 
         val normalizedPoints = movedPoints.map {
             val topLeftPointDistanceX = it.position.x - topLeft.x
             val topLeftPointDistanceY = it.position.y - topLeft.y
 
+            val normalizedX = ((topLeftPointDistanceX / squareSideLength) * 100)
+            val normalizedY = ((topLeftPointDistanceY / squareSideLength) * 100)
+
             val normalizedPosition = PointF(
-                x = ((topLeftPointDistanceX / squareSideLength) * 100),
-                y = ((topLeftPointDistanceY / squareSideLength) * 100)
+                x = if(normalizedX > 0) normalizedX else 0f,
+                y = if(normalizedY > 0) normalizedY else 0f
             )
 
             it.copy(newPosition = normalizedPosition)

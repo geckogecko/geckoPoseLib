@@ -59,7 +59,13 @@ class GeckoPose(
         get() = landmarkPoints.fold(0f) { acc, it -> acc + it.inFrameLikelihood } / landmarkPoints.size
 
     val poseCenterPoint: PointF
-        get() = calculateCenterPoint(configuration.poseCenterPointsTargets.map { getLandmarkPoint(it) })
+        get() = calculateCenterPoint(
+            if(configuration.poseCenterPointsTargets.isNotEmpty()) {
+                configuration.poseCenterPointsTargets.map { getLandmarkPoint(it) }
+            } else {
+                landmarkPoints
+            }
+        )
 
     fun hasPointsBelowThreshold(threshold: Float): Boolean
         = landmarkPoints.any { it.inFrameLikelihood < threshold }
@@ -178,7 +184,7 @@ class GeckoPose(
         val minY = landmarkPoints.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
         val maxY = landmarkPoints.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
 
-        return PointF(x = maxX - minX, y = maxY - minY)
+        return PointF(x = (maxX + minX)/2, y = (maxY + minY)/2)
     }
 }
 

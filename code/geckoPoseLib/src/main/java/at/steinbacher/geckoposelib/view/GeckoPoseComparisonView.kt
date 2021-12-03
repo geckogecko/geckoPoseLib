@@ -52,8 +52,8 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
     }
 
     fun setNormalizedPoses(first: GeckoPose, second: GeckoPose) {
-        firstScaledPose = first.scaleToView()
-        secondScaledPose = second.scaleToView()
+        firstScaledPose = first.scaleToView().moveToViewCenter()
+        secondScaledPose = second.scaleToView().moveToViewCenter()
     }
 
     private fun GeckoPose.scaleToView(): GeckoPose {

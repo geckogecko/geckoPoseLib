@@ -141,15 +141,11 @@ class GeckoPose(
 
         val maxHalfWidth = listOf(poseCenterPoint.x - minX, maxX - poseCenterPoint.x).maxOrNull() ?: error("maxHalfWidth is null!")
         val maxHalfHeight = listOf(poseCenterPoint.y - minY, maxY - poseCenterPoint.y).maxOrNull() ?: error("maxHalfHeight is null!")
-        val newWidth = maxHalfWidth * 2
-        val newHeight = maxHalfHeight * 2
+        val newWidth: Float = maxHalfWidth * 2
+        val newHeight: Float = maxHalfHeight * 2
 
-        val newSideLength  = when {
-            newWidth > newHeight -> newWidth
-            newHeight > newWidth -> newHeight
-            else -> newWidth
-        }
-        val newSideLengthHalf = newSideLength/2
+        val newSideLengthHalf: Float = listOf(newWidth, newHeight).maxOrNull() ?: error("newSideLengthHalf is null")
+        val newSideLength = newSideLengthHalf * 2
 
         //we move all points by halfSquareSideLength to be sure they are all in bounds of the new squared boundary box
         val movedPoints = landmarkPoints.map { it.copyMove(newSideLengthHalf.toInt(), newSideLengthHalf.toInt()) }

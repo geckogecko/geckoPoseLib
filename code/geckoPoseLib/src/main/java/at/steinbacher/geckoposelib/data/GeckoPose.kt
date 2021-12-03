@@ -146,10 +146,8 @@ class GeckoPose(
         val newSideLength = newSideLengthHalf * 2
 
         //we move all points by halfSquareSideLength to be sure they are all in bounds of the new squared boundary box
-        //val movedPoints = landmarkPoints.map { it.copyMove(newSideLengthHalf.toInt(), newSideLengthHalf.toInt()) }
-        val movedPoints = landmarkPoints
-        //val movedPoseCenter = PointF(poseCenterPoint.x + newSideLengthHalf, poseCenterPoint.y + newSideLengthHalf)
-        val movedPoseCenter = PointF(poseCenterPoint.x, poseCenterPoint.y)
+        val movedPoints = landmarkPoints.map { it.copyMove(newSideLengthHalf.toInt(), newSideLengthHalf.toInt()) }
+        val movedPoseCenter = PointF(poseCenterPoint.x + newSideLengthHalf, poseCenterPoint.y + newSideLengthHalf)
 
         val topLeft = PointF(movedPoseCenter.x - newSideLengthHalf, movedPoseCenter.y - newSideLengthHalf)
 

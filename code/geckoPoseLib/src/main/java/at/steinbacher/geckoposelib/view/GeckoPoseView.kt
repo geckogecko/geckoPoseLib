@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.R
 import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.GeckoPoseDrawConfiguration
 import at.steinbacher.geckoposelib.data.OnImagePose
 
 
@@ -42,6 +43,12 @@ class GeckoPoseView @JvmOverloads constructor(
             if(poseWasNotNull) {
                 field?.let { onPoseChangedListener?.onPoseChanged(it) }
             }
+        }
+
+    var poseDrawConfiguration: GeckoPoseDrawConfiguration? = null
+        set(value) {
+            field = value
+            skeletonView.poseDrawConfiguration = field
         }
 
     var drawLines

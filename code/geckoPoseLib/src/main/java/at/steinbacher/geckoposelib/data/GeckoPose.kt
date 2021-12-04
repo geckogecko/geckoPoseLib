@@ -8,18 +8,21 @@ import kotlin.math.abs
 import kotlin.math.min
 
 
-@Serializable
-class GeckoPoseConfiguration(
-    val tag: String,
-    val points: List<Point> = listOf(),
-    val lines: List<Line> = listOf(),
-    val angles: List<Angle> = listOf(),
+data class GeckoPoseDrawConfiguration(
     @ColorRes val defaultPointColorLight: Int,
     @ColorRes val defaultPointColorDark: Int,
     @ColorRes val defaultSelectedPointColor: Int,
     @ColorRes val defaultLineColor: Int,
     @ColorRes val defaultAngleColor: Int,
     @ColorRes val defaultNOKAngleColor: Int,
+)
+
+@Serializable
+class GeckoPoseConfiguration(
+    val tag: String,
+    val points: List<Point> = listOf(),
+    val lines: List<Line> = listOf(),
+    val angles: List<Angle> = listOf(),
     val poseCenterPointsTargets: List<Int> = listOf() //targets point to base the center point calc on
 ) {
     fun copy() = GeckoPoseConfiguration(
@@ -27,12 +30,6 @@ class GeckoPoseConfiguration(
         points = this.points.map { it.copy() },
         lines = this.lines.map { it.copy() },
         angles = this.angles.map { it.copy() },
-        defaultPointColorLight = this.defaultPointColorLight,
-        defaultPointColorDark = this.defaultPointColorDark,
-        defaultSelectedPointColor = this.defaultSelectedPointColor,
-        defaultLineColor = this.defaultLineColor,
-        defaultAngleColor = this.defaultAngleColor,
-        defaultNOKAngleColor = this.defaultNOKAngleColor,
         poseCenterPointsTargets = this.poseCenterPointsTargets
     )
 }

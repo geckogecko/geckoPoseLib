@@ -125,6 +125,7 @@ class MainFragment : ImageVideoSelectionFragment() {
 
         videoExtractionView = view.findViewById(R.id.video_extraction_view)
         videoExtractionView.choosePoseLogic = choosePoseLogic
+        videoExtractionView.poseDrawConfiguration = poseDrawConfiguration
         videoExtractionView.poseDetection = singleImagePoseDetection
         videoExtractionView.isEditable = true
     }

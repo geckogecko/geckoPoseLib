@@ -10,10 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.data.Angle
-import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.OnImagePose
-import at.steinbacher.geckoposelib.data.PointF
+import at.steinbacher.geckoposelib.data.*
 import at.steinbacher.geckoposelib.util.AngleUtil
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import kotlin.math.acos
@@ -24,6 +21,12 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
     : View(context, attrs, defStyleAttr) {
 
     var pose: GeckoPose? = null
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var poseDrawConfiguration: GeckoPoseDrawConfiguration? = null
         set(value) {
             field = value
             invalidate()
@@ -152,28 +155,31 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        pose?.let {
+        val currentPose = pose
+        val currentDrawConfiguration = poseDrawConfiguration
+
+       if(currentPose != null && currentDrawConfiguration != null) {
             if(drawAngles) {
-                it.configuration.angles.forEach { angle ->
-                    canvas.drawAngleIndicator(angle, it)
+                currentPose.configuration.angles.forEach { angle ->
+                    canvas.drawAngleIndicator(angle, currentPose, currentDrawConfiguration)
                 }
             }
 
             if(drawLines) {
-                it.configuration.lines.forEach { line ->
-                    val start = it.getLandmarkPoint(line.start)
-                    val end = it.getLandmarkPoint(line.end)
+                currentPose.configuration.lines.forEach { line ->
+                    val start = currentPose.getLandmarkPoint(line.start)
+                    val end = currentPose.getLandmarkPoint(line.end)
 
-                    linePaint.color = ContextCompat.getColor(context, line.color ?: it.configuration.defaultLineColor)
+                    linePaint.color = ContextCompat.getColor(context, line.color ?: currentDrawConfiguration.defaultLineColor)
 
                     canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
                 }
             }
 
-            it.landmarkPoints.forEach { processedPoint ->
+           currentPose.landmarkPoints.forEach { processedPoint ->
                 if(processedPoint.point.type == selectedPointType) {
                     selectedPointPaint.color = ContextCompat.getColor(context,
-                        processedPoint.point.selectedColor ?: it.configuration.defaultSelectedPointColor)
+                        processedPoint.point.selectedColor ?: currentDrawConfiguration.defaultSelectedPointColor)
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 15f, selectedPointPaint)
                 } else {
                     pointPaint.color = ContextCompat.getColor(context,
@@ -185,11 +191,11 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
                                     bitmap = bitmap!!,
                                     x = processedPoint.position.x.toInt(),
                                     y = processedPoint.position.y.toInt(),
-                                    contrastColorLight = it.configuration.defaultPointColorLight,
-                                    contrastColorDark = it.configuration.defaultPointColorDark,
+                                    contrastColorLight = currentDrawConfiguration.defaultPointColorLight,
+                                    contrastColorDark = currentDrawConfiguration.defaultPointColorDark,
                                 )
                             } else {
-                                it.configuration.defaultPointColorLight
+                                currentDrawConfiguration.defaultPointColorLight
                             }
                         }
                     )
@@ -199,7 +205,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
         }
     }
 
-    private fun Canvas.drawAngleIndicator(angle: Angle, pose: GeckoPose) {
+    private fun Canvas.drawAngleIndicator(angle: Angle, pose: GeckoPose, poseDrawConfiguration: GeckoPoseDrawConfiguration) {
         val (startPoint, middlePoint, endPoint) = pose.getAnglePointFs(angle.tag)
 
         val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
@@ -221,7 +227,7 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             360 - Math.toDegrees(acos((-middlePoint.y * y2) / (d1*d2)))
         } + 270
 
-        val colorRes = angle.color ?: pose.configuration.defaultAngleColor
+        val colorRes = angle.color ?: poseDrawConfiguration.defaultAngleColor
         val color = ContextCompat.getColor(context, colorRes)
 
         val anglePaint = Paint().apply {

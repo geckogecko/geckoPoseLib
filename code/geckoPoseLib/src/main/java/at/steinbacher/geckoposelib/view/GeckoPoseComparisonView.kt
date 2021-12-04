@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import at.steinbacher.geckoposelib.R
 import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.GeckoPoseDrawConfiguration
 import at.steinbacher.geckoposelib.data.PointF
 
 class GeckoPoseComparisonView @JvmOverloads constructor(
@@ -20,11 +21,25 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
             firstSkeletonView.pose = value
         }
 
+    private var firstPoseDrawConfiguration: GeckoPoseDrawConfiguration? = null
+        set(value) {
+            field = value
+            firstSkeletonView.poseDrawConfiguration = field
+        }
+
     private var secondScaledPose: GeckoPose? = null
         set(value) {
             field = value
             secondSkeletonView.pose = value
         }
+
+    private var secondPoseDrawConfiguration: GeckoPoseDrawConfiguration? = null
+        set(value) {
+            field = value
+            secondSkeletonView.poseDrawConfiguration = field
+        }
+
+
 
     private val firstSkeletonView: SkeletonView
     private val secondSkeletonView: SkeletonView
@@ -51,9 +66,14 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
         }
     }
 
-    fun setNormalizedPoses(first: GeckoPose, second: GeckoPose) {
+    fun setNormalizedPoses(first: GeckoPose, firstConfiguration: GeckoPoseDrawConfiguration,
+                           second: GeckoPose, secondConfiguration: GeckoPoseDrawConfiguration
+    ) {
         firstScaledPose = first.scaleToView().moveToViewCenter()
+        firstPoseDrawConfiguration = firstConfiguration
+
         secondScaledPose = second.scaleToView().moveToViewCenter()
+        secondPoseDrawConfiguration = secondConfiguration
     }
 
     private fun GeckoPose.scaleToView(): GeckoPose {

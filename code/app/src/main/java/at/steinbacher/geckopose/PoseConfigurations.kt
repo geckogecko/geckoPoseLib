@@ -31,12 +31,6 @@ val cyclingConfiguration = listOf(
             Angle(startPointType = PoseLandmark.LEFT_SHOULDER, middlePointType = PoseLandmark.LEFT_ELBOW,
                 endPointType = PoseLandmark.LEFT_WRIST, tag = "d"),
         ),
-        defaultPointColorLight = R.color.white,
-        defaultPointColorDark = R.color.black,
-        defaultSelectedPointColor = R.color.red,
-        defaultLineColor = R.color.blue,
-        defaultAngleColor = R.color.color_angle_ok,
-        defaultNOKAngleColor = R.color.color_angle_nok,
     ),
     GeckoPoseConfiguration(
         tag = "right_pose",
@@ -65,13 +59,16 @@ val cyclingConfiguration = listOf(
             Angle(startPointType = PoseLandmark.RIGHT_SHOULDER, middlePointType = PoseLandmark.RIGHT_ELBOW,
                 endPointType = PoseLandmark.RIGHT_WRIST, tag = "d"),
         ),
-        defaultPointColorLight = R.color.white,
-        defaultPointColorDark = R.color.black,
-        defaultSelectedPointColor = R.color.red,
-        defaultLineColor = R.color.blue,
-        defaultAngleColor = R.color.color_angle_ok,
-        defaultNOKAngleColor = R.color.color_angle_nok,
     )
+)
+
+val poseDrawConfiguration = GeckoPoseDrawConfiguration(
+    defaultPointColorLight = R.color.white,
+    defaultPointColorDark = R.color.black,
+    defaultSelectedPointColor = R.color.red,
+    defaultLineColor = R.color.blue,
+    defaultAngleColor = R.color.color_angle_ok,
+    defaultNOKAngleColor = R.color.color_angle_nok,
 )
 
 val tennisConfiguration = listOf(
@@ -124,12 +121,6 @@ val tennisConfiguration = listOf(
             Angle(startPointType = PoseLandmark.RIGHT_ANKLE, middlePointType = PoseLandmark.RIGHT_KNEE,
                 endPointType = PoseLandmark.RIGHT_HIP, tag = "right_d"),
         ),
-        defaultPointColorLight = R.color.white,
-        defaultPointColorDark = R.color.black,
-        defaultSelectedPointColor = R.color.red,
-        defaultLineColor = R.color.blue,
-        defaultAngleColor = R.color.color_angle_ok,
-        defaultNOKAngleColor = R.color.color_angle_nok,
         poseCenterPointsTargets = listOf(PoseLandmark.LEFT_SHOULDER, PoseLandmark.RIGHT_SHOULDER, PoseLandmark.LEFT_HIP, PoseLandmark.RIGHT_HIP)
     ),
     GeckoPoseConfiguration(
@@ -181,12 +172,6 @@ val tennisConfiguration = listOf(
             Angle(startPointType = PoseLandmark.RIGHT_ANKLE, middlePointType = PoseLandmark.RIGHT_KNEE,
                 endPointType = PoseLandmark.RIGHT_HIP, tag = "right_d"),
         ),
-        defaultPointColorLight = R.color.white,
-        defaultPointColorDark = R.color.black,
-        defaultSelectedPointColor = R.color.red,
-        defaultLineColor = R.color.blue,
-        defaultAngleColor = R.color.color_angle_ok,
-        defaultNOKAngleColor = R.color.color_angle_nok,
         poseCenterPointsTargets = listOf(PoseLandmark.LEFT_SHOULDER, PoseLandmark.RIGHT_SHOULDER, PoseLandmark.LEFT_HIP, PoseLandmark.RIGHT_HIP)
     )
 )

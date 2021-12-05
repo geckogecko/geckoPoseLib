@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import at.steinbacher.geckoposelib.R
 import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.GeckoPoseDrawConfiguration
 import at.steinbacher.geckoposelib.data.PointF
 
 class GeckoPoseComparisonView @JvmOverloads constructor(
@@ -21,25 +21,11 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
             firstSkeletonView.pose = value
         }
 
-    private var firstPoseDrawConfiguration: GeckoPoseDrawConfiguration? = null
-        set(value) {
-            field = value
-            firstSkeletonView.poseDrawConfiguration = field
-        }
-
     private var secondScaledPose: GeckoPose? = null
         set(value) {
             field = value
             secondSkeletonView.pose = value
         }
-
-    private var secondPoseDrawConfiguration: GeckoPoseDrawConfiguration? = null
-        set(value) {
-            field = value
-            secondSkeletonView.poseDrawConfiguration = field
-        }
-
-
 
     private val firstSkeletonView: SkeletonView
     private val secondSkeletonView: SkeletonView
@@ -53,27 +39,31 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
         firstSkeletonView = findViewById(R.id.first_skeleton_view)
         secondSkeletonView = findViewById(R.id.second_skeleton_view)
 
-        firstSkeletonView.apply {
-            this.drawLines = true
-            this.drawAngles = false
-            this.isClickable = false
-        }
+        context.theme.obtainStyledAttributes(attrs, R.styleable.GeckoPoseComparisonView, 0, 0).apply {
+            try {
+                firstSkeletonView.defaultPointColorLight = getColor(R.styleable.GeckoPoseComparisonView_mainDefaultPointColor,
+                    ContextCompat.getColor(context, R.color.black))
+                secondSkeletonView.defaultPointColorLight = getColor(R.styleable.GeckoPoseComparisonView_secondDefaultPointColor,
+                    ContextCompat.getColor(context, R.color.black))
 
-        secondSkeletonView.apply {
-            this.drawLines = true
-            this.drawAngles = false
-            this.isClickable = false
+                firstSkeletonView.defaultLineColor= getColor(R.styleable.GeckoPoseComparisonView_mainDefaultLineColor,
+                    ContextCompat.getColor(context, R.color.blue))
+                secondSkeletonView.defaultPointColorDark = getColor(R.styleable.GeckoPoseComparisonView_secondDefaultLineColor,
+                    ContextCompat.getColor(context, R.color.blue))
+
+                firstSkeletonView.defaultAngleColor= getColor(R.styleable.GeckoPoseComparisonView_mainDefaultAngleColor,
+                    ContextCompat.getColor(context, R.color.green))
+                secondSkeletonView.defaultAngleColor = getColor(R.styleable.GeckoPoseComparisonView_secondDefaultAngleColor,
+                    ContextCompat.getColor(context, R.color.green))
+            } finally {
+                recycle()
+            }
         }
     }
 
-    fun setNormalizedPoses(first: GeckoPose, firstConfiguration: GeckoPoseDrawConfiguration,
-                           second: GeckoPose, secondConfiguration: GeckoPoseDrawConfiguration
-    ) {
+    fun setNormalizedPoses(first: GeckoPose, second: GeckoPose) {
         firstScaledPose = first.scaleToView().moveToViewCenter()
-        firstPoseDrawConfiguration = firstConfiguration
-
         secondScaledPose = second.scaleToView().moveToViewCenter()
-        secondPoseDrawConfiguration = secondConfiguration
     }
 
     private fun GeckoPose.scaleToView(): GeckoPose {

@@ -62,15 +62,6 @@ val cyclingConfiguration = listOf(
     )
 )
 
-val poseDrawConfiguration = GeckoPoseDrawConfiguration(
-    defaultPointColorLight = R.color.white,
-    defaultPointColorDark = R.color.black,
-    defaultSelectedPointColor = R.color.red,
-    defaultLineColor = R.color.blue,
-    defaultAngleColor = R.color.color_angle_ok,
-    defaultNOKAngleColor = R.color.color_angle_nok,
-)
-
 val tennisConfiguration = listOf(
     GeckoPoseConfiguration(
         tag = "main_pose",

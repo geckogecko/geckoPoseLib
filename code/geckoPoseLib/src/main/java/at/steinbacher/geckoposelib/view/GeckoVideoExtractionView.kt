@@ -9,9 +9,9 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.TextureView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.data.GeckoPoseDrawConfiguration
 import at.steinbacher.geckoposelib.data.OnImagePose
 import at.steinbacher.geckoposelib.data.PoseFrame
 import com.google.android.exoplayer2.ExoPlayer
@@ -36,12 +36,6 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
             if(value != null) {
                 initVideo(value)
             }
-        }
-
-    var poseDrawConfiguration: GeckoPoseDrawConfiguration? = null
-        set(value) {
-            field = value
-            skeletonView.poseDrawConfiguration = field
         }
 
     var poseFrames: ArrayList<PoseFrame> = ArrayList()
@@ -104,7 +98,21 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         playerView = findViewById(R.id.player_view)
         skeletonView = findViewById(R.id.skeleton_view)
 
-        isEditable = false
+        context.theme.obtainStyledAttributes(attrs, R.styleable.GeckoPoseView, 0, 0).apply {
+            try {
+                skeletonView.defaultPointColorLight = getColor(R.styleable.GeckoPoseView_defaultPointColorLight, ContextCompat.getColor(context, R.color.white))
+                skeletonView.defaultPointColorDark = getColor(R.styleable.GeckoPoseView_defaultPointColorDark, ContextCompat.getColor(context, R.color.black))
+                skeletonView.defaultSelectedPointColor = getColor(R.styleable.GeckoPoseView_defaultSelectedPointColor, ContextCompat.getColor(context, R.color.red))
+                skeletonView.defaultLineColor = getColor(R.styleable.GeckoPoseView_defaultLineColor, ContextCompat.getColor(context, R.color.blue))
+                skeletonView.defaultAngleColor = getColor(R.styleable.GeckoPoseView_defaultAngleColor, ContextCompat.getColor(context, R.color.green))
+
+                drawLines = getBoolean(R.styleable.GeckoPoseView_drawLines, true)
+                drawAngles = getBoolean(R.styleable.GeckoPoseView_drawAngles, true)
+                isEditable = getBoolean(R.styleable.GeckoPoseView_editable, false)
+            } finally {
+                recycle()
+            }
+        }
     }
 
     fun setVideoExtractionListener(listener: VideoExtractionListener) {

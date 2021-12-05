@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GeckoPoseView">
+        <attr name="defaultPointColorLight" format="color" />
+        <attr name="defaultPointColorDark" format="color" />
+        <attr name="defaultSelectedPointColor" format="color" />
+        <attr name="defaultLineColor" format="color" />
+        <attr name="defaultAngleColor" format="color" />
+        <attr name="editable" format="boolean" />
+        <attr name="drawLines" format="boolean" />
+        <attr name="drawAngles" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="GeckoPoseComparisonView">
+        <attr name="mainDefaultPointColor" format="color" />
+        <attr name="mainDefaultLineColor" format="color" />
+        <attr name="mainDefaultAngleColor" format="color" />
+        <attr name="secondDefaultPointColor" format="color" />
+        <attr name="secondDefaultLineColor" format="color" />
+        <attr name="secondDefaultAngleColor" format="color" />
+    </declare-styleable>
+</resources>

@@ -8,6 +8,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.data.*
@@ -17,20 +19,19 @@ import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class SkeletonView @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
+class SkeletonView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
     : View(context, attrs, defStyleAttr) {
-
     var pose: GeckoPose? = null
         set(value) {
             field = value
             invalidate()
         }
 
-    var poseDrawConfiguration: GeckoPoseDrawConfiguration? = null
-        set(value) {
-            field = value
-            invalidate()
-        }
+    @ColorInt var defaultPointColorLight: Int
+    @ColorInt var defaultPointColorDark: Int
+    @ColorInt var defaultSelectedPointColor: Int
+    @ColorInt var defaultLineColor: Int
+    @ColorInt var defaultAngleColor: Int
 
     var bitmap: Bitmap? = null
 
@@ -48,13 +49,8 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
 
     private var selectedPointType: Int? = null
 
-    private var pointPaint = Paint().apply {
-        color = Color.GRAY
-    }
-
-    private var selectedPointPaint = Paint().apply {
-        color = Color.RED
-    }
+    private var pointPaint = Paint()
+    private var selectedPointPaint = Paint()
 
     private var linePaint = Paint().apply {
         strokeWidth = 8.0f
@@ -67,6 +63,21 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
 
     init {
         setWillNotDraw(false)
+
+        context.theme.obtainStyledAttributes(attrs, R.styleable.GeckoPoseView, 0, 0).apply {
+            try {
+                drawLines = getBoolean(R.styleable.GeckoPoseView_drawLines, true)
+                drawAngles = getBoolean(R.styleable.GeckoPoseView_drawAngles, true)
+
+                defaultPointColorLight = getColor(R.styleable.GeckoPoseView_defaultPointColorLight, ContextCompat.getColor(context, R.color.white))
+                defaultPointColorDark = getColor(R.styleable.GeckoPoseView_defaultPointColorDark, ContextCompat.getColor(context, R.color.black))
+                defaultSelectedPointColor = getColor(R.styleable.GeckoPoseView_defaultSelectedPointColor, ContextCompat.getColor(context, R.color.red))
+                defaultLineColor = getColor(R.styleable.GeckoPoseView_defaultLineColor, ContextCompat.getColor(context, R.color.blue))
+                defaultAngleColor = getColor(R.styleable.GeckoPoseView_defaultAngleColor, ContextCompat.getColor(context, R.color.green))
+            } finally {
+                recycle()
+            }
+        }
     }
 
     private var skeletonViewListener: SkeletonViewListener? = null
@@ -155,57 +166,57 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val currentPose = pose
-        val currentDrawConfiguration = poseDrawConfiguration
-
-       if(currentPose != null && currentDrawConfiguration != null) {
+        pose?.let {
             if(drawAngles) {
-                currentPose.configuration.angles.forEach { angle ->
-                    canvas.drawAngleIndicator(angle, currentPose, currentDrawConfiguration)
+                it.configuration.angles.forEach { angle ->
+                    canvas.drawAngleIndicator(angle, it)
                 }
             }
 
             if(drawLines) {
-                currentPose.configuration.lines.forEach { line ->
-                    val start = currentPose.getLandmarkPoint(line.start)
-                    val end = currentPose.getLandmarkPoint(line.end)
+                it.configuration.lines.forEach { line ->
+                    val start = it.getLandmarkPoint(line.start)
+                    val end = it.getLandmarkPoint(line.end)
 
-                    linePaint.color = ContextCompat.getColor(context, line.color ?: currentDrawConfiguration.defaultLineColor)
+                    linePaint.color = if(line.color != null) {
+                        ContextCompat.getColor(context, line.color)
+                    } else {
+                        defaultLineColor
+                    }
 
                     canvas.drawLine(start.position.x, start.position.y, end.position.x, end.position.y, linePaint)
                 }
             }
 
-           currentPose.landmarkPoints.forEach { processedPoint ->
+            it.landmarkPoints.forEach { processedPoint ->
                 if(processedPoint.point.type == selectedPointType) {
                     selectedPointPaint.color = ContextCompat.getColor(context,
-                        processedPoint.point.selectedColor ?: currentDrawConfiguration.defaultSelectedPointColor)
+                        processedPoint.point.selectedColor ?: defaultSelectedPointColor)
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 15f, selectedPointPaint)
                 } else {
-                    pointPaint.color = ContextCompat.getColor(context,
-                        if(processedPoint.point.color != null) {
-                            processedPoint.point.color
-                        } else {
-                            if(bitmap != null) {
-                                BitmapUtil.getContrastColor(
-                                    bitmap = bitmap!!,
-                                    x = processedPoint.position.x.toInt(),
-                                    y = processedPoint.position.y.toInt(),
-                                    contrastColorLight = currentDrawConfiguration.defaultPointColorLight,
-                                    contrastColorDark = currentDrawConfiguration.defaultPointColorDark,
-                                )
-                            } else {
-                                currentDrawConfiguration.defaultPointColorLight
-                            }
+                    pointPaint.color = when {
+                        processedPoint.point.color != null -> ContextCompat.getColor(context, processedPoint.point.color)
+                        bitmap != null -> {
+                            BitmapUtil.getContrastColor(
+                                bitmap = bitmap!!,
+                                x = processedPoint.position.x.toInt(),
+                                y = processedPoint.position.y.toInt(),
+                                contrastColorLight = defaultPointColorLight,
+                                contrastColorDark = defaultPointColorDark,
+                            )
                         }
-                    )
+                        else -> {
+                            defaultPointColorLight
+                        }
+                    }
+
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 10f, pointPaint)
                 }
             }
         }
     }
 
-    private fun Canvas.drawAngleIndicator(angle: Angle, pose: GeckoPose, poseDrawConfiguration: GeckoPoseDrawConfiguration) {
+    private fun Canvas.drawAngleIndicator(angle: Angle, pose: GeckoPose) {
         val (startPoint, middlePoint, endPoint) = pose.getAnglePointFs(angle.tag)
 
         val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
@@ -227,8 +238,11 @@ class SkeletonView @JvmOverloads constructor(context: Context?, attrs: Attribute
             360 - Math.toDegrees(acos((-middlePoint.y * y2) / (d1*d2)))
         } + 270
 
-        val colorRes = angle.color ?: poseDrawConfiguration.defaultAngleColor
-        val color = ContextCompat.getColor(context, colorRes)
+        val color = if(angle.color != null) {
+            ContextCompat.getColor(context, angle.color)
+        } else {
+            defaultAngleColor
+        }
 
         val anglePaint = Paint().apply {
             this.color = color

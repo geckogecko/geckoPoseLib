@@ -7,16 +7,6 @@ import kotlinx.serialization.Serializable
 import kotlin.math.abs
 import kotlin.math.min
 
-
-data class GeckoPoseDrawConfiguration(
-    @ColorRes val defaultPointColorLight: Int,
-    @ColorRes val defaultPointColorDark: Int,
-    @ColorRes val defaultSelectedPointColor: Int,
-    @ColorRes val defaultLineColor: Int,
-    @ColorRes val defaultAngleColor: Int,
-    @ColorRes val defaultNOKAngleColor: Int,
-)
-
 @Serializable
 class GeckoPoseConfiguration(
     val tag: String,

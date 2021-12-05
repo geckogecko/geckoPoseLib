@@ -6,11 +6,10 @@ import android.util.AttributeSet
 import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.R
 import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.GeckoPoseDrawConfiguration
-import at.steinbacher.geckoposelib.data.OnImagePose
 
 
 class GeckoPoseView @JvmOverloads constructor(
@@ -43,12 +42,6 @@ class GeckoPoseView @JvmOverloads constructor(
             if(poseWasNotNull) {
                 field?.let { onPoseChangedListener?.onPoseChanged(it) }
             }
-        }
-
-    var poseDrawConfiguration: GeckoPoseDrawConfiguration? = null
-        set(value) {
-            field = value
-            skeletonView.poseDrawConfiguration = field
         }
 
     var drawLines
@@ -93,6 +86,22 @@ class GeckoPoseView @JvmOverloads constructor(
                 pose?.let { onPoseChangedListener?.onPoseChanged(it) }
             }
         })
+
+        context.theme.obtainStyledAttributes(attrs, R.styleable.GeckoPoseView, 0, 0).apply {
+            try {
+                skeletonView.defaultPointColorLight = getColor(R.styleable.GeckoPoseView_defaultPointColorLight, ContextCompat.getColor(context, R.color.white))
+                skeletonView.defaultPointColorDark = getColor(R.styleable.GeckoPoseView_defaultPointColorDark, ContextCompat.getColor(context, R.color.black))
+                skeletonView.defaultSelectedPointColor = getColor(R.styleable.GeckoPoseView_defaultSelectedPointColor, ContextCompat.getColor(context, R.color.red))
+                skeletonView.defaultLineColor = getColor(R.styleable.GeckoPoseView_defaultLineColor, ContextCompat.getColor(context, R.color.blue))
+                skeletonView.defaultAngleColor = getColor(R.styleable.GeckoPoseView_defaultAngleColor, ContextCompat.getColor(context, R.color.green))
+
+                drawLines = getBoolean(R.styleable.GeckoPoseView_drawLines, true)
+                drawAngles = getBoolean(R.styleable.GeckoPoseView_drawAngles, true)
+                isEditable = getBoolean(R.styleable.GeckoPoseView_editable, true)
+            } finally {
+                recycle()
+            }
+        }
     }
 
     fun setOnPoseChangedListener(listener: OnPoseChangedListener) {

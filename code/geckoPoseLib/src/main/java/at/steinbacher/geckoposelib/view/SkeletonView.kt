@@ -190,8 +190,11 @@ class SkeletonView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
             it.landmarkPoints.forEach { processedPoint ->
                 if(processedPoint.point.type == selectedPointType) {
-                    selectedPointPaint.color = ContextCompat.getColor(context,
-                        processedPoint.point.selectedColor ?: defaultSelectedPointColor)
+                    selectedPointPaint.color = if(processedPoint.point.selectedColor != null) {
+                        ContextCompat.getColor(context, processedPoint.point.selectedColor)
+                    } else {
+                        defaultSelectedPointColor
+                    }
                     canvas.drawCircle(processedPoint.position.x, processedPoint.position.y, 15f, selectedPointPaint)
                 } else {
                     pointPaint.color = when {

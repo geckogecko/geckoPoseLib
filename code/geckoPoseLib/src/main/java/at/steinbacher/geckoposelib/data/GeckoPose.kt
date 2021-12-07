@@ -214,11 +214,15 @@ data class Angle(
     val endPointType: Int,
     val value: Double,
 ) {
-    //https://math.stackexchange.com/a/110236
     fun distance(to: Angle): Double {
-        val a = abs(to.value - value)
-        val b = abs(to.value - value + 360)
-        val c = abs(to.value - value - 360)
+        return distance(to.value)
+    }
+
+    //https://math.stackexchange.com/a/110236
+    fun distance(toValue: Double): Double {
+        val a = abs(toValue - value)
+        val b = abs(toValue - value + 360)
+        val c = abs(toValue - value - 360)
 
         return listOf(a, b, c).minOrNull()!!
     }

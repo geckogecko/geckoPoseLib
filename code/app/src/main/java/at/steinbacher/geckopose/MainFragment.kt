@@ -217,7 +217,7 @@ class MainFragment : ImageVideoSelectionFragment() {
     }
 
     private fun updateAngleTexts(pose: GeckoPose) {
-        pose.configuration.angles.forEach {
+        pose.configuration.angleConfigurations.forEach {
             when(it.tag) {
                 "a" -> txtAngleA.text = pose.getAngle(it.tag).toString()
                 "b" -> txtAngleB.text = pose.getAngle(it.tag).toString()

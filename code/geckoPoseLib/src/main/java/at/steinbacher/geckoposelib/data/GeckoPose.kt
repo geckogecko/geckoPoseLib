@@ -5,21 +5,20 @@ import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlinx.serialization.Serializable
 import kotlin.math.abs
-import kotlin.math.min
 
 @Serializable
 class GeckoPoseConfiguration(
     val tag: String,
-    val points: List<Point> = listOf(),
-    val lines: List<Line> = listOf(),
-    val angles: List<Angle> = listOf(),
+    val pointConfigurations: List<PointConfiguration> = listOf(),
+    val lineConfigurations: List<LineConfiguration> = listOf(),
+    val angleConfigurations: List<AngleConfiguration> = listOf(),
     val poseCenterPointsTargets: List<Int> = listOf() //targets point to base the center point calc on
 ) {
     fun copy() = GeckoPoseConfiguration(
         tag = this.tag,
-        points = this.points.map { it.copy() },
-        lines = this.lines.map { it.copy() },
-        angles = this.angles.map { it.copy() },
+        pointConfigurations = this.pointConfigurations.map { it.copy() },
+        lineConfigurations = this.lineConfigurations.map { it.copy() },
+        angleConfigurations = this.angleConfigurations.map { it.copy() },
         poseCenterPointsTargets = this.poseCenterPointsTargets
     )
 }
@@ -34,58 +33,45 @@ class OnImagePose(
 @Serializable
 class GeckoPose(
     val configuration: GeckoPoseConfiguration,
-    val landmarkPoints: List<LandmarkPoint>,
+    val points: List<Point>,
 ){
     val foundPointTypes: List<Int>
-        get() = landmarkPoints.map { it.point.type }
+        get() = points.map { it.pointConfiguration.type }
 
     val missesPoints: Boolean
         get() = !foundPointTypes.containsAll(foundPointTypes)
 
     val averageInFrameLikelihood: Float
-        get() = landmarkPoints.fold(0f) { acc, it -> acc + it.inFrameLikelihood } / landmarkPoints.size
+        get() = points.fold(0f) { acc, it -> acc + it.inFrameLikelihood } / points.size
 
     val poseCenterPoint: PointF
         get() = calculateCenterPoint(
             if(configuration.poseCenterPointsTargets.isNotEmpty()) {
-                configuration.poseCenterPointsTargets.map { getLandmarkPoint(it) }
+                configuration.poseCenterPointsTargets.map { getPoint(it) }
             } else {
-                landmarkPoints
+                points
             }
         )
 
+    val angles: List<Angle> = configuration.angleConfigurations.map { calculateAngle(it) }
+
     fun hasPointsBelowThreshold(threshold: Float): Boolean
-        = landmarkPoints.any { it.inFrameLikelihood < threshold }
+        = points.any { it.inFrameLikelihood < threshold }
 
-    fun getLandmarkPoint(type: Int): LandmarkPoint
-        = landmarkPoints.find { it.point.type == type } ?: error("Point not found in Pose")
+    fun getPoint(type: Int): Point
+        = points.find { it.pointConfiguration.type == type } ?: error("Point not found in Pose")
 
-    fun getAnglePoints(angleTag: String): Triple<LandmarkPoint, LandmarkPoint, LandmarkPoint> {
-        val angle = configuration.angles.find { it.tag == angleTag }
-        if(angle != null) {
-            val startPoint = getPoint(angle.startPointType)
-            val middlePoint = getPoint(angle.middlePointType)
-            val endPoint = getPoint(angle.endPointType)
-            return Triple(startPoint, middlePoint, endPoint)
-        } else {
-            error("Angle with tag: $angleTag not found!")
-        }
+    fun getAngle(angleTag: String): Angle = angles.find { it.tag == angleTag } ?: error("AngleTag: $angleTag not found!")
+
+    fun getAnglePositions(angleTag: String): Triple<PointF, PointF, PointF> {
+        val angle = getAngle(angleTag)
+        val startPosition = getPoint(angle.startPointType)
+        val middlePosition = getPoint(angle.middlePointType)
+        val endPosition = getPoint(angle.endPointType)
+        return Triple(startPosition.position, middlePosition.position, endPosition.position)
     }
 
-    fun getAnglePointFs(angleTag: String): Triple<PointF, PointF, PointF> {
-        val (start, middle, end) = getAnglePoints(angleTag)
-        return Triple(start.position, middle.position, end.position)
-    }
-
-    fun getAngle(start: LandmarkPoint, middle: LandmarkPoint, end: LandmarkPoint): Double
-        = AngleUtil.getAngle(start, middle, end)
-
-    fun getAngle(points: Triple<LandmarkPoint, LandmarkPoint, LandmarkPoint>): Double
-            = AngleUtil.getAngle(points.first, points.second, points.third)
-
-    fun getAngle(angleTag: String): Double = getAngle(getAnglePoints(angleTag))
-
-    fun getClosestPoint(x: Float, y: Float): LandmarkPoint? = landmarkPoints.minByOrNull {
+    fun getClosestPoint(x: Float, y: Float): Point? = points.minByOrNull {
         kotlin.math.hypot(
             (x - it.position.x).toDouble(),
             (y - it.position.y).toDouble()
@@ -93,38 +79,36 @@ class GeckoPose(
     }
 
     fun updatePoint(type: Int, moveX: Float, moveY: Float) {
-        val point = landmarkPoints.find { it.point.type == type } ?: error("Unable to find point: $type in Pose!")
+        val point = points.find { it.pointConfiguration.type == type } ?: error("Unable to find point: $type in Pose!")
         point.position.x = point.position.x + moveX
         point.position.y = point.position.y + moveY
     }
 
-    fun getPoint(type: Int): LandmarkPoint = landmarkPoints.firstOrNull { it.point.type == type } ?: error("Unable to find point: $type in Pose!")
-
     fun copy(): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
-            landmarkPoints = this.landmarkPoints.map { lp -> lp.copy() }
+            points = this.points.map { lp -> lp.copy() }
         )
     }
     fun copyScale(scaleX: Float, scaleY: Float): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
-            landmarkPoints = this.landmarkPoints.map { lp -> lp.copyScale(scaleX, scaleY) }
+            points = this.points.map { lp -> lp.copyScale(scaleX, scaleY) }
         )
     }
 
     fun copyMove(moveX: Int, moveY: Int): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
-            landmarkPoints = this.landmarkPoints.map { lp -> lp.copyMove(moveX, moveY) }
+            points = this.points.map { lp -> lp.copyMove(moveX, moveY) }
         )
     }
 
     fun copyAndNormalize(): GeckoPose {
-        val minX = landmarkPoints.minByOrNull { it.position.x }?.position?.x ?: error("minX is null!")
-        val maxX = landmarkPoints.maxByOrNull { it.position.x }?.position?.x ?: error("maxX is null!")
-        val minY = landmarkPoints.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
-        val maxY = landmarkPoints.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
+        val minX = points.minByOrNull { it.position.x }?.position?.x ?: error("minX is null!")
+        val maxX = points.maxByOrNull { it.position.x }?.position?.x ?: error("maxX is null!")
+        val minY = points.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
+        val maxY = points.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
 
         val maxHalfWidth = listOf(poseCenterPoint.x - minX, maxX - poseCenterPoint.x).maxOrNull() ?: error("maxHalfWidth is null!")
         val maxHalfHeight = listOf(poseCenterPoint.y - minY, maxY - poseCenterPoint.y).maxOrNull() ?: error("maxHalfHeight is null!")
@@ -133,7 +117,7 @@ class GeckoPose(
         val newSideLength = newSideLengthHalf * 2
 
         //we move all points by halfSquareSideLength to be sure they are all in bounds of the new squared boundary box
-        val movedPoints = landmarkPoints.map { it.copyMove(newSideLengthHalf.toInt(), newSideLengthHalf.toInt()) }
+        val movedPoints = points.map { it.copyMove(newSideLengthHalf.toInt(), newSideLengthHalf.toInt()) }
         val movedPoseCenter = PointF(poseCenterPoint.x + newSideLengthHalf, poseCenterPoint.y + newSideLengthHalf)
 
         val topLeft = PointF(movedPoseCenter.x - newSideLengthHalf, movedPoseCenter.y - newSideLengthHalf)
@@ -155,17 +139,31 @@ class GeckoPose(
 
         return GeckoPose(
             configuration = this.configuration.copy(),
-            landmarkPoints = normalizedPoints
+            points = normalizedPoints
         )
     }
 
-    private fun calculateCenterPoint(landmarkPoints: List<LandmarkPoint>): PointF  {
-        val minX = landmarkPoints.minByOrNull { it.position.x }?.position?.x ?: error("minX is null!")
-        val maxX = landmarkPoints.maxByOrNull { it.position.x }?.position?.x ?: error("maxX is null!")
-        val minY = landmarkPoints.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
-        val maxY = landmarkPoints.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
+    private fun calculateCenterPoint(points: List<Point>): PointF  {
+        val minX = points.minByOrNull { it.position.x }?.position?.x ?: error("minX is null!")
+        val maxX = points.maxByOrNull { it.position.x }?.position?.x ?: error("maxX is null!")
+        val minY = points.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
+        val maxY = points.maxByOrNull { it.position.y }?.position?.y ?: error("maxY is null!")
 
         return PointF(x = (maxX + minX)/2, y = (maxY + minY)/2)
+    }
+
+    private fun calculateAngle(angleConfiguration: AngleConfiguration): Angle {
+        return Angle(
+            tag = angleConfiguration.tag,
+            startPointType = angleConfiguration.startPointType,
+            middlePointType = angleConfiguration.middlePointType,
+            endPointType = angleConfiguration.endPointType,
+            value = AngleUtil.getAngle(
+                getPoint(angleConfiguration.startPointType),
+                getPoint(angleConfiguration.middlePointType),
+                getPoint(angleConfiguration.endPointType),
+            )
+        )
     }
 }
 
@@ -180,47 +178,65 @@ fun List<OnImagePose?>.getByTag(poseTag: String): OnImagePose? =
 
 
 @Serializable
-class LandmarkPoint(
+class Point(
     val position: PointF,
-    val point: Point,
+    val pointConfiguration: PointConfiguration,
     val inFrameLikelihood: Float
 ) {
-    fun copy(newPosition: PointF = PointF(this.position.x, this.position.y)) = LandmarkPoint(
+    fun copy(newPosition: PointF = PointF(this.position.x, this.position.y)) = Point(
         position = newPosition,
-        point = this.point.copy(),
+        pointConfiguration = this.pointConfiguration.copy(),
         inFrameLikelihood = this.inFrameLikelihood
 
     )
 
-    fun copyScale(scaleX: Float, scaleY: Float) = LandmarkPoint(
+    fun copyScale(scaleX: Float, scaleY: Float) = Point(
         position = PointF(this.position.x * scaleX, this.position.y * scaleY),
-        point = this.point.copy(),
+        pointConfiguration = this.pointConfiguration.copy(),
         inFrameLikelihood = this.inFrameLikelihood
     )
 
-    fun copyMove(moveX: Int, moveY: Int) = LandmarkPoint(
+    fun copyMove(moveX: Int, moveY: Int) = Point(
         position = PointF(this.position.x + moveX, this.position.y + moveY),
-        point = this.point.copy(),
+        pointConfiguration = this.pointConfiguration.copy(),
         inFrameLikelihood = this.inFrameLikelihood
     )
 
-    fun distanceTo(second: LandmarkPoint): Double =
+    fun distanceTo(second: Point): Double =
         this.position.distanceTo(second.position)
 }
 
 @Serializable
-class Point(
+data class Angle(
+    val tag: String,
+    val startPointType: Int,
+    val middlePointType: Int,
+    val endPointType: Int,
+    val value: Double,
+) {
+    //https://math.stackexchange.com/a/110236
+    fun distance(to: Angle): Double {
+        val a = abs(to.value - value)
+        val b = abs(to.value - value + 360)
+        val c = abs(to.value - value - 360)
+
+        return listOf(a, b, c).minOrNull()!!
+    }
+}
+
+@Serializable
+class PointConfiguration(
     val type: Int,
     @ColorRes val color: Int? = null,
     @ColorRes val selectedColor: Int? = null
 ) {
-    fun toProcessedPoint(poseLandmark: PoseLandmark) = LandmarkPoint(
+    fun toProcessedPoint(poseLandmark: PoseLandmark) = Point(
         position = PointF(poseLandmark.position.x, poseLandmark.position.y),
-        point = this,
+        pointConfiguration = this,
         inFrameLikelihood = poseLandmark.inFrameLikelihood
     )
 
-    fun copy() = Point(
+    fun copy() = PointConfiguration(
         type = this.type,
         color = this.color,
         selectedColor = this.selectedColor
@@ -228,13 +244,13 @@ class Point(
 }
 
 @Serializable
-class Line(
+class LineConfiguration(
     val start: Int,
     val end: Int,
     val tag: String,
     @ColorRes val color: Int? = null
 ) {
-    fun copy() = Line(
+    fun copy() = LineConfiguration(
         start = this.start,
         end = this.end,
         tag = this.tag,
@@ -243,14 +259,14 @@ class Line(
 }
 
 @Serializable
-open class Angle(
+open class AngleConfiguration(
     val startPointType: Int,
     val middlePointType: Int,
     val endPointType: Int,
     val tag: String,
     @ColorRes val color: Int? = null
 ) {
-    open fun copy() = Angle(
+    open fun copy() = AngleConfiguration(
         startPointType = this.startPointType,
         middlePointType = this.middlePointType,
         endPointType = this.endPointType,

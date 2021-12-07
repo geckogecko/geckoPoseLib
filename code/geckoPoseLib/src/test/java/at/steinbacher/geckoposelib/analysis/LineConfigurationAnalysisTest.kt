@@ -3,7 +3,7 @@ package at.steinbacher.geckoposelib.analysis
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 
-class LineAnalysisTest {
+class LineConfigurationAnalysisTest {
 
     @Test
     fun compareToTest1() {

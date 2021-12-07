@@ -47,9 +47,9 @@ class SingleImagePoseDetection(
     }
 
     private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<OnImagePose?> = configurations.map {
-        val landmarkPoints = ArrayList<LandmarkPoint>()
+        val landmarkPoints = ArrayList<Point>()
         var missesPoints = false
-        it.points.forEach { point ->
+        it.pointConfigurations.forEach { point ->
             val poseLandmark = pose.getPoseLandmark(point.type)
 
             if(poseLandmark != null && poseLandmark.position.x >= 0 && poseLandmark.position.y >= 0) {
@@ -63,7 +63,7 @@ class SingleImagePoseDetection(
         if(missesPoints) {
             null
         } else {
-            OnImagePose(pose = GeckoPose(configuration = it, landmarkPoints = landmarkPoints))
+            OnImagePose(pose = GeckoPose(configuration = it, points = landmarkPoints))
         }
     }
 }

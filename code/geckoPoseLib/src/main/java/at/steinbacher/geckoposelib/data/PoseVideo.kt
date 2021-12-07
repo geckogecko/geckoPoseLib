@@ -17,3 +17,4 @@ data class PoseFrame(val timestamp: Long, val onImagePose: OnImagePose?, var pos
 
 @Serializable
 data class NormalizedPoseFrame(val timestamp: Long, val geckoPose: GeckoPose?, var poseMark: String?)
+

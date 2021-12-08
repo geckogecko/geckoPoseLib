@@ -4,10 +4,18 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>)
+data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>) {
+    fun toNormalizedPoseVideo() = NormalizedPoseVideo(uri = uri, normalizedPoseFrames = poseFrames.map { it.toNormalizedPoseFrame() })
+}
 
 @Serializable
-data class PoseFrame(val timestamp: Long, val pose: GeckoPose?, var poseMark: String?)
+data class PoseFrame(val timestamp: Long, val pose: GeckoPose?, var poseMark: String?) {
+    fun toNormalizedPoseFrame() = NormalizedPoseFrame(
+        timestamp = timestamp,
+        normalizedPose = pose?.getNormalizedPose(),
+        poseMark = poseMark
+    )
+}
 
 
 

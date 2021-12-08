@@ -14,14 +14,8 @@ class NormalizedPoseVideoComparison(
     private val dtw: DTW = DTW()
 
     val dtwKeypointDistances: List<DTWAngleDistance> = angles.map { tag ->
-        val sampleAngles = sample.getAngles(tag)
-            .map { it.value.toFloat() }
-            .scale(verticalScale)
-            .toFloatArray()
-        val templateAngles = template.getAngles(tag)
-            .map { it.value.toFloat() }
-            .scale(verticalScale)
-            .toFloatArray()
+        val sampleAngles = sample.getScaledAngles(tag, verticalScale).toFloatArray()
+        val templateAngles = template.getScaledAngles(tag, verticalScale).toFloatArray()
 
         DTWAngleDistance(tag, dtw.compute(sampleAngles, templateAngles).distance)
     }
@@ -30,37 +24,6 @@ class NormalizedPoseVideoComparison(
     val averageDtwDistance = dtwDistances.average()
     val minDtwDistance = dtwDistances.minOrNull() ?: error("dtwDistances is empty")
     val maxDtwDistance = dtwDistances.maxOrNull() ?: error("dtwDistances is empty")
-
-    private fun List<Float>.scale(sampleSize: Int): List<Float> {
-        if(this.size < sampleSize) {
-            throw Exception("Sample size > line size! $sampleSize - ${this.size}")
-        }
-
-        val sampleSteps = this.size / sampleSize.toFloat()
-
-        var currentScaledPointsIndex = 0
-        val scaledPoints = ArrayList<Float>()
-        for(i in 0 until sampleSize) {
-            scaledPoints.add(0f)
-        }
-
-        val currentSampleTargets = ArrayList<Float>()
-        var currentStepLimit = sampleSteps
-        for(i in this.indices) {
-            if(i < currentStepLimit) {
-                currentSampleTargets.add(this[i])
-            } else {
-                scaledPoints[currentScaledPointsIndex] = currentSampleTargets.average().toFloat()
-                currentScaledPointsIndex++
-                currentStepLimit += sampleSteps
-                currentSampleTargets.clear()
-                currentSampleTargets.add(this[i])
-            }
-        }
-        scaledPoints[sampleSize-1] = currentSampleTargets.average().toFloat()
-
-        return scaledPoints.toList()
-    }
 }
 
 data class DTWAngleDistance(

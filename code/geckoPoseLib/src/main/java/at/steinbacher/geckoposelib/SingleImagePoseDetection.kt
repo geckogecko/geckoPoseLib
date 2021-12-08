@@ -11,8 +11,8 @@ import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-typealias ChoosePoseLogic = (geckoPoses: List<OnImagePose?>) -> OnImagePose?
-typealias ManipulatePoseLogic = (bitmap: Bitmap, onImagePose: OnImagePose) -> Pair<Bitmap, OnImagePose>
+typealias ChoosePoseLogic = (geckoPoses: List<GeckoPose?>) -> GeckoPose?
+typealias ManipulatePoseLogic = (bitmap: Bitmap, onImagePose: GeckoPose) -> Pair<Bitmap, GeckoPose>
 
 class SingleImagePoseDetection(
     private val configurations: List<GeckoPoseConfiguration>
@@ -22,7 +22,7 @@ class SingleImagePoseDetection(
         .build()
     private val poseDetector = PoseDetection.getClient(options)
 
-    suspend fun processImage(bitmap: Bitmap): List<OnImagePose?>? = suspendCoroutine { cont ->
+    suspend fun processImage(bitmap: Bitmap): List<GeckoPose?>? = suspendCoroutine { cont ->
         val inputImage = InputImage.fromBitmap(bitmap, 0)
 
         var successCalled = false
@@ -46,7 +46,7 @@ class SingleImagePoseDetection(
             }
     }
 
-    private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<OnImagePose?> = configurations.map {
+    private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<GeckoPose?> = configurations.map {
         val landmarkPoints = ArrayList<Point>()
         var missesPoints = false
         it.pointConfigurations.forEach { point ->
@@ -63,7 +63,7 @@ class SingleImagePoseDetection(
         if(missesPoints) {
             null
         } else {
-            OnImagePose(pose = GeckoPose(configuration = it, points = landmarkPoints))
+            GeckoPose(configuration = it, points = landmarkPoints)
         }
     }
 }

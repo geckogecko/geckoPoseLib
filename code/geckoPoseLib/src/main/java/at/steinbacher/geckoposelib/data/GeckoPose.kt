@@ -24,13 +24,6 @@ class GeckoPoseConfiguration(
 }
 
 @Serializable
-class OnImagePose(
-    val pose: GeckoPose,
-) {
-    var normalizedPose: GeckoPose = pose.copyAndNormalize()
-}
-
-@Serializable
 class GeckoPose(
     val configuration: GeckoPoseConfiguration,
     val points: List<Point>,
@@ -104,7 +97,7 @@ class GeckoPose(
         )
     }
 
-    fun copyAndNormalize(): GeckoPose {
+    fun getNormalizedPose(): NormalizedGeckoPose {
         val minX = points.minByOrNull { it.position.x }?.position?.x ?: error("minX is null!")
         val maxX = points.maxByOrNull { it.position.x }?.position?.x ?: error("maxX is null!")
         val minY = points.minByOrNull { it.position.y }?.position?.y ?: error("minY is null!")
@@ -137,9 +130,9 @@ class GeckoPose(
             it.copy(newPosition = normalizedPosition)
         }
 
-        return GeckoPose(
-            configuration = this.configuration.copy(),
-            points = normalizedPoints
+        return NormalizedGeckoPose(
+            points = normalizedPoints,
+            angles = angles.map { it.copy() }
         )
     }
 
@@ -167,15 +160,14 @@ class GeckoPose(
     }
 }
 
-fun List<OnImagePose?>.getBest(threshold: Float): OnImagePose? =
+fun List<GeckoPose?>.getBest(threshold: Float): GeckoPose? =
     this.filterNotNull()
-        .filter { !it.pose.missesPoints }
-        .filter { !it.pose.hasPointsBelowThreshold(threshold) }
-        .maxByOrNull { it.pose.averageInFrameLikelihood }
+        .filter { !it.missesPoints }
+        .filter { !it.hasPointsBelowThreshold(threshold) }
+        .maxByOrNull { it.averageInFrameLikelihood }
 
-fun List<OnImagePose?>.getByTag(poseTag: String): OnImagePose? =
-    this.find { it?.pose?.configuration?.tag == poseTag }
-
+fun List<GeckoPose?>.getByTag(poseTag: String): GeckoPose? =
+    this.find { it?.configuration?.tag == poseTag }
 
 @Serializable
 class Point(

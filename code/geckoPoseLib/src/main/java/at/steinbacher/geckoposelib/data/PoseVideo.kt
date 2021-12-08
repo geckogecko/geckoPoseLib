@@ -4,17 +4,18 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>) {
-    val normalizedPoses: List<NormalizedPoseFrame> = poseFrames.map {
-        NormalizedPoseFrame(timestamp = it.timestamp, geckoPose = it.onImagePose?.normalizedPose, poseMark = it.poseMark)
-    }
+data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>)
 
-    val firstNotNullNormalizedPose: GeckoPose = normalizedPoses.find { it.geckoPose != null }?.geckoPose ?: error("All poses are null")
+@Serializable
+data class PoseFrame(val timestamp: Long, val pose: GeckoPose?, var poseMark: String?)
+
+
+
+@Serializable
+data class NormalizedPoseVideo(val uri: String, val normalizedPoseFrames: List<NormalizedPoseFrame>) {
+    fun getAngles(angleTag: String): List<Angle> = normalizedPoseFrames.mapNotNull { it.normalizedPose?.getAngle(angleTag) }
 }
 
 @Serializable
-data class PoseFrame(val timestamp: Long, val onImagePose: OnImagePose?, var poseMark: String?)
-
-@Serializable
-data class NormalizedPoseFrame(val timestamp: Long, val geckoPose: GeckoPose?, var poseMark: String?)
+data class NormalizedPoseFrame(val timestamp: Long, val normalizedPose: NormalizedGeckoPose?, var poseMark: String?)
 

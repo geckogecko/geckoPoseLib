@@ -50,7 +50,7 @@ class MainFragment : ImageVideoSelectionFragment() {
         }
     }
 
-    private val manipulatePoseLogic: ManipulatePoseLogic = { bitmap: Bitmap, onImagePose: OnImagePose ->
+    private val manipulatePoseLogic: ManipulatePoseLogic = { bitmap: Bitmap, onImagePose: GeckoPose ->
         /*
         BitmapPoseUtil.cropToPose(bitmap, onImagePose.pose, 0.2f)
             .scale(geckoPoseView.width, geckoPoseView.height)
@@ -150,12 +150,12 @@ class MainFragment : ImageVideoSelectionFragment() {
 
         videoExtractionView.video = uri
         videoExtractionView.setVideoExtractionListener(object : GeckoVideoExtractionView.VideoExtractionListener {
-            override fun onFrameSet(frame: Bitmap, pose: OnImagePose) {
+            override fun onFrameSet(frame: Bitmap, pose: GeckoPose) {
                 fabSeekTo.isEnabled = true
                 fabSeekBack.isEnabled = true
             }
 
-            override fun onPoseNotRecognized(frame: Bitmap, previousPose: OnImagePose?) {
+            override fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?) {
 
             }
 
@@ -197,8 +197,8 @@ class MainFragment : ImageVideoSelectionFragment() {
                     geckoPoseView.bitmap = manipulatedBitmap
                     onPictureSet()
 
-                    geckoPoseView.pose = manipulatedPose.pose
-                    onPoseSet(manipulatedPose.pose)
+                    geckoPoseView.pose = manipulatedPose
+                    onPoseSet(manipulatedPose)
                 }
             }
         }

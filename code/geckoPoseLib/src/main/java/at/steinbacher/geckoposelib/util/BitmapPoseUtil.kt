@@ -2,7 +2,6 @@ package at.steinbacher.geckoposelib.util
 
 import android.graphics.Bitmap
 import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.OnImagePose
 
 object BitmapOnImagePoseUtil {
     /*

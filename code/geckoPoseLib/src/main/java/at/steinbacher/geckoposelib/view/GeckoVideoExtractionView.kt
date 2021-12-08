@@ -12,7 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import at.steinbacher.geckoposelib.*
-import at.steinbacher.geckoposelib.data.OnImagePose
+import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.PoseFrame
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -40,10 +40,10 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
     var poseFrames: ArrayList<PoseFrame> = ArrayList()
 
-    var currentFramePose: OnImagePose? = null
+    var currentPose: GeckoPose? = null
         set(value) {
             field = value
-            skeletonView.pose = field?.pose
+            skeletonView.pose = field
         }
 
     var seekStepsMs = 1000
@@ -66,7 +66,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
             skeletonView.isClickable = value
         }
 
-    private var previousFramePose: OnImagePose? = null
+    private var previousPose: GeckoPose? = null
 
     private var currentPoseMark: String? = null
 
@@ -85,8 +85,8 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
     private var totalVideoLength: Long = 0
 
     interface VideoExtractionListener {
-        fun onFrameSet(frame: Bitmap, pose: OnImagePose)
-        fun onPoseNotRecognized(frame: Bitmap, previousPose: OnImagePose?)
+        fun onFrameSet(frame: Bitmap, pose: GeckoPose)
+        fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?)
         fun onProgress(percentage: Int)
         fun onFinishedEnd(poseFrames: List<PoseFrame>)
     }
@@ -125,7 +125,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
         if(poseFrame == null) {
-            poseFrames.add(PoseFrame(onImagePose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
+            poseFrames.add(PoseFrame(pose = currentPose, timestamp = currentSeek, poseMark = currentPoseMark))
         }
 
         currentSeek += seekStepsMs
@@ -140,7 +140,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
         if(poseFrame == null) {
-            poseFrames.add(PoseFrame(onImagePose = currentFramePose, timestamp = currentSeek, poseMark = currentPoseMark))
+            poseFrames.add(PoseFrame(pose = currentPose, timestamp = currentSeek, poseMark = currentPoseMark))
         }
 
         currentSeek -= seekStepsMs
@@ -194,7 +194,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         CoroutineScope(Dispatchers.IO).launch {
             val poseFrame = poseFrames.find { it.timestamp == currentSeek }
 
-            if (poseFrame?.onImagePose == null) {
+            if (poseFrame == null) {
                 //first time we seek to this frame
 
                 val poses = poseDetection.processImage(frame)
@@ -203,14 +203,14 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                     val pose = choosePoseLogic.invoke(poses)
 
                     withContext(Dispatchers.Main) {
-                        if (currentFramePose != null) {
-                            previousFramePose = currentFramePose
+                        if (currentPose != null) {
+                            previousPose = currentPose
                         }
 
-                        currentFramePose = pose
+                        currentPose = pose
 
                         if(pose == null) {
-                            videoExtractionListener?.onPoseNotRecognized(frame, previousFramePose)
+                            videoExtractionListener?.onPoseNotRecognized(frame, previousPose)
                         } else {
                             videoExtractionListener?.onFrameSet(frame, pose)
                         }
@@ -224,13 +224,13 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                 //we moved to this frame by backward/forward
 
                 withContext(Dispatchers.Main) {
-                    if (currentFramePose != null) {
-                        previousFramePose = currentFramePose
+                    if (currentPose != null) {
+                        previousPose = currentPose
                     }
 
-                    currentFramePose = poseFrame.onImagePose
+                    currentPose = poseFrame.pose
 
-                    videoExtractionListener?.onFrameSet(frame, poseFrame.onImagePose)
+                    poseFrame.pose?.let { videoExtractionListener?.onFrameSet(frame, it) }
 
                     if(!canSeekForward()) {
                         videoExtractionListener?.onFinishedEnd(poseFrames)

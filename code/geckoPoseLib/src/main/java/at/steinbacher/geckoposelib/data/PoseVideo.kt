@@ -3,6 +3,7 @@ package at.steinbacher.geckoposelib.data
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.lang.Exception
+import kotlin.math.abs
 
 @Serializable
 data class PoseVideo(val uri: String, val timestampSteps: Int, val poseFrames: List<PoseFrame>) {
@@ -34,6 +35,10 @@ data class NormalizedPoseVideo(val uri: String, val timestampSteps: Int, val nor
 
     fun getByTimestamp(timestamp: Long): NormalizedPoseFrame
         = normalizedPoseFrames.find { it.timestamp == timestamp } ?: error("No frame with $timestamp found!")
+
+    fun getClosestFrame(timestamp: Long): NormalizedPoseFrame = normalizedPoseFrames.minByOrNull {
+        abs(timestamp - it.timestamp)
+    } ?: error("PoseVideo has no Frames!")
 
     private fun List<Float>.scale(sampleSize: Int): List<Float> {
         if(this.size < sampleSize) {

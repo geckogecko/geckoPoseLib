@@ -5,8 +5,12 @@ import kotlinx.serialization.json.Json
 import java.lang.Exception
 
 @Serializable
-data class PoseVideo(val uri: String, val poseFrames: List<PoseFrame>) {
-    fun toNormalizedPoseVideo() = NormalizedPoseVideo(uri = uri, normalizedPoseFrames = poseFrames.map { it.toNormalizedPoseFrame() })
+data class PoseVideo(val uri: String, val timestampSteps: Int, val poseFrames: List<PoseFrame>) {
+    fun toNormalizedPoseVideo() = NormalizedPoseVideo(
+        uri = uri,
+        timestampSteps = timestampSteps,
+        normalizedPoseFrames = poseFrames.map { it.toNormalizedPoseFrame() }
+    )
 }
 
 @Serializable
@@ -21,12 +25,15 @@ data class PoseFrame(val timestamp: Long, val pose: GeckoPose?, var poseMark: St
 
 
 @Serializable
-data class NormalizedPoseVideo(val uri: String, val normalizedPoseFrames: List<NormalizedPoseFrame>) {
+data class NormalizedPoseVideo(val uri: String, val timestampSteps: Int, val normalizedPoseFrames: List<NormalizedPoseFrame>) {
     fun getAngles(angleTag: String): List<Angle> = normalizedPoseFrames.mapNotNull { it.normalizedPose?.getAngle(angleTag) }
 
     fun getScaledAngles(angleTag: String, verticalScale: Int) = getAngles(angleTag)
         .map { it.value.toFloat() }
         .scale(verticalScale)
+
+    fun getByTimestamp(timestamp: Long): NormalizedPoseFrame
+        = normalizedPoseFrames.find { it.timestamp == timestamp } ?: error("No frame with $timestamp found!")
 
     private fun List<Float>.scale(sampleSize: Int): List<Float> {
         if(this.size < sampleSize) {

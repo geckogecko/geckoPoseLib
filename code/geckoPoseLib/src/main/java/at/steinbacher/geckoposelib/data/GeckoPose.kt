@@ -132,7 +132,8 @@ class GeckoPose(
 
         return NormalizedGeckoPose(
             points = normalizedPoints,
-            angles = angles.map { it.copy() }
+            angles = angles.map { it.copy() },
+            configuration = this.configuration.copy()
         )
     }
 

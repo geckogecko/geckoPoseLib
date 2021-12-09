@@ -10,6 +10,7 @@ import at.steinbacher.geckoposelib.R
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.NormalizedPoseVideo
 import at.steinbacher.geckoposelib.data.PointF
+import kotlin.math.roundToInt
 
 class GeckoPoseVideoView @JvmOverloads constructor(
     context: Context,
@@ -53,6 +54,8 @@ class GeckoPoseVideoView @JvmOverloads constructor(
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 normalizedPoseVideo?.let {
+                    seekbar.progress = ((p1 / it.timestampSteps).toDouble().roundToInt() *it.timestampSteps)
+
                     skeletonView.pose = it.getByTimestamp(p1.toLong()).normalizedPose?.toGeckoPose()?.scaleToView()?.moveToViewCenter()
                 }
             }

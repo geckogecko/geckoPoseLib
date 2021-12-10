@@ -29,10 +29,6 @@ data class PoseFrame(val timestamp: Long, val pose: GeckoPose?, var poseMark: St
 data class NormalizedPoseVideo(val uri: String, val timestampSteps: Int, val normalizedPoseFrames: List<NormalizedPoseFrame>) {
     fun getAngles(angleTag: String): List<Angle> = normalizedPoseFrames.mapNotNull { it.normalizedPose?.getAngle(angleTag) }
 
-    fun getScaledAngles(angleTag: String, verticalScale: Int) = getAngles(angleTag)
-        .map { it.value.toFloat() }
-        .scale(verticalScale)
-
     fun getByTimestamp(timestamp: Long): NormalizedPoseFrame
         = normalizedPoseFrames.find { it.timestamp == timestamp } ?: error("No frame with $timestamp found!")
 

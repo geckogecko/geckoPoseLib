@@ -13,8 +13,10 @@ import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.data.*
 import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
 import at.steinbacher.geckoposelib.util.BitmapUtil
+import at.steinbacher.geckoposelib.view.GeckoLineChart
 import at.steinbacher.geckoposelib.view.GeckoPoseView
 import at.steinbacher.geckoposelib.view.GeckoVideoExtractionView
+import com.github.mikephil.charting.data.Entry
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,7 @@ class MainFragment : ImageVideoSelectionFragment() {
     private lateinit var txtAngleB: TextView
     private lateinit var geckoPoseView: GeckoPoseView
     private lateinit var videoExtractionView: GeckoVideoExtractionView
+    private lateinit var geckoLineChart: GeckoLineChart
 
     private lateinit var singleImagePoseDetection: SingleImagePoseDetection
 
@@ -127,6 +130,20 @@ class MainFragment : ImageVideoSelectionFragment() {
         videoExtractionView.choosePoseLogic = choosePoseLogic
         videoExtractionView.poseDetection = singleImagePoseDetection
         videoExtractionView.isEditable = true
+
+        geckoLineChart = view.findViewById(R.id.gecko_line_chart)
+        val testData = listOf(
+            Entry(0f, 20f),
+            Entry(500f, 60f),
+            Entry(1000f, 150f),
+            Entry(1500f, 80f),
+            Entry(2000f, 200f),
+            Entry(2500f, 210f),
+            Entry(3000f, 300f)
+        )
+        geckoLineChart.setData(testData, "Test data set")
+
+        geckoLineChart.addLimitLine(250f, "test")
     }
 
     override fun onPictureReceived(uri: Uri) {

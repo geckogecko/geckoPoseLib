@@ -180,7 +180,7 @@ class MainFragment : ImageVideoSelectionFragment() {
 
             }
 
-            override fun onFinishedEnd(poseFrames: List<PoseFrame>) {
+            override fun onReachedEnd(poseFrames: List<PoseFrame>) {
             }
         })
 

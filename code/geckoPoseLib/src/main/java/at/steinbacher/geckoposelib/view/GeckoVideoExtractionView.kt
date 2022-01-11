@@ -88,7 +88,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
         fun onFrameSet(frame: Bitmap, pose: GeckoPose)
         fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?)
         fun onProgress(percentage: Int)
-        fun onFinishedEnd(poseFrames: List<PoseFrame>)
+        fun onReachedEnd(poseFrames: List<PoseFrame>)
     }
     private var videoExtractionListener: VideoExtractionListener? = null
 
@@ -216,7 +216,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                         }
 
                         if(!canSeekForward()) {
-                            videoExtractionListener?.onFinishedEnd(poseFrames)
+                            videoExtractionListener?.onReachedEnd(poseFrames)
                         }
                     }
                 }
@@ -233,7 +233,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                     poseFrame.pose?.let { videoExtractionListener?.onFrameSet(frame, it) }
 
                     if(!canSeekForward()) {
-                        videoExtractionListener?.onFinishedEnd(poseFrames)
+                        videoExtractionListener?.onReachedEnd(poseFrames)
                     }
                 }
             }

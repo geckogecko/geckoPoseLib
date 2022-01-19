@@ -24,11 +24,6 @@
         android:layout_height="match_parent"
         />
 
-    <at.steinbacher.geckoposelib.view.GeckoLineChart
-        android:id="@+id/gecko_line_chart"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_seek_to"
         android:layout_width="wrap_content"

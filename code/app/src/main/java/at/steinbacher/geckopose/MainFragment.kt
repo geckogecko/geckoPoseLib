@@ -9,19 +9,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.data.*
 import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
+import at.steinbacher.geckoposelib.repository.GeckoPoseDetectionRepository
+import at.steinbacher.geckoposelib.repository.IGeckoPoseDetectionRepository
 import at.steinbacher.geckoposelib.util.BitmapUtil
 import at.steinbacher.geckoposelib.view.GeckoLineChart
 import at.steinbacher.geckoposelib.view.GeckoPoseView
 import at.steinbacher.geckoposelib.view.GeckoVideoExtractionView
-import com.github.mikephil.charting.data.Entry
+import at.steinbacher.geckoposelib.viewmodel.GeckoVideoExtractionViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 
 class MainFragment : ImageVideoSelectionFragment() {
@@ -33,8 +35,10 @@ class MainFragment : ImageVideoSelectionFragment() {
     private lateinit var txtAngleA: TextView
     private lateinit var txtAngleB: TextView
     private lateinit var geckoPoseView: GeckoPoseView
-    private lateinit var videoExtractionView: GeckoVideoExtractionView
     private lateinit var geckoLineChart: GeckoLineChart
+    private lateinit var videoExtractionView: GeckoVideoExtractionView
+
+    private lateinit var viewModel: VideoExtractionViewModel
 
     private lateinit var singleImagePoseDetection: SingleImagePoseDetection
 
@@ -85,6 +89,18 @@ class MainFragment : ImageVideoSelectionFragment() {
             }
         })
 
+        videoExtractionView = view.findViewById(R.id.video_extraction_view)
+
+        val singleImagePoseDetection = SingleImagePoseDetection(
+            configurations = tennisConfiguration,
+        )
+
+        val repository = GeckoPoseDetectionRepository(singleImagePoseDetection)
+        val vm: VideoExtractionViewModel by viewModels {
+            VideoExtractionViewModelFactory(repository)
+        }
+        viewModel = vm
+
         fabSeekTo = view.findViewById(R.id.fab_seek_to)
         fabSeekBack = view.findViewById(R.id.fab_seek_back)
 
@@ -121,29 +137,6 @@ class MainFragment : ImageVideoSelectionFragment() {
 
             openVideoPicker(uri)
         }
-
-        singleImagePoseDetection = SingleImagePoseDetection(
-            configurations = tennisConfiguration,
-        )
-
-        videoExtractionView = view.findViewById(R.id.video_extraction_view)
-        videoExtractionView.choosePoseLogic = choosePoseLogic
-        videoExtractionView.poseDetection = singleImagePoseDetection
-        videoExtractionView.isEditable = true
-
-        geckoLineChart = view.findViewById(R.id.gecko_line_chart)
-        val testData = listOf(
-            Entry(0f, 20f),
-            Entry(500f, 60f),
-            Entry(1000f, 150f),
-            Entry(1500f, 80f),
-            Entry(2000f, 200f),
-            Entry(2500f, 210f),
-            Entry(3000f, 300f)
-        )
-        geckoLineChart.setData(testData, "Test data set")
-
-        geckoLineChart.addLimitLine(250f, "test")
     }
 
     override fun onPictureReceived(uri: Uri) {
@@ -165,33 +158,52 @@ class MainFragment : ImageVideoSelectionFragment() {
         fabSeekTo.visibility = View.VISIBLE
         fabSeekBack.visibility = View.VISIBLE
 
-        videoExtractionView.video = uri
+        viewModel.choosePoseLogic = choosePoseLogic
+
         videoExtractionView.setVideoExtractionListener(object : GeckoVideoExtractionView.VideoExtractionListener {
-            override fun onFrameSet(frame: Bitmap, pose: GeckoPose) {
-                fabSeekTo.isEnabled = true
-                fabSeekBack.isEnabled = true
+            override fun onVideoDurationReceived(duration: Long) {
+                viewModel.videoDuration = duration
             }
 
-            override fun onPoseNotRecognized(frame: Bitmap, previousPose: GeckoPose?) {
-
+            override fun onVideoSet() {
+                viewModel.onVideoSet()
             }
 
-            override fun onProgress(percentage: Int) {
-
-            }
-
-            override fun onReachedEnd(poseFrames: List<PoseFrame>) {
+            override fun onSeekCompleted(timestamp: Long, frame: Bitmap) {
+                viewModel.onSeekCompleted(timestamp, frame)
             }
         })
 
+        viewModel.currentSeek.observe(this, { newSeek ->
+            videoExtractionView.seekTo(newSeek)
+        })
+
+        viewModel.currentFrame.observe(this, { newFrame ->
+            videoExtractionView.currentFrame = newFrame
+        })
+
+        viewModel.currentPose.observe(this, { newPose ->
+            videoExtractionView.currentPose = newPose
+        })
+
+        viewModel.canSeekBackward.observe(this, { canSeekBackward ->
+            fabSeekBack.isEnabled = canSeekBackward
+        })
+
+        viewModel.canSeekForward.observe(this, { canSeekForward ->
+            fabSeekTo.isEnabled = canSeekForward
+        })
+
+        videoExtractionView.video = uri
+
         fabSeekTo.setOnClickListener {
             fabSeekTo.isEnabled = false
-            videoExtractionView.seekForward()
+            viewModel.seekForward()
         }
 
         fabSeekBack.setOnClickListener {
             fabSeekBack.isEnabled = false
-            videoExtractionView.seekBackward()
+            viewModel.seekBackward()
         }
     }
 
@@ -244,5 +256,19 @@ class MainFragment : ImageVideoSelectionFragment() {
 
     companion object {
         private const val TAG = "MainFragment"
+    }
+}
+
+class VideoExtractionViewModel(private val repository: IGeckoPoseDetectionRepository): GeckoVideoExtractionViewModel(repository) {
+
+}
+
+class VideoExtractionViewModelFactory(private val repository: IGeckoPoseDetectionRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(VideoExtractionViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return VideoExtractionViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import at.steinbacher.geckoposelib.ChoosePoseLogic
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.PoseFrame
+import at.steinbacher.geckoposelib.data.PoseVideo
 import at.steinbacher.geckoposelib.repository.IGeckoPoseDetectionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +51,6 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
     val progress: LiveData<Int>
         get() = _progress
     private val _progress: MutableLiveData<Int> = MutableLiveData(0)
-
 
     private var poseFrames: ArrayList<PoseFrame> = ArrayList()
 
@@ -112,8 +112,8 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
         }
     }
 
-    fun markFrame(timestamp: Long, poseMark: String?) {
-        val poseFrame = poseFrames.find { it.timestamp == timestamp }
+    fun markFrame(poseMark: String?) {
+        val poseFrame = poseFrames.find { it.timestamp == _currentSeek.value }
 
         if(poseFrame != null) {
             poseFrame.poseMark = poseMark

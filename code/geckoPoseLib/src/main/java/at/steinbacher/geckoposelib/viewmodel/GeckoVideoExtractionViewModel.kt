@@ -52,7 +52,7 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
         get() = _progress
     private val _progress: MutableLiveData<Int> = MutableLiveData(0)
 
-    private var poseFrames: ArrayList<PoseFrame> = ArrayList()
+    protected var poseFrames: ArrayList<PoseFrame> = ArrayList()
 
     fun seekForward() {
         _currentSeek.value = _currentSeek.value!! + seekStepsMs

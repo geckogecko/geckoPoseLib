@@ -119,4 +119,10 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
             poseFrame.poseMark = poseMark
         }
     }
+
+    fun onFrameDestroyed() {
+        poseFrames.clear()
+        _currentFrame.value = null
+        _currentPose.value = null
+    }
 }

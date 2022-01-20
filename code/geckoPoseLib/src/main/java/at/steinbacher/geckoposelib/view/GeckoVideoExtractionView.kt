@@ -6,6 +6,7 @@ import android.media.MediaMetadataRetriever
 import android.media.session.PlaybackState
 import android.net.Uri
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.TextureView
 import androidx.constraintlayout.widget.ConstraintLayout

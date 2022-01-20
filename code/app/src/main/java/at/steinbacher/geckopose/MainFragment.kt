@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,8 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import at.steinbacher.geckoposelib.*
 import at.steinbacher.geckoposelib.data.*
 import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
@@ -79,16 +82,6 @@ class MainFragment : ImageVideoSelectionFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        txtAngleA = view.findViewById(R.id.txt_angle_a)
-        txtAngleB = view.findViewById(R.id.txt_angle_b)
-
-        geckoPoseView = view.findViewById(R.id.pose_view)
-        geckoPoseView.setOnPoseChangedListener(object : GeckoPoseView.OnPoseChangedListener {
-            override fun onPoseChanged(pose: GeckoPose) {
-                geckoPoseView.pose?.let { updateAngleTexts(it) }
-            }
-        })
-
         videoExtractionView = view.findViewById(R.id.video_extraction_view)
 
         val singleImagePoseDetection = SingleImagePoseDetection(
@@ -137,6 +130,10 @@ class MainFragment : ImageVideoSelectionFragment() {
 
             openVideoPicker(uri)
         }
+
+        viewModel.uri.observe(this, {
+            setVideo(it)
+        })
     }
 
     override fun onPictureReceived(uri: Uri) {
@@ -152,6 +149,10 @@ class MainFragment : ImageVideoSelectionFragment() {
     }
 
     override fun onVideoReceived(uri: Uri) {
+        viewModel.setUri(uri)
+    }
+
+    private fun setVideo(uri: Uri) {
         fabImageChooser.visibility = View.GONE
         fabVideoChooser.visibility = View.GONE
 
@@ -194,8 +195,6 @@ class MainFragment : ImageVideoSelectionFragment() {
             fabSeekTo.isEnabled = canSeekForward
         })
 
-        videoExtractionView.video = uri
-
         fabSeekTo.setOnClickListener {
             fabSeekTo.isEnabled = false
             viewModel.seekForward()
@@ -205,6 +204,8 @@ class MainFragment : ImageVideoSelectionFragment() {
             fabSeekBack.isEnabled = false
             viewModel.seekBackward()
         }
+
+        videoExtractionView.video = uri
     }
 
     override fun onTakeVideoFailed() {
@@ -254,13 +255,28 @@ class MainFragment : ImageVideoSelectionFragment() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel.onFrameDestroyed()
+    }
+
+
     companion object {
         private const val TAG = "MainFragment"
     }
 }
 
 class VideoExtractionViewModel(private val repository: IGeckoPoseDetectionRepository): GeckoVideoExtractionViewModel(repository) {
+    val uri: LiveData<Uri>
+        get() = _uri
+    private var _uri: MutableLiveData<Uri> = MutableLiveData()
 
+    fun setUri(uri: Uri) {
+        if(_uri.value == null) {
+            _uri.value = uri
+        }
+    }
 }
 
 class VideoExtractionViewModelFactory(private val repository: IGeckoPoseDetectionRepository) : ViewModelProvider.Factory {

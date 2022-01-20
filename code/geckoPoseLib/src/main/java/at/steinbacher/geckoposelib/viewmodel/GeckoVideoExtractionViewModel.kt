@@ -69,10 +69,12 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
     }
 
     fun onVideoSet() {
-        _currentSeek.value = 0
+        if(_currentSeek.value == null) {
+            _currentSeek.value = 0
 
-        _canSeekForward.value = _currentSeek.value!! <= videoDuration
-        _canSeekBackward.value = _currentSeek.value!! > 0
+            _canSeekForward.value = _currentSeek.value!! <= videoDuration
+            _canSeekBackward.value = _currentSeek.value!! > 0
+        }
     }
 
     fun onSeekCompleted(timestamp: Long, frame: Bitmap) {

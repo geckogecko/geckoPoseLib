@@ -41,7 +41,7 @@ class MainFragment : ImageVideoSelectionFragment() {
     private lateinit var geckoLineChart: GeckoLineChart
     private lateinit var videoExtractionView: GeckoVideoExtractionView
 
-    private lateinit var viewModel: VideoExtractionViewModel
+    private lateinit var viewModel: GeckoVideoExtractionViewModel
 
     private lateinit var singleImagePoseDetection: SingleImagePoseDetection
 
@@ -89,7 +89,7 @@ class MainFragment : ImageVideoSelectionFragment() {
         )
 
         val repository = GeckoPoseDetectionRepository(singleImagePoseDetection)
-        val vm: VideoExtractionViewModel by viewModels {
+        val vm: GeckoVideoExtractionViewModel by viewModels {
             VideoExtractionViewModelFactory(repository)
         }
         viewModel = vm
@@ -267,23 +267,11 @@ class MainFragment : ImageVideoSelectionFragment() {
     }
 }
 
-class VideoExtractionViewModel(private val repository: IGeckoPoseDetectionRepository): GeckoVideoExtractionViewModel(repository) {
-    val uri: LiveData<Uri>
-        get() = _uri
-    private var _uri: MutableLiveData<Uri> = MutableLiveData()
-
-    fun setUri(uri: Uri) {
-        if(_uri.value == null) {
-            _uri.value = uri
-        }
-    }
-}
-
 class VideoExtractionViewModelFactory(private val repository: IGeckoPoseDetectionRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(VideoExtractionViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(GeckoVideoExtractionViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return VideoExtractionViewModel(repository) as T
+            return GeckoVideoExtractionViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

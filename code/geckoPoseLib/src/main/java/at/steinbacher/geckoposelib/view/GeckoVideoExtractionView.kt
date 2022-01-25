@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerView
+import kotlinx.coroutines.*
 
 class GeckoVideoExtractionView @JvmOverloads constructor(
     context: Context,
@@ -126,13 +127,20 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                     super.onPlaybackStateChanged(playbackState)
 
                     if(playbackState == PlaybackState.STATE_PLAYING) {
-                        playerView.getCurrentFrame()?.let { frame ->
-                            skeletonView.updateLayoutParams {
-                                this.width = frame.width
-                                this.height = frame.height
-                            }
+                        GlobalScope.launch {
+                            //we delay to give exoplayer time to scale and center the preview
+                            delay(200)
 
-                            videoExtractionListener?.onSeekCompleted(currentTimestamp, frame)
+                            withContext(Dispatchers.Main) {
+                                playerView.getCurrentFrame()?.let { frame ->
+                                    skeletonView.updateLayoutParams {
+                                        this.width = frame.width
+                                        this.height = frame.height
+                                    }
+
+                                    videoExtractionListener?.onSeekCompleted(currentTimestamp, frame)
+                                }
+                            }
                         }
                     }
                 }

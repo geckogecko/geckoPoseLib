@@ -24,6 +24,10 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
     //info from media player
     var videoDuration: Long = 0
 
+    val uri: LiveData<Uri>
+        get() = _uri
+    private var _uri: MutableLiveData<Uri> = MutableLiveData()
+
     val currentSeek: LiveData<Long>
         get() = _currentSeek
     private val _currentSeek: MutableLiveData<Long> = MutableLiveData()
@@ -52,9 +56,23 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
         get() = _progress
     private val _progress: MutableLiveData<Int> = MutableLiveData(0)
 
+    val loading: LiveData<Boolean>
+        get() = _loading
+    private val _loading: MutableLiveData<Boolean> = MutableLiveData(false)
+
     protected var poseFrames: ArrayList<PoseFrame> = ArrayList()
 
+    fun setUri(uri: Uri) {
+        if(_uri.value == null) {
+            _loading.value = true
+
+            _uri.value = uri
+        }
+    }
+
     fun seekForward() {
+        _loading.value = true
+
         _currentSeek.value = _currentSeek.value!! + seekStepsMs
 
         _canSeekForward.value = _currentSeek.value!! <= videoDuration
@@ -62,6 +80,8 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
     }
 
     fun seekBackward() {
+        _loading.value = true
+
         _currentSeek.value = _currentSeek.value!! - seekStepsMs
 
         _canSeekForward.value = _currentSeek.value!! <= videoDuration
@@ -74,6 +94,8 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
 
             _canSeekForward.value = _currentSeek.value!! <= videoDuration
             _canSeekBackward.value = _currentSeek.value!! > 0
+
+            _loading.value = false
         }
     }
 
@@ -97,6 +119,8 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
                         _currentPose.value = pose
 
                         _reachedEnd.value = !_canSeekForward.value!!
+
+                        _loading.value = false
                     }
 
                     poseFrames.add(PoseFrame(pose = pose, timestamp = timestamp, poseMark = null))
@@ -107,6 +131,8 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
                     _currentPose.value = poseFrame.pose
 
                     _reachedEnd.value = !_canSeekForward.value!!
+
+                    _loading.value = false
                 }
             }
         }
@@ -118,6 +144,10 @@ open class GeckoVideoExtractionViewModel(private val repository: IGeckoPoseDetec
         if(poseFrame != null) {
             poseFrame.poseMark = poseMark
         }
+    }
+
+    fun onLoading(loading: Boolean) {
+        _loading.value = loading
     }
 
     fun onFrameDestroyed() {

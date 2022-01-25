@@ -258,6 +258,7 @@ class MainFragment : ImageVideoSelectionFragment() {
     override fun onDestroy() {
         super.onDestroy()
 
+        videoExtractionView.release()
         viewModel.onFrameDestroyed()
     }
 

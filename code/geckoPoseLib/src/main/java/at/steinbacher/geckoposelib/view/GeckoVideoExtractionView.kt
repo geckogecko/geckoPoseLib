@@ -129,7 +129,7 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
                     if(playbackState == PlaybackState.STATE_PLAYING) {
                         GlobalScope.launch {
                             //we delay to give exoplayer time to scale and center the preview
-                            delay(200)
+                            delay(100)
 
                             withContext(Dispatchers.Main) {
                                 playerView.getCurrentFrame()?.let { frame ->
@@ -148,6 +148,10 @@ class GeckoVideoExtractionView @JvmOverloads constructor(
 
             videoExtractionListener?.onVideoSet()
         }
+    }
+
+    fun release() {
+        player?.release()
     }
 
     private fun PlayerView.getCurrentFrame(): Bitmap? = (this.videoSurfaceView as TextureView).bitmap

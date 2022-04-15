@@ -6,11 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.steinbacher.geckoposelib.ChoosePoseLogic
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.PoseFrame
 import at.steinbacher.geckoposelib.data.PoseVideo
 import at.steinbacher.geckoposelib.repository.IGeckoPoseDetectionRepository
+import at.steinbacher.geckoposelib.v2.ChoosePoseLogic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

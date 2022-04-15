@@ -1,8 +1,8 @@
 package at.steinbacher.geckoposelib.repository
 
 import android.graphics.Bitmap
-import at.steinbacher.geckoposelib.SingleImagePoseDetection
 import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.v2.SingleImagePoseDetection
 
 
 interface IGeckoPoseDetectionRepository {

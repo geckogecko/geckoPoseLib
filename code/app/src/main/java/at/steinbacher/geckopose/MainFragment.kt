@@ -21,6 +21,9 @@ import at.steinbacher.geckoposelib.fragment.ImageVideoSelectionFragment
 import at.steinbacher.geckoposelib.repository.GeckoPoseDetectionRepository
 import at.steinbacher.geckoposelib.repository.IGeckoPoseDetectionRepository
 import at.steinbacher.geckoposelib.util.BitmapUtil
+import at.steinbacher.geckoposelib.v2.ChoosePoseLogic
+import at.steinbacher.geckoposelib.v2.ManipulatePoseLogic
+import at.steinbacher.geckoposelib.v2.SingleImagePoseDetection
 import at.steinbacher.geckoposelib.view.GeckoLineChart
 import at.steinbacher.geckoposelib.view.GeckoPoseView
 import at.steinbacher.geckoposelib.view.GeckoVideoExtractionView

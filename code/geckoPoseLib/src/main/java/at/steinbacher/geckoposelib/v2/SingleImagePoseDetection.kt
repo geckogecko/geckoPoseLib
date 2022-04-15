@@ -1,4 +1,4 @@
-package at.steinbacher.geckoposelib
+package at.steinbacher.geckoposelib.v2
 
 import android.graphics.Bitmap
 import at.steinbacher.geckoposelib.data.*
@@ -22,7 +22,7 @@ class SingleImagePoseDetection(
         .build()
     private val poseDetector = PoseDetection.getClient(options)
 
-    suspend fun processImage(bitmap: Bitmap): List<GeckoPose?>? = suspendCoroutine { cont ->
+    suspend fun processImage(bitmap: Bitmap): List<GeckoPose?> = suspendCoroutine { cont ->
         val inputImage = InputImage.fromBitmap(bitmap, 0)
 
         var successCalled = false
@@ -37,11 +37,11 @@ class SingleImagePoseDetection(
             .addOnFailureListener {
                 failureCalled = true
 
-                cont.resume(null)
+                cont.resume(listOf())
             }
             .addOnCompleteListener {
                 if(!successCalled && !failureCalled) {
-                    cont.resume(null)
+                    cont.resume(listOf())
                 }
             }
     }

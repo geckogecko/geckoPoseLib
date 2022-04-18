@@ -24,14 +24,15 @@ fun GeckoPoseView(
     imageBitmap: ImageBitmap,
     geckoPose: GeckoPose,
     modifier: Modifier,
-    contentScale: ContentScale = ContentScale.Fit
+    contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
 ) {
     Box(modifier) {
         Image(
             bitmap = imageBitmap,
             contentDescription = "pose image",
             contentScale = contentScale,
-            alignment = Alignment.Center,
+            alignment = alignment,
             modifier = Modifier.fillMaxSize()
         )
 
@@ -41,6 +42,7 @@ fun GeckoPoseView(
             lineColor = Color.Red,
             pointColor = Color.Red,
             contentScale = contentScale,
+            alignment = alignment,
             selectedPointColor = Color.Red,
             modifier = Modifier.fillMaxSize()
         )

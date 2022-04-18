@@ -224,19 +224,21 @@ data class Angle(
 @Serializable
 class PointConfiguration(
     val type: Int,
-    @ColorRes val color: Int? = null,
-    @ColorRes val selectedColor: Int? = null
+    val color: Int,
+    val colorAlpha: Float = 1.0f,
+    val selectedColor: Int,
 ) {
     fun toProcessedPoint(poseLandmark: PoseLandmark) = Point(
         position = PointF(poseLandmark.position.x, poseLandmark.position.y),
         pointConfiguration = this,
-        inFrameLikelihood = poseLandmark.inFrameLikelihood
+        inFrameLikelihood = poseLandmark.inFrameLikelihood,
     )
 
     fun copy() = PointConfiguration(
         type = this.type,
         color = this.color,
-        selectedColor = this.selectedColor
+        selectedColor = this.selectedColor,
+        colorAlpha = this.colorAlpha
     )
 }
 
@@ -245,13 +247,15 @@ class LineConfiguration(
     val start: Int,
     val end: Int,
     val tag: String,
-    @ColorRes val color: Int? = null
+    val color: Int,
+    val colorAlpha: Float = 1.0f,
 ) {
     fun copy() = LineConfiguration(
         start = this.start,
         end = this.end,
         tag = this.tag,
-        color = this.color
+        color = this.color,
+        colorAlpha = this.colorAlpha
     )
 }
 
@@ -261,14 +265,16 @@ open class AngleConfiguration(
     val middlePointType: Int,
     val endPointType: Int,
     val tag: String,
-    @ColorRes val color: Int? = null
+    val color: Int,
+    val colorAlpha: Float = 1.0f,
 ) {
     open fun copy() = AngleConfiguration(
         startPointType = this.startPointType,
         middlePointType = this.middlePointType,
         endPointType = this.endPointType,
         tag = this.tag,
-        color = this.color
+        color = this.color,
+        colorAlpha = this.colorAlpha
     )
 }
 

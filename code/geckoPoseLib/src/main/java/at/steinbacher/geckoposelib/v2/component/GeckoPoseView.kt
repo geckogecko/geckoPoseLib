@@ -39,11 +39,8 @@ fun GeckoPoseView(
         SkeletonView(
             geckoPose = geckoPose,
             srcImageBitmap = imageBitmap,
-            lineColor = Color.Red,
-            pointColor = Color.Red,
             contentScale = contentScale,
             alignment = alignment,
-            selectedPointColor = Color.Red,
             modifier = Modifier.fillMaxSize()
         )
     }

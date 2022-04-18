@@ -34,14 +34,10 @@ import kotlin.math.sqrt
 fun SkeletonView(
     geckoPose: GeckoPose,
     srcImageBitmap: ImageBitmap,
-    lineColor: Color,
-    pointColor: Color,
-    selectedPointColor: Color,
     contentScale: ContentScale = ContentScale.Fit,
     alignment: Alignment = Alignment.Center,
     drawAngles: Boolean = true,
     drawLines: Boolean = true,
-    selectedPointType: Int? = null,
     modifier: Modifier
 ) {
     Canvas(modifier = modifier) {
@@ -66,7 +62,7 @@ fun SkeletonView(
 
         if(drawAngles) {
             scaledAndMovedGeckoPose.configuration.angleConfigurations.forEach { angle ->
-                //drawAngleIndicator(angle, geckoPose)
+                drawAngleIndicator(angle, scaledAndMovedGeckoPose)
             }
         }
 
@@ -76,28 +72,22 @@ fun SkeletonView(
                 val end = scaledAndMovedGeckoPose.getPoint(line.end)
 
                 drawLine(
-                    color = lineColor,
+                    color = Color(line.color),
                     start = Offset(start.position.x, start.position.y),
                     end = Offset(end.position.x, end.position.y),
-                    strokeWidth = 8f
+                    strokeWidth = 8f,
+                    alpha = line.colorAlpha
                 )
             }
         }
 
         scaledAndMovedGeckoPose.points.forEach { processedPoint ->
-            if(processedPoint.pointConfiguration.type == selectedPointType) {
-                drawCircle(
-                    color = selectedPointColor,
-                    radius = 15f,
-                    center = Offset(processedPoint.position.x, processedPoint.position.y)
-                )
-            } else {
-                drawCircle(
-                    color = pointColor,
-                    radius = 15f,
-                    center = Offset(processedPoint.position.x, processedPoint.position.y)
-                )
-            }
+            drawCircle(
+                color = Color(processedPoint.pointConfiguration.color),
+                radius = 15f,
+                center = Offset(processedPoint.position.x, processedPoint.position.y),
+                alpha = processedPoint.pointConfiguration.colorAlpha
+            )
         }
     }
 }
@@ -106,7 +96,6 @@ fun SkeletonView(
 private fun DrawScope.drawAngleIndicator(
     angleConfiguration: AngleConfiguration,
     pose: GeckoPose,
-    context: Context,
     minAngleDistance: Dp = 10.dp
 ) {
     val (startPoint, middlePoint, endPoint) = pose.getAnglePositions(angleConfiguration.tag)
@@ -129,32 +118,21 @@ private fun DrawScope.drawAngleIndicator(
         360 - Math.toDegrees(acos((-middlePoint.y * y2) / (d1*d2)))
     } + 270
 
-    /*
-
-val color = if(angleConfiguration.color != null) {
-    ContextCompat.getColor(context, angleConfiguration.color)
-} else {
-    Color.RED
-}
-
-val anglePaint = Paint().apply {
-    this.color = color
-    strokeWidth = 8.0f
-    style = Paint.Style.FILL
-}
-
-
-drawArc(
-    (middlePoint.x - angleDistance),
-    (middlePoint.y - angleDistance),
-    (middlePoint.x + angleDistance),
-    (middlePoint.y + angleDistance),
-    startAngle.toFloat(),
-    angleDegrees.toFloat(),
-    true,
-    anglePaint
-)
- */
+    drawArc(
+        color = Color(angleConfiguration.color),
+        startAngle = startAngle.toFloat(),
+        sweepAngle = angleDegrees.toFloat(),
+        useCenter = true,
+        topLeft = Offset(
+            x = (middlePoint.x - angleDistance),
+            y = (middlePoint.y - angleDistance),
+        ),
+        size = Size(
+            width = (2 * angleDistance).toFloat(),
+            height = (2 * angleDistance).toFloat()
+        ),
+        alpha = angleConfiguration.colorAlpha
+    )
 }
 
 private fun getDistanceBetweenPoints(startPoint: PointF, endPoint: PointF)

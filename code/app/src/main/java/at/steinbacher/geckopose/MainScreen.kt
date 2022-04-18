@@ -5,21 +5,19 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.steinbacher.geckoposelib.v2.ExtractedFrame
@@ -29,7 +27,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,12 +53,25 @@ fun MainScreen(
     }
 
 
-    if(state.value != null) {
+    val currentImage = state.value?.image
+    val currentPose = state.value?.poses?.first()
+    if(currentImage != null && currentPose != null) {
         GeckoPoseView(
-            imageBitmap = state.value!!.image.asImageBitmap(),
-            modifier = modifier
+            imageBitmap = currentImage.asImageBitmap(),
+            geckoPose = currentPose,
+            modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+class SkeletonViewPainter(): Painter() {
+    override val intrinsicSize: Size
+        get() = TODO("Not yet implemented")
+
+    override fun DrawScope.onDraw() {
+        TODO("Not yet implemented")
+    }
+
 }
 
 class MainViewModel(application: Application): AndroidViewModel(application) {

@@ -3,30 +3,31 @@ package at.steinbacher.geckopose
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import at.steinbacher.geckoposelib.v2.ExtractedFrame
-import at.steinbacher.geckoposelib.v2.FrameExtractor
-import at.steinbacher.geckoposelib.v2.component.GeckoPoseView
+import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.FrameExtractor
+import at.steinbacher.geckoposelib.component.GeckoPoseView
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 
 @Composable
@@ -52,32 +53,31 @@ fun MainScreen(
         }
     }
 
-
-    val currentImage = state.value?.image
-    val currentPose = state.value?.poses?.first()
-    if(currentImage != null && currentPose != null) {
-        GeckoPoseView(
-            imageBitmap = currentImage.asImageBitmap(),
-            geckoPose = currentPose,
-            modifier = Modifier.fillMaxSize()
-        )
+    if(state.value.frame != null && state.value.pose != null) {
+        Column {
+            GeckoPoseView(
+                imageBitmap = state.value.frame!!.asImageBitmap(),
+                geckoPose = state.value.pose!!,
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8f)
+            )
+        }
     }
 }
 
-class SkeletonViewPainter(): Painter() {
-    override val intrinsicSize: Size
-        get() = TODO("Not yet implemented")
-
-    override fun DrawScope.onDraw() {
-        TODO("Not yet implemented")
-    }
-
-}
+data class MainScreenState(
+    val frame: Bitmap? = null,
+    val pose: GeckoPose? = null,
+    val frameNr: Int = 0,
+    val totalFrames: Int = 0
+)
 
 class MainViewModel(application: Application): AndroidViewModel(application) {
 
-    private val _state: MutableStateFlow<ExtractedFrame?> = MutableStateFlow(null)
-    val state: StateFlow<ExtractedFrame?>
+    private val poses = ArrayList<GeckoPose>()
+    private var extractionCompleted = false
+
+    private val _state: MutableStateFlow<MainScreenState> = MutableStateFlow(MainScreenState())
+    val state: StateFlow<MainScreenState>
         get() = _state
 
     @OptIn(InternalCoroutinesApi::class)
@@ -88,10 +88,19 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
                 configuration = tennisConfiguration,
                 context = getApplication()
             )
-            frameExtractor.extractedFrames.collect {
-                _state.value = it
+            frameExtractor.extractedFrames
+                .onCompletion { extractionCompleted = true }
+                .collect {
+                    if(it.poses.isNotEmpty()) {
+                        poses.add(it.poses.first())
+                        _state.value = MainScreenState(
+                            frame = it.image,
+                            pose = it.poses.first(),
+                            frameNr = it.frameNr,
+                            totalFrames = it.totalFrames
+                        )
+                    }
             }
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package at.steinbacher.geckoposelib.v2
+package at.steinbacher.geckoposelib
 
 import android.graphics.Bitmap
 import at.steinbacher.geckoposelib.data.*

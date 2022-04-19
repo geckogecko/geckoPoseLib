@@ -1,7 +1,5 @@
-package at.steinbacher.geckoposelib.v2.component
+package at.steinbacher.geckoposelib.component
 
-import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -11,19 +9,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import at.steinbacher.geckoposelib.data.AngleConfiguration
 import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.data.NormalizedGeckoPose
 import at.steinbacher.geckoposelib.data.PointF
 import at.steinbacher.geckoposelib.util.AngleUtil
-import at.steinbacher.geckoposelib.view.SkeletonView
 import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.roundToInt

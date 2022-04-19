@@ -6,25 +6,40 @@ import java.lang.Exception
 import kotlin.math.abs
 
 @Serializable
-data class PoseVideo(val uri: String, val timestampSteps: Int, val poseFrames: List<PoseFrame>) {
-    fun toNormalizedPoseVideo() = NormalizedPoseVideo(
-        uri = uri,
-        timestampSteps = timestampSteps,
-        normalizedPoseFrames = poseFrames.map { it.toNormalizedPoseFrame() }
+data class PoseVideo(
+    val uri: String,
+    val totalFrames: Int,
+) {
+    val poses = ArrayList<PoseFrame>()
+}
+
+@Serializable
+data class PoseFrame(
+    val frameNr: Int,
+    val pose: GeckoPose
+) {
+    fun toNormalizedPoseFrame() = NormalizedPoseFrame(
+        frameNr = this.frameNr,
+        normalizedPose = pose.getNormalizedPose(),
     )
 }
 
 @Serializable
-data class PoseFrame(val timestamp: Long, val pose: GeckoPose?, var poseMark: String?) {
-    fun toNormalizedPoseFrame() = NormalizedPoseFrame(
-        timestamp = timestamp,
-        normalizedPose = pose?.getNormalizedPose(),
-        poseMark = poseMark
-    )
+data class NormalizedPoseVideo(
+    val uri: String,
+    val totalFrames: Int,
+) {
+    val poses = ArrayList<NormalizedPoseFrame>()
 }
 
+@Serializable
+data class NormalizedPoseFrame(
+    val frameNr: Int,
+    val normalizedPose: NormalizedGeckoPose,
+)
 
 
+/*
 @Serializable
 data class NormalizedPoseVideo(val uri: String, val timestampSteps: Int, val normalizedPoseFrames: List<NormalizedPoseFrame>) {
     fun getAngles(angleTag: String): List<Angle> = normalizedPoseFrames.mapNotNull { it.normalizedPose?.getAngle(angleTag) }
@@ -68,6 +83,5 @@ data class NormalizedPoseVideo(val uri: String, val timestampSteps: Int, val nor
     }
 }
 
-@Serializable
-data class NormalizedPoseFrame(val timestamp: Long, val normalizedPose: NormalizedGeckoPose?, var poseMark: String?)
+ */
 

@@ -15,6 +15,8 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
+    /*
+
     private var firstScaledPose: GeckoPose? = null
         set(value) {
             field = value
@@ -80,4 +82,6 @@ class GeckoPoseComparisonView @JvmOverloads constructor(
 
         return this.copyMove(middleDistanceX, middleDistanceY)
     }
+
+     */
 }

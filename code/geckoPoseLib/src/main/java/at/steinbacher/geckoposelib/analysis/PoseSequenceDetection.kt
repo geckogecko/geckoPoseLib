@@ -1,7 +1,6 @@
 package at.steinbacher.geckoposelib.analysis
 
 import at.steinbacher.geckoposelib.data.NormalizedPoseVideo
-import kotlin.math.abs
 
 data class SequenceAngleMark(
     val angleTag: String,
@@ -14,6 +13,7 @@ class PoseSequenceDetection(
 
     data class SequenceScore(val timeStamp: Long, val distance: Double)
 
+    /*
     fun find(sequence: List<SequenceAngleMark>): Long {
         val sequenceScores = poseVideo.normalizedPoseFrames.map { normalizedPoseFrame ->
             SequenceScore(normalizedPoseFrame.timestamp, if(normalizedPoseFrame.normalizedPose != null) {
@@ -27,4 +27,5 @@ class PoseSequenceDetection(
 
         return sequenceScores.minByOrNull { it.distance }?.timeStamp ?: error("Unable to find smallest distance in list! Is it empty?")
     }
+     */
 }

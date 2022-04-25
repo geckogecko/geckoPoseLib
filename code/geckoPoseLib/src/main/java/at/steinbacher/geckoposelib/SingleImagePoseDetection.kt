@@ -6,7 +6,6 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -31,7 +30,12 @@ class SingleImagePoseDetection(
             .addOnSuccessListener { pose ->
                 successCalled = true
 
-                val geckoPoses = processPose(configurations, pose)
+                val geckoPoses = processPose(
+                    configurations = configurations,
+                    pose = pose,
+                    srcWidth = bitmap.width,
+                    srcHeight = bitmap.height
+                )
                 cont.resume(geckoPoses)
             }
             .addOnFailureListener {
@@ -46,7 +50,12 @@ class SingleImagePoseDetection(
             }
     }
 
-    private fun processPose(configurations: List<GeckoPoseConfiguration>, pose: Pose): List<GeckoPose?> = configurations.map {
+    private fun processPose(
+        configurations: List<GeckoPoseConfiguration>,
+        pose: Pose,
+        srcWidth: Int,
+        srcHeight: Int,
+    ): List<GeckoPose?> = configurations.map {
         val landmarkPoints = ArrayList<Point>()
         var missesPoints = false
         it.pointConfigurations.forEach { point ->
@@ -63,7 +72,12 @@ class SingleImagePoseDetection(
         if(missesPoints) {
             null
         } else {
-            GeckoPose(configuration = it, points = landmarkPoints)
+            GeckoPose(
+                configuration = it,
+                points = landmarkPoints,
+                width = srcWidth,
+                height = srcHeight
+            )
         }
     }
 }

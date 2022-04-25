@@ -30,7 +30,6 @@ fun GeckoPoseView(
 
         SkeletonView(
             geckoPose = geckoPose,
-            srcImageBitmap = imageBitmap,
             contentScale = contentScale,
             alignment = alignment,
             modifier = Modifier.fillMaxSize()

@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
@@ -26,7 +25,6 @@ import kotlin.math.sqrt
 @Composable
 fun SkeletonView(
     geckoPose: GeckoPose,
-    srcImageBitmap: ImageBitmap,
     contentScale: ContentScale = ContentScale.Fit,
     alignment: Alignment = Alignment.Center,
     drawAngles: Boolean = true,
@@ -35,13 +33,13 @@ fun SkeletonView(
 ) {
     Canvas(modifier = modifier) {
         val scaleFactor = contentScale.computeScaleFactor(
-            srcSize = Size(srcImageBitmap.width.toFloat(), srcImageBitmap.height.toFloat()),
+            srcSize = Size(geckoPose.width.toFloat(), geckoPose.height.toFloat()),
             dstSize = Size(size.width, size.height)
         )
 
         val scaledGeckoPose = geckoPose.copyScale(scaleX = scaleFactor.scaleX, scaleY = scaleFactor.scaleY)
 
-        val finalSize = IntSize((srcImageBitmap.width * scaleFactor.scaleX).roundToInt(), (srcImageBitmap.height * scaleFactor.scaleY).roundToInt())
+        val finalSize = IntSize((geckoPose.width * scaleFactor.scaleX).roundToInt(), (geckoPose.height * scaleFactor.scaleY).roundToInt())
         val alignedPosition = alignment.align(
             finalSize,
             IntSize(size.width.roundToInt(), size.height.roundToInt()),

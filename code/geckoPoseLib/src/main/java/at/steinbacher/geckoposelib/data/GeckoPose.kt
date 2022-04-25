@@ -1,6 +1,5 @@
 package at.steinbacher.geckoposelib.data
 
-import androidx.annotation.ColorRes
 import at.steinbacher.geckoposelib.util.AngleUtil
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlinx.serialization.Serializable
@@ -27,6 +26,8 @@ class GeckoPoseConfiguration(
 class GeckoPose(
     val configuration: GeckoPoseConfiguration,
     val points: List<Point>,
+    val width: Int,
+    val height: Int,
 ){
     val foundPointTypes: List<Int>
         get() = points.map { it.pointConfiguration.type }
@@ -80,20 +81,26 @@ class GeckoPose(
     fun copy(): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
-            points = this.points.map { lp -> lp.copy() }
+            points = this.points.map { lp -> lp.copy() },
+            width = this.width,
+            height = this.height,
         )
     }
     fun copyScale(scaleX: Float, scaleY: Float): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
-            points = this.points.map { lp -> lp.copyScale(scaleX, scaleY) }
+            points = this.points.map { lp -> lp.copyScale(scaleX, scaleY) },
+            width = this.width,
+            height = this.height,
         )
     }
 
     fun copyMove(moveX: Int, moveY: Int): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
-            points = this.points.map { lp -> lp.copyMove(moveX, moveY) }
+            points = this.points.map { lp -> lp.copyMove(moveX, moveY) },
+            width = this.width,
+            height = this.height,
         )
     }
 

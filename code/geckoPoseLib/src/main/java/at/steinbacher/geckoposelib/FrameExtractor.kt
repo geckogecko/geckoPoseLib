@@ -27,6 +27,7 @@ class FrameExtractor(
         grabber.format = "mp4"
         grabber.start()
 
+        var frameNr = 0
         for(i in 0..grabber.lengthInVideoFrames) {
             val frame = grabber.grabImage()
             val image = converter.convert(frame)
@@ -38,10 +39,11 @@ class FrameExtractor(
                     FrameExtraction(
                         image = image,
                         poses = poses,
-                        frameNr = i,
+                        frameNr = frameNr,
                         totalFrames = grabber.lengthInVideoFrames
                     )
                 )
+                frameNr++
             }
         }
     }.flowOn(Dispatchers.IO)

@@ -1,6 +1,7 @@
 package at.steinbacher.geckoposelib.analysis
 
-import at.steinbacher.geckoposelib.data.NormalizedPoseVideo
+import at.steinbacher.geckoposelib.data.PoseVideo
+
 
 data class SequenceAngleMark(
     val angleTag: String,
@@ -8,7 +9,7 @@ data class SequenceAngleMark(
 )
 
 class PoseSequenceDetection(
-    val poseVideo: NormalizedPoseVideo,
+    val poseVideo: PoseVideo,
 ) {
 
     data class SequenceScore(val timeStamp: Long, val distance: Double)

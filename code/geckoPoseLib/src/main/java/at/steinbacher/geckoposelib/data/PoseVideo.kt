@@ -8,10 +8,9 @@ import kotlin.math.abs
 @Serializable
 data class PoseVideo(
     val uri: String,
-    val totalFrames: Int,
-) {
-    val poses = ArrayList<PoseFrame>()
-}
+    val poses: List<PoseFrame>,
+    val normalizedPoses: List<NormalizedPoseFrame>
+)
 
 @Serializable
 data class PoseFrame(
@@ -22,14 +21,6 @@ data class PoseFrame(
         frameNr = this.frameNr,
         normalizedPose = pose.getNormalizedPose(),
     )
-}
-
-@Serializable
-data class NormalizedPoseVideo(
-    val uri: String,
-    val totalFrames: Int,
-) {
-    val poses = ArrayList<NormalizedPoseFrame>()
 }
 
 @Serializable

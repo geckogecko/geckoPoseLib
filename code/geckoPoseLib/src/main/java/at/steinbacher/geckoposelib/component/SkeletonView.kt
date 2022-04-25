@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import at.steinbacher.geckoposelib.data.AngleConfiguration
 import at.steinbacher.geckoposelib.data.GeckoPose
+import at.steinbacher.geckoposelib.data.IGeckoPose
 import at.steinbacher.geckoposelib.data.PointF
 import at.steinbacher.geckoposelib.util.AngleUtil
 import kotlin.math.acos
@@ -24,7 +25,7 @@ import kotlin.math.sqrt
 
 @Composable
 fun SkeletonView(
-    geckoPose: GeckoPose,
+    geckoPose: IGeckoPose,
     contentScale: ContentScale = ContentScale.Fit,
     alignment: Alignment = Alignment.Center,
     drawAngles: Boolean = true,
@@ -86,7 +87,7 @@ fun SkeletonView(
 
 private fun DrawScope.drawAngleIndicator(
     angleConfiguration: AngleConfiguration,
-    pose: GeckoPose,
+    pose: IGeckoPose,
     minAngleDistance: Dp = 10.dp
 ) {
     val (startPoint, middlePoint, endPoint) = pose.getAnglePositions(angleConfiguration.tag)

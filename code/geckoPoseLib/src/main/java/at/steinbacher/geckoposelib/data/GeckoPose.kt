@@ -24,11 +24,11 @@ class GeckoPoseConfiguration(
 
 @Serializable
 class GeckoPose(
-    val configuration: GeckoPoseConfiguration,
-    val points: List<Point>,
-    val width: Int,
-    val height: Int,
-){
+    override val configuration: GeckoPoseConfiguration,
+    override val points: List<Point>,
+    override val width: Int,
+    override val height: Int,
+): IGeckoPose {
     val foundPointTypes: List<Int>
         get() = points.map { it.pointConfiguration.type }
 
@@ -52,12 +52,12 @@ class GeckoPose(
     fun hasPointsBelowThreshold(threshold: Float): Boolean
         = points.any { it.inFrameLikelihood < threshold }
 
-    fun getPoint(type: Int): Point
+    override fun getPoint(type: Int): Point
         = points.find { it.pointConfiguration.type == type } ?: error("Point not found in Pose")
 
     fun getAngle(angleTag: String): Angle = angles.find { it.tag == angleTag } ?: error("AngleTag: $angleTag not found!")
 
-    fun getAnglePositions(angleTag: String): Triple<PointF, PointF, PointF> {
+    override fun getAnglePositions(angleTag: String): Triple<PointF, PointF, PointF> {
         val angle = getAngle(angleTag)
         val startPosition = getPoint(angle.startPointType)
         val middlePosition = getPoint(angle.middlePointType)
@@ -86,7 +86,7 @@ class GeckoPose(
             height = this.height,
         )
     }
-    fun copyScale(scaleX: Float, scaleY: Float): GeckoPose {
+    override fun copyScale(scaleX: Float, scaleY: Float): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
             points = this.points.map { lp -> lp.copyScale(scaleX, scaleY) },
@@ -95,7 +95,7 @@ class GeckoPose(
         )
     }
 
-    fun copyMove(moveX: Int, moveY: Int): GeckoPose {
+    override fun copyMove(moveX: Int, moveY: Int): GeckoPose {
         return GeckoPose(
             configuration = this.configuration.copy(),
             points = this.points.map { lp -> lp.copyMove(moveX, moveY) },

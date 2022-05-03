@@ -21,7 +21,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.steinbacher.geckoposelib.data.GeckoPose
-import at.steinbacher.geckoposelib.FrameExtractor
+import at.steinbacher.geckoposelib.GeckoPoseFrameExtractor
 import at.steinbacher.geckoposelib.component.GeckoPoseView
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,7 +83,7 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
     @OptIn(InternalCoroutinesApi::class)
     fun onUriReceived(uri: Uri) {
         viewModelScope.launch {
-            val frameExtractor = FrameExtractor(
+            val frameExtractor = GeckoPoseFrameExtractor(
                 uri = uri,
                 configuration = tennisConfiguration,
                 context = getApplication()

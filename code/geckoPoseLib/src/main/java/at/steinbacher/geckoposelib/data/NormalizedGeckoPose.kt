@@ -8,7 +8,8 @@ class NormalizedGeckoPose(
     val angles: List<Angle>,
     override val configuration: GeckoPoseConfiguration,
     override val width: Int = 100,
-    override val height: Int = 100
+    override val height: Int = 100,
+    override val tag: String? = null,
 ): IGeckoPose{
     val poseCenterPoint = PointF(50f, 50f)
 
@@ -19,6 +20,7 @@ class NormalizedGeckoPose(
             points = this.points.map { lp -> lp.copyScale(scaleX, scaleY) },
             width = this.width,
             height = this.height,
+            tag = this.tag
         )
     }
 
@@ -29,6 +31,7 @@ class NormalizedGeckoPose(
             points = this.points.map { lp -> lp.copyMove(moveX, moveY) },
             width = this.width,
             height = this.height,
+            tag = this.tag
         )
     }
 

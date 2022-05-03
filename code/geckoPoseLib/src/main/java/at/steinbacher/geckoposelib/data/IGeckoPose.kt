@@ -5,6 +5,7 @@ interface IGeckoPose {
     val points: List<Point>
     val width: Int
     val height: Int
+    val tag: String?
 
     fun copyScale(scaleX: Float, scaleY: Float): IGeckoPose
     fun copyMove(moveX: Int, moveY: Int): IGeckoPose

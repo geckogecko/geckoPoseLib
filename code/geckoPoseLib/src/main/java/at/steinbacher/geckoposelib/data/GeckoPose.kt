@@ -28,6 +28,7 @@ class GeckoPose(
     override val points: List<Point>,
     override val width: Int,
     override val height: Int,
+    override val tag: String? = null,
 ): IGeckoPose {
     val foundPointTypes: List<Int>
         get() = points.map { it.pointConfiguration.type }
@@ -84,6 +85,7 @@ class GeckoPose(
             points = this.points.map { lp -> lp.copy() },
             width = this.width,
             height = this.height,
+            tag = this.tag
         )
     }
     override fun copyScale(scaleX: Float, scaleY: Float): GeckoPose {
@@ -92,6 +94,7 @@ class GeckoPose(
             points = this.points.map { lp -> lp.copyScale(scaleX, scaleY) },
             width = this.width,
             height = this.height,
+            tag = this.tag
         )
     }
 
@@ -101,6 +104,7 @@ class GeckoPose(
             points = this.points.map { lp -> lp.copyMove(moveX, moveY) },
             width = this.width,
             height = this.height,
+            tag = this.tag
         )
     }
 
@@ -140,7 +144,8 @@ class GeckoPose(
         return NormalizedGeckoPose(
             points = normalizedPoints,
             angles = angles.map { it.copy() },
-            configuration = this.configuration.copy()
+            configuration = this.configuration.copy(),
+            tag = this.tag
         )
     }
 

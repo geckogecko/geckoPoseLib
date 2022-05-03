@@ -1,5 +1,7 @@
 package at.steinbacher.geckoposelib.analysis
 
+import at.steinbacher.geckoposelib.data.NormalizedGeckoPose
+import at.steinbacher.geckoposelib.data.NormalizedPoseFrame
 import at.steinbacher.geckoposelib.data.PoseVideo
 
 
@@ -9,7 +11,7 @@ data class SequenceAngleMark(
 )
 
 class PoseSequenceDetection(
-    val poseVideo: PoseVideo,
+    val normalizedPoses: List<NormalizedPoseFrame>
 ) {
 
     data class SequenceScore(val timeStamp: Long, val distance: Double)
@@ -28,5 +30,6 @@ class PoseSequenceDetection(
 
         return sequenceScores.minByOrNull { it.distance }?.timeStamp ?: error("Unable to find smallest distance in list! Is it empty?")
     }
+
      */
 }

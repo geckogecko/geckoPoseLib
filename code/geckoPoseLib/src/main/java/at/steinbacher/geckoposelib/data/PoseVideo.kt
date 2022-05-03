@@ -56,11 +56,9 @@ data class PoseVideo(
     }
 
     private fun List<PointF>.average(): PointF {
-        var x = 0.0
-        var y = 0.0
         return PointF(
             x = (this.sumOf { it.x.toDouble() } / this.size).toFloat(),
-            y = (this.sumOf { it.x.toDouble() } / this.size).toFloat()
+            y = (this.sumOf { it.y.toDouble() } / this.size).toFloat()
         )
     }
 }

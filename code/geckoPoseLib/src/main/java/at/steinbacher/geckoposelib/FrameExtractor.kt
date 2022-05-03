@@ -12,12 +12,12 @@ import org.bytedeco.javacv.AndroidFrameConverter
 import org.bytedeco.javacv.FFmpegFrameGrabber
 
 class FrameExtractor(
-    val uri: Uri,
-    val context: Context,
+    uri: Uri,
+    context: Context,
 ) {
     private val grabber: FFmpegFrameGrabber
     private val converter: AndroidFrameConverter
-    private val videoFrameLength: Int
+    val videoFrameLength: Int
 
     init {
         val inputStream = context.contentResolver.openInputStream(uri)

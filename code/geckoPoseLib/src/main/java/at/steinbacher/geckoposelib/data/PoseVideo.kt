@@ -66,11 +66,13 @@ data class PoseVideo(
 @Serializable
 data class PoseFrame(
     val frameNr: Int,
-    val pose: GeckoPose
+    val pose: GeckoPose,
+    val tag: String? = null,
 ) {
     fun toNormalizedPoseFrame() = NormalizedPoseFrame(
         frameNr = this.frameNr,
         normalizedPose = pose.getNormalizedPose(),
+        tag = this.tag
     )
 }
 
@@ -78,6 +80,7 @@ data class PoseFrame(
 data class NormalizedPoseFrame(
     val frameNr: Int,
     val normalizedPose: NormalizedGeckoPose,
+    val tag: String? = null,
 )
 
 

@@ -8,17 +8,18 @@ import java.io.OutputStream
 object CSVExport {
 
     suspend fun writeAnglesToCSV(normalizedPoses: List<NormalizedPoseFrame>, outputStream: OutputStream) {
-        val header = arrayListOf("frameNr", "tag")
+        val header: ArrayList<String?> = arrayListOf("frameNr", "tag")
         normalizedPoses.first().normalizedPose.angles.forEach { header.add(it.tag) }
 
-        val data = normalizedPoses.map { normalizedPoseFrame ->
-            val row = arrayListOf(normalizedPoseFrame.frameNr, normalizedPoseFrame.tag)
-            normalizedPoseFrame.normalizedPose.angles.forEach { row.add(it.value) }
-            row
+        val rows: ArrayList<ArrayList<String?>> = arrayListOf(header)
+        normalizedPoses.forEach { normalizedPoseFrame ->
+            val row: ArrayList<String?> = arrayListOf(normalizedPoseFrame.frameNr.toString(), normalizedPoseFrame.tag)
+            normalizedPoseFrame.normalizedPose.angles.forEach { row.add(it.value.toString()) }
+            rows.add(row)
         }
 
         csvWriter().writeAll(
-            rows = listOf(header, data),
+            rows = rows,
             ops = outputStream
         )
     }

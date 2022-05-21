@@ -14,6 +14,7 @@ object CSVExport {
         val data = normalizedPoses.map { normalizedPoseFrame ->
             val row = arrayListOf(normalizedPoseFrame.frameNr, normalizedPoseFrame.tag)
             normalizedPoseFrame.normalizedPose.angles.forEach { row.add(it.value) }
+            row
         }
 
         csvWriter().writeAll(

@@ -3,10 +3,11 @@ package at.steinbacher.geckoposelib.export
 import at.steinbacher.geckoposelib.data.NormalizedPoseFrame
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import java.io.File
+import java.io.OutputStream
 
 object CSVExport {
 
-    suspend fun writeAnglesToCSV(normalizedPoses: List<NormalizedPoseFrame>, targetFile: File) {
+    suspend fun writeAnglesToCSV(normalizedPoses: List<NormalizedPoseFrame>, outputStream: OutputStream) {
         val header = arrayListOf("frameNr", "tag")
         normalizedPoses.first().normalizedPose.angles.forEach { header.add(it.tag) }
 
@@ -17,7 +18,7 @@ object CSVExport {
 
         csvWriter().writeAll(
             rows = listOf(header, data),
-            targetFile = targetFile
+            ops = outputStream
         )
     }
 }

@@ -12,6 +12,7 @@ class VideoFrameRateExtractor(
     suspend fun getFrameRate(): Double {
         val inputStream = context.contentResolver.openInputStream(uri)
         val grabber = FFmpegFrameGrabber(inputStream)
+        grabber.start()
 
         val frameRate = grabber.frameRate
 

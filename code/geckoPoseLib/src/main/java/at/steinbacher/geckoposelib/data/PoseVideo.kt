@@ -12,7 +12,8 @@ import kotlin.math.abs
 data class PoseVideo(
     val uri: String,
     val poses: List<PoseFrame>,
-    val normalizedPoses: List<NormalizedPoseFrame>
+    val normalizedPoses: List<NormalizedPoseFrame>,
+    val frameRate: Double,
 ) {
     suspend fun getSmoothPoses(
         periods: Int,

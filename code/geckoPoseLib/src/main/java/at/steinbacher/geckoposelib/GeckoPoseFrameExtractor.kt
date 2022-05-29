@@ -46,6 +46,7 @@ class GeckoPoseFrameExtractor(
                 frameNr++
             }
         }
+        grabber.release()
     }.flowOn(Dispatchers.IO)
 }
 

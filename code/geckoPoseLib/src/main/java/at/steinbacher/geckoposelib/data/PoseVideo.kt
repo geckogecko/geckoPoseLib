@@ -9,12 +9,12 @@ import java.lang.Exception
 import kotlin.math.abs
 
 @Serializable
-data class PoseVideo(
-    val uri: String,
-    val poses: List<PoseFrame>,
-    val normalizedPoses: List<NormalizedPoseFrame>,
-    val frameRate: Double,
-) {
+sealed class PoseVideo {
+    abstract val uri: String
+    abstract val poses: List<PoseFrame>
+    abstract val normalizedPoses: List<NormalizedPoseFrame>
+    abstract val frameRate: Double
+
     suspend fun getSmoothPoses(
         periods: Int,
     ): List<NormalizedPoseFrame> {

@@ -9,7 +9,7 @@ import java.lang.Exception
 import kotlin.math.abs
 
 @Serializable
-sealed class PoseVideo {
+abstract class PoseVideo {
     abstract val uri: String
     abstract val poses: List<PoseFrame>
     abstract val normalizedPoses: List<NormalizedPoseFrame>

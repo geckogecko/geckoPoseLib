@@ -14,6 +14,7 @@ abstract class PoseVideo {
     abstract val poses: List<PoseFrame>
     abstract val normalizedPoses: List<NormalizedPoseFrame>
     abstract val frameRate: Double
+    abstract val metaData: MetaData
 
     suspend fun getSmoothPoses(
         periods: Int,
@@ -85,5 +86,10 @@ data class NormalizedPoseFrame(
     val frameNr: Int,
     val normalizedPose: NormalizedGeckoPose,
     val tag: String? = null,
+)
+
+@Serializable
+data class MetaData(
+    val version: Int,
 )
 

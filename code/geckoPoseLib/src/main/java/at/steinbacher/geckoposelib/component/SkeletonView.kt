@@ -30,6 +30,8 @@ fun SkeletonView(
     alignment: Alignment = Alignment.Center,
     drawAngles: Boolean = true,
     drawLines: Boolean = true,
+    highlightedAngle: String? = null,
+    highlightAngleColor: Color = Color.Red,
     modifier: Modifier
 ) {
     Canvas(modifier = modifier) {
@@ -54,7 +56,15 @@ fun SkeletonView(
 
         if(drawAngles) {
             scaledAndMovedGeckoPose.configuration.angleConfigurations.forEach { angle ->
-                drawAngleIndicator(angle, scaledAndMovedGeckoPose)
+                drawAngleIndicator(
+                    angleTag = angle.tag,
+                    color = when {
+                        highlightedAngle != null && angle.tag == highlightedAngle -> highlightAngleColor
+                        highlightedAngle != null && angle.tag != highlightedAngle -> Color(angle.color).copy(alpha = 0.5f)
+                        else -> Color(angle.color)
+                    },
+                    pose = scaledAndMovedGeckoPose
+                )
             }
         }
 
@@ -68,7 +78,6 @@ fun SkeletonView(
                     start = Offset(start.position.x, start.position.y),
                     end = Offset(end.position.x, end.position.y),
                     strokeWidth = 8f,
-                    alpha = line.colorAlpha
                 )
             }
         }
@@ -78,7 +87,6 @@ fun SkeletonView(
                 color = Color(processedPoint.pointConfiguration.color),
                 radius = 15f,
                 center = Offset(processedPoint.position.x, processedPoint.position.y),
-                alpha = processedPoint.pointConfiguration.colorAlpha
             )
         }
     }
@@ -86,11 +94,12 @@ fun SkeletonView(
 
 
 private fun DrawScope.drawAngleIndicator(
-    angleConfiguration: AngleConfiguration,
+    angleTag: String,
+    color: Color,
     pose: IGeckoPose,
     minAngleDistance: Dp = 10.dp
 ) {
-    val (startPoint, middlePoint, endPoint) = pose.getAnglePositions(angleConfiguration.tag)
+    val (startPoint, middlePoint, endPoint) = pose.getAnglePositions(angleTag)
 
     val distanceMiddleStart = getDistanceBetweenPoints(middlePoint, startPoint)
     val distanceMiddleEnd = getDistanceBetweenPoints(middlePoint, endPoint)
@@ -111,7 +120,7 @@ private fun DrawScope.drawAngleIndicator(
     } + 270
 
     drawArc(
-        color = Color(angleConfiguration.color),
+        color = color,
         startAngle = startAngle.toFloat(),
         sweepAngle = angleDegrees.toFloat(),
         useCenter = true,
@@ -123,7 +132,6 @@ private fun DrawScope.drawAngleIndicator(
             width = (2 * angleDistance).toFloat(),
             height = (2 * angleDistance).toFloat()
         ),
-        alpha = angleConfiguration.colorAlpha
     )
 }
 

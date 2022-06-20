@@ -237,7 +237,6 @@ data class Angle(
 class PointConfiguration(
     val type: Int,
     val color: Int,
-    val colorAlpha: Float = 1.0f,
     val selectedColor: Int,
 ) {
     fun toProcessedPoint(poseLandmark: PoseLandmark) = Point(
@@ -250,7 +249,6 @@ class PointConfiguration(
         type = this.type,
         color = this.color,
         selectedColor = this.selectedColor,
-        colorAlpha = this.colorAlpha
     )
 }
 
@@ -260,14 +258,12 @@ class LineConfiguration(
     val end: Int,
     val tag: String,
     val color: Int,
-    val colorAlpha: Float = 1.0f,
 ) {
     fun copy() = LineConfiguration(
         start = this.start,
         end = this.end,
         tag = this.tag,
         color = this.color,
-        colorAlpha = this.colorAlpha
     )
 }
 
@@ -278,7 +274,6 @@ open class AngleConfiguration(
     val endPointType: Int,
     val tag: String,
     val color: Int,
-    val colorAlpha: Float = 1.0f,
 ) {
     open fun copy() = AngleConfiguration(
         startPointType = this.startPointType,
@@ -286,7 +281,6 @@ open class AngleConfiguration(
         endPointType = this.endPointType,
         tag = this.tag,
         color = this.color,
-        colorAlpha = this.colorAlpha
     )
 }
 

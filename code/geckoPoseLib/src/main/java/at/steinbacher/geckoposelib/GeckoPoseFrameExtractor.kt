@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.GeckoPoseConfiguration
+import at.steinbacher.geckoposelib.util.BitmapUtil.rotate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -27,10 +28,13 @@ class GeckoPoseFrameExtractor(
         grabber.format = "mp4"
         grabber.start()
 
+        val rotation = grabber.getVideoMetadata("rotate").toFloat()
+
         var frameNr = 0
         for(i in 0..grabber.lengthInVideoFrames) {
             val frame = grabber.grabImage()
             val image = converter.convert(frame)
+                ?.rotate(rotation)
 
             if(image != null) {
                 val poses = singleImagePoseDetection.processImage(image).filterNotNull()

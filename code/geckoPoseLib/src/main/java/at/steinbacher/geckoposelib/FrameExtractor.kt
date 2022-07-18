@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.GeckoPoseConfiguration
+import at.steinbacher.geckoposelib.util.BitmapUtil.rotate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -19,7 +20,7 @@ class FrameExtractor(
     private val converter: AndroidFrameConverter
 
     val videoFrameLength: Int
-    val rotation: Int
+    val rotation: Float
 
     init {
         val inputStream = context.contentResolver.openInputStream(uri)
@@ -29,7 +30,7 @@ class FrameExtractor(
         grabber.format = "mp4"
         grabber.start()
 
-        rotation = grabber.getVideoMetadata("rotate").toInt()
+        rotation = grabber.getVideoMetadata("rotate").toFloat()
 
         videoFrameLength = grabber.lengthInVideoFrames
     }
@@ -38,5 +39,6 @@ class FrameExtractor(
         grabber.setVideoFrameNumber(nr)
         val frame = grabber.grabImage()
         return converter.convert(frame)
+            .rotate(rotation)
     }
 }

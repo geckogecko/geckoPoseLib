@@ -17,7 +17,9 @@ class FrameExtractor(
 ) {
     private val grabber: FFmpegFrameGrabber
     private val converter: AndroidFrameConverter
+
     val videoFrameLength: Int
+    val rotation: Int
 
     init {
         val inputStream = context.contentResolver.openInputStream(uri)
@@ -26,6 +28,8 @@ class FrameExtractor(
 
         grabber.format = "mp4"
         grabber.start()
+
+        rotation = grabber.getVideoMetadata("rotate").toInt()
 
         videoFrameLength = grabber.lengthInVideoFrames
     }

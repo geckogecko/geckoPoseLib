@@ -27,8 +27,6 @@ class GeckoPoseFrameExtractor(
         grabber.format = "mp4"
         grabber.start()
 
-        val rotation = grabber.getVideoMetadata("rotate")
-
         var frameNr = 0
         for(i in 0..grabber.lengthInVideoFrames) {
             val frame = grabber.grabImage()
@@ -43,7 +41,6 @@ class GeckoPoseFrameExtractor(
                         poses = poses,
                         frameNr = frameNr,
                         totalFrames = grabber.lengthInVideoFrames,
-                        rotation = rotation.toInt()
                     )
                 )
                 frameNr++
@@ -58,5 +55,4 @@ data class GeckoPoseFrameExtraction(
     val poses: List<GeckoPose>,
     val frameNr: Int,
     val totalFrames: Int,
-    val rotation: Int
 )

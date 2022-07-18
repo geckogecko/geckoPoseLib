@@ -20,7 +20,7 @@ class FrameExtractor(
     private val converter: AndroidFrameConverter
 
     val videoFrameLength: Int
-    val rotation: Float
+    val rotation: Float?
 
     init {
         val inputStream = context.contentResolver.openInputStream(uri)
@@ -30,7 +30,7 @@ class FrameExtractor(
         grabber.format = "mp4"
         grabber.start()
 
-        rotation = grabber.getVideoMetadata("rotate").toFloat()
+        rotation = grabber.getVideoMetadata("rotate")?.toFloat()
 
         videoFrameLength = grabber.lengthInVideoFrames
     }
@@ -39,6 +39,10 @@ class FrameExtractor(
         grabber.setVideoFrameNumber(nr)
         val frame = grabber.grabImage()
         return converter.convert(frame)
-            .rotate(rotation)
+            .apply {
+                if(rotation != null) {
+                    this.rotate(rotation)
+                }
+            }
     }
 }

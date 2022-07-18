@@ -28,13 +28,16 @@ class GeckoPoseFrameExtractor(
         grabber.format = "mp4"
         grabber.start()
 
-        val rotation = grabber.getVideoMetadata("rotate").toFloat()
+        val rotation = grabber.getVideoMetadata("rotate")?.toFloat()
 
         var frameNr = 0
         for(i in 0..grabber.lengthInVideoFrames) {
             val frame = grabber.grabImage()
-            val image = converter.convert(frame)
-                ?.rotate(rotation)
+            val image = converter.convert(frame)?.apply {
+                if(rotation != null) {
+                    this.rotate(rotation)
+                }
+            }
 
             if(image != null) {
                 val poses = singleImagePoseDetection.processImage(image).filterNotNull()

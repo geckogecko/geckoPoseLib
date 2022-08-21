@@ -31,10 +31,7 @@ class FrameExtractor(
         grabber.format = "mp4"
         grabber.start()
 
-        //rotation = grabber.getVideoMetadata("rotate")?.toFloat()
-        rotation = null
-
-        Log.i("GEORG", "rotation: $rotation")
+        rotation = grabber.getVideoMetadata("rotate")?.toFloat()
 
         videoFrameLength = grabber.lengthInVideoFrames
     }

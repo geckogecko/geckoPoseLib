@@ -39,11 +39,12 @@ class FrameExtractor(
     fun getFrame(nr: Int): Bitmap {
         grabber.setVideoFrameNumber(nr)
         val frame = grabber.grabImage()
-        return converter.convert(frame)
-            .apply {
-                if(rotation != null) {
-                    this.rotate(rotation)
-                }
-            }
+
+        Log.i("GEORG", "getFrame: $rotation")
+        return if(rotation != null) {
+            converter.convert(frame).rotate(rotation)
+        } else {
+            converter.convert(frame)
+        }
     }
 }

@@ -3,6 +3,7 @@ package at.steinbacher.geckoposelib
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.data.GeckoPoseConfiguration
 import at.steinbacher.geckoposelib.util.BitmapUtil.rotate
@@ -31,6 +32,8 @@ class FrameExtractor(
         grabber.start()
 
         rotation = grabber.getVideoMetadata("rotate")?.toFloat()
+
+        Log.i("GEORG", "rotation: $rotation")
 
         videoFrameLength = grabber.lengthInVideoFrames
     }

@@ -15,10 +15,11 @@ import org.bytedeco.javacv.FFmpegFrameGrabber
 //https://medium.com/@misaeljonathan17/frame-extraction-from-video-file-on-java-android-48aa9c71b97d
 class GeckoPoseFrameExtractor(
     val uri: Uri,
-    configuration: List<GeckoPoseConfiguration>,
+    val configuration: GeckoPoseConfiguration,
     val context: Context,
+    val detectorMode: Int
 ) {
-    private val singleImagePoseDetection = SingleImagePoseDetection(configuration)
+    private val singleImagePoseDetection = PoseDetection(configuration = configuration, detectorMode = detectorMode)
 
     val extractedFrames = flow {
         val inputStream = context.contentResolver.openInputStream(uri)
@@ -40,12 +41,12 @@ class GeckoPoseFrameExtractor(
             }
 
             if(image != null) {
-                val poses = singleImagePoseDetection.processImage(image).filterNotNull()
+                val pose = singleImagePoseDetection.processImage(image)
 
                 emit(
                     GeckoPoseFrameExtraction(
                         image = image,
-                        poses = poses,
+                        pose = pose,
                         frameNr = frameNr,
                         totalFrames = grabber.lengthInVideoFrames,
                     )
@@ -59,7 +60,7 @@ class GeckoPoseFrameExtractor(
 
 data class GeckoPoseFrameExtraction(
     val image: Bitmap,
-    val poses: List<GeckoPose>,
+    val pose: GeckoPose?,
     val frameNr: Int,
     val totalFrames: Int,
 )

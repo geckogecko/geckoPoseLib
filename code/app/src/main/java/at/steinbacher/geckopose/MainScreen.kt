@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import at.steinbacher.geckoposelib.data.GeckoPose
 import at.steinbacher.geckoposelib.GeckoPoseFrameExtractor
 import at.steinbacher.geckoposelib.component.GeckoPoseView
+import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -80,22 +81,22 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
     val state: StateFlow<MainScreenState>
         get() = _state
 
-    @OptIn(InternalCoroutinesApi::class)
     fun onUriReceived(uri: Uri) {
         viewModelScope.launch {
             val frameExtractor = GeckoPoseFrameExtractor(
                 uri = uri,
                 configuration = tennisConfiguration,
-                context = getApplication()
+                context = getApplication(),
+                detectorMode = AccuratePoseDetectorOptions.STREAM_MODE
             )
             frameExtractor.extractedFrames
                 .onCompletion { extractionCompleted = true }
                 .collect {
-                    if(it.poses.isNotEmpty()) {
-                        poses.add(it.poses.first())
+                    if(it.pose != null) {
+                        poses.add(it.pose!!)
                         _state.value = MainScreenState(
                             frame = it.image,
-                            pose = it.poses.first(),
+                            pose = it.pose,
                             frameNr = it.frameNr,
                             totalFrames = it.totalFrames
                         )

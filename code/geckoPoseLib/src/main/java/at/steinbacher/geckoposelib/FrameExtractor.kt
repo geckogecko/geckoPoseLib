@@ -40,7 +40,6 @@ class FrameExtractor(
         grabber.setVideoFrameNumber(nr)
         val frame = grabber.grabImage()
 
-        Log.i("GEORG", "getFrame: $rotation")
         return if(rotation != null) {
             converter.convert(frame).rotate(rotation)
         } else {

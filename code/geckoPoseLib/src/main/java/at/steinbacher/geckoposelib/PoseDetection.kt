@@ -10,18 +10,16 @@ import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-typealias ChoosePoseLogic = (geckoPoses: List<GeckoPose?>) -> GeckoPose?
-typealias ManipulatePoseLogic = (bitmap: Bitmap, onImagePose: GeckoPose) -> Pair<Bitmap, GeckoPose>
-
-class SingleImagePoseDetection(
-    private val configurations: List<GeckoPoseConfiguration>
+class PoseDetection(
+    private val configuration: GeckoPoseConfiguration,
+    private val detectorMode: Int,
 ) {
     private val options = AccuratePoseDetectorOptions.Builder()
-        .setDetectorMode(AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE)
+        .setDetectorMode(detectorMode) // AccuratePoseDetectorOptions.STREAM_MODE
         .build()
     private val poseDetector = PoseDetection.getClient(options)
 
-    suspend fun processImage(bitmap: Bitmap): List<GeckoPose?> = suspendCoroutine { cont ->
+    suspend fun processImage(bitmap: Bitmap): GeckoPose? = suspendCoroutine { cont ->
         val inputImage = InputImage.fromBitmap(bitmap, 0)
 
         var successCalled = false
@@ -30,35 +28,35 @@ class SingleImagePoseDetection(
             .addOnSuccessListener { pose ->
                 successCalled = true
 
-                val geckoPoses = processPose(
-                    configurations = configurations,
+                val geckoPose = processPose(
+                    configuration = configuration,
                     pose = pose,
                     srcWidth = bitmap.width,
                     srcHeight = bitmap.height
                 )
-                cont.resume(geckoPoses)
+                cont.resume(geckoPose)
             }
             .addOnFailureListener {
                 failureCalled = true
 
-                cont.resume(listOf())
+                cont.resume(null)
             }
             .addOnCompleteListener {
                 if(!successCalled && !failureCalled) {
-                    cont.resume(listOf())
+                    cont.resume(null)
                 }
             }
     }
 
     private fun processPose(
-        configurations: List<GeckoPoseConfiguration>,
+        configuration: GeckoPoseConfiguration,
         pose: Pose,
         srcWidth: Int,
         srcHeight: Int,
-    ): List<GeckoPose?> = configurations.map {
+    ): GeckoPose? {
         val landmarkPoints = ArrayList<Point>()
         var missesPoints = false
-        it.pointConfigurations.forEach { point ->
+        configuration.pointConfigurations.forEach { point ->
             val poseLandmark = pose.getPoseLandmark(point.type)
 
             if(poseLandmark != null && poseLandmark.position.x >= 0 && poseLandmark.position.y >= 0) {
@@ -69,11 +67,11 @@ class SingleImagePoseDetection(
             }
         }
 
-        if(missesPoints) {
+        return if(missesPoints) {
             null
         } else {
             GeckoPose(
-                configuration = it,
+                configuration = configuration,
                 points = landmarkPoints,
                 width = srcWidth,
                 height = srcHeight

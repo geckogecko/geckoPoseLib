@@ -31,16 +31,15 @@ class GeckoPose(
     override val tag: String? = null,
 ): IGeckoPose {
     val foundPointTypes: List<Int>
-        get() = points.map { it.pointConfiguration.type }
+        = points.map { it.pointConfiguration.type }
 
     val missesPoints: Boolean
-        get() = !foundPointTypes.containsAll(foundPointTypes)
+        = configuration.pointConfigurations.map { it.type }.containsAll(foundPointTypes)
 
     val averageInFrameLikelihood: Float
-        get() = points.fold(0f) { acc, it -> acc + it.inFrameLikelihood } / points.size
+        = points.fold(0f) { acc, it -> acc + it.inFrameLikelihood } / points.size
 
-    val poseCenterPoint: PointF
-        get() = calculateCenterPoint(
+    val poseCenterPoint: PointF = calculateCenterPoint(
             if(configuration.poseCenterPointsTargets.isNotEmpty()) {
                 configuration.poseCenterPointsTargets.map { getPoint(it) }
             } else {
@@ -56,7 +55,8 @@ class GeckoPose(
     override fun getPoint(type: Int): Point
         = points.find { it.pointConfiguration.type == type } ?: error("Point not found in Pose")
 
-    fun getAngle(angleTag: String): Angle = angles.find { it.tag == angleTag } ?: error("AngleTag: $angleTag not found!")
+    fun getAngle(angleTag: String): Angle
+        = angles.find { it.tag == angleTag } ?: error("AngleTag: $angleTag not found!")
 
     override fun getAnglePositions(angleTag: String): Triple<PointF, PointF, PointF> {
         val angle = getAngle(angleTag)
